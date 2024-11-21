@@ -23,4 +23,4 @@ struct Tensor
 	void *grad;
 	int	requires_grad;
 	int num_dims;
-}
+};
