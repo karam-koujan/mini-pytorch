@@ -1,26 +1,26 @@
+#include "tensor.h"
 
-enum Dtype
-{
-	FLOAT32,
-	DOUBLE,
-	INT32,
-	INT64
-};
 
-enum Device
-{
-	CPU,
-	GPU
-};
 
-struct Tensor
+
+
+int	*create_shape(va_list arg,int dim)
 {
-	void *data;
-	int *shape;
-	int *strides;
-	enum Dtype dtype;
-	enum Device device;
-	void *grad;
-	int	requires_grad;
-	int num_dims;
-};
+	int *shape = (int *)malloc(dim * sizeof(int));
+	for(int i = 0; i < dim; i++)
+	{
+		shape[i] = va_arg(arg, int);
+	}
+	return shape;
+}
+
+Tensor	create_empty_tensor(int dim,...)
+{
+	va_list arg;
+	Tensor tensor;
+
+	va_start(arg,dim);
+	tensor.shape =  create_shape(arg,dim);
+	va_end(arg);
+	return tensor;
+}
