@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
+
 enum Dtype
 {
 	FLOAT32,
