@@ -7,6 +7,8 @@
 int	*create_shape(va_list arg,int dim)
 {
 	int *shape = (int *)malloc(dim * sizeof(int));
+	if (!shape)
+		return NULL;
 	for(int i = 0; i < dim; i++)
 	{
 		shape[i] = va_arg(arg, int);
@@ -17,15 +19,39 @@ int	*create_shape(va_list arg,int dim)
 int	*create_stride(int num_dims, int *shape)
 {
 	int *stride = malloc(num_dims);
+	if (!stride)
+		return NULL;
 	int sum = 1;
 	for(int i = num_dims - 1; i >= 0; i--)
 	{
 		stride[i] = sum;
 		sum *= shape[i];
 	}
-	return (stride);
+	return stride;
 }
 
+void	add_options(va_list arg,Tensor *tensor)
+{
+	TensorOptional *options = va_arg(arg,TensorOptional*);
+	tensor->device = CPU;
+	tensor->dtype = FLOAT32;
+	if (!options)
+		return ;
+
+}
+float	*create_empty_data(int dim,int *shape)
+{
+	int data_size = 1;
+	for(int i = 0; i < dim; i++)
+	{
+		data_size*=shape[i];
+	}
+	printf("%i",data_size);
+	float	*data = malloc(data_size * sizeof(float));
+	if (!data)
+		return NULL;
+	return (data);
+}
 Tensor	create_empty_tensor(int dim,...)
 {
 	va_list arg;
@@ -35,7 +61,8 @@ Tensor	create_empty_tensor(int dim,...)
 	tensor.shape =  create_shape(arg,dim);
 	tensor.num_dims = dim;
 	tensor.strides = create_stride(tensor.num_dims, tensor.shape);
+	add_options(arg,&tensor);
+	tensor.data = (float *)create_empty_data(dim,tensor.shape);
 	va_end(arg);
 	return tensor;
 }
-

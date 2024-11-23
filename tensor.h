@@ -32,4 +32,9 @@ typedef	struct
 	int num_dims;
 } Tensor;
 
+typedef struct {
+	char *dtype;
+	char *device;
+} TensorOptional;
+
 #endif
