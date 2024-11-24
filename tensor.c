@@ -35,11 +35,11 @@ void	add_options(va_list arg,Tensor *tensor)
 	char	*device = va_arg(arg,char *);
 	char	*dtype = va_arg(arg,char *);
 
-	if (!strcmp(device,"gpu"))
+	if (device && !strcmp(device,"gpu"))
 	{
 		tensor->device = GPU;
 	}
-	if (!strcmp(dtype,"int"))
+	if (dtype && !strcmp(dtype,"int"))
 	{
 		tensor->dtype = INT32;
 	}
@@ -57,6 +57,21 @@ float	*create_empty_data(int dim,int *shape)
 		return NULL;
 	return (data);
 }
+int		tensor_entries_len(Tensor *tensor)
+{
+	int count = 1;
+	for(int i = 0; i < tensor->num_dims; i++)
+	{
+		count*=tensor->shape[i];
+	}
+	return count;
+}
+
+// void	tensor_fill(Tensor *tensor, float num)
+// {
+
+// 	for(int i = 0; i < dim)
+// }
 Tensor	 tensor_empty(int dim,...)
 {
 	va_list arg;
@@ -72,3 +87,23 @@ Tensor	 tensor_empty(int dim,...)
 	return tensor;
 }
 
+Tensor tensor_zeros(int dim,...)
+{
+	va_list arg;
+	Tensor tensor;
+
+	va_start(arg,dim);
+	tensor.shape =  create_shape(arg,dim);
+	tensor.num_dims = dim;
+	tensor.strides = create_stride(tensor.num_dims, tensor.shape);
+	add_options(arg,&tensor);
+	tensor.data = (float *)create_empty_data(dim,tensor.shape);
+	va_end(arg);
+	return tensor;
+}
+
+int main()
+{
+	Tensor tensor = tensor_empty(3,5,2,2,NULL,NULL);
+	printf("%d",tensor_entries_len(&tensor));
+}
