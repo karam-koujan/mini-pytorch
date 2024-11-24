@@ -67,11 +67,16 @@ int		tensor_entries_len(Tensor *tensor)
 	return count;
 }
 
-// void	tensor_fill(Tensor *tensor, float num)
-// {
+void	tensor_fill(Tensor *tensor, float num)
+{
+	int tensor_entries_num = tensor_entries_len(tensor);
+	float *data = (float *)tensor->data;
+	for(int i = 0; i < tensor_entries_num;i++)
+	{
+		data[i] = num;
+	}
+}
 
-// 	for(int i = 0; i < dim)
-// }
 Tensor	 tensor_empty(int dim,...)
 {
 	va_list arg;
@@ -98,12 +103,23 @@ Tensor tensor_zeros(int dim,...)
 	tensor.strides = create_stride(tensor.num_dims, tensor.shape);
 	add_options(arg,&tensor);
 	tensor.data = (float *)create_empty_data(dim,tensor.shape);
+	tensor_fill(&tensor,0);
 	va_end(arg);
 	return tensor;
 }
 
-int main()
+Tensor tensor_ones(int dim,...)
 {
-	Tensor tensor = tensor_empty(3,5,2,2,NULL,NULL);
-	printf("%d",tensor_entries_len(&tensor));
+	va_list arg;
+	Tensor tensor;
+
+	va_start(arg,dim);
+	tensor.shape =  create_shape(arg,dim);
+	tensor.num_dims = dim;
+	tensor.strides = create_stride(tensor.num_dims, tensor.shape);
+	add_options(arg,&tensor);
+	tensor.data = (float *)create_empty_data(dim,tensor.shape);
+	tensor_fill(&tensor,1);
+	va_end(arg);
+	return tensor;
 }
