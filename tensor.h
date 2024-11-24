@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 enum Dtype
 {
@@ -31,10 +32,5 @@ typedef	struct
 	int	requires_grad;
 	int num_dims;
 } Tensor;
-
-typedef struct {
-	char *dtype;
-	char *device;
-} TensorOptional;
 
 #endif
