@@ -108,6 +108,8 @@ Tensor tensor_zeros(int dim,...)
 	return tensor;
 }
 
+
+
 Tensor tensor_ones(int dim,...)
 {
 	va_list arg;
@@ -123,3 +125,42 @@ Tensor tensor_ones(int dim,...)
 	va_end(arg);
 	return tensor;
 }
+void print_tensor_recursive(float *data, int *shape, int num_dims, int index, int depth) {
+    if (depth == num_dims) {
+        printf("%f", data[index]);
+    } else {
+        for (int i = 0; i < shape[depth]; i++) {
+            if (depth < num_dims - 1) {
+                printf("[");
+            }
+            print_tensor_recursive(data, shape, num_dims, index + i * (index == 0 ? 1 : shape[depth - 1]), depth + 1);
+            if (depth < num_dims - 1) {
+                printf("]\n");
+            }
+            if (i < shape[depth] - 1) {
+                printf(", ");
+            }
+        }
+    }
+}
+
+
+void print_tensor(Tensor tensor) {
+    if (tensor.num_dims <= 0) {
+        printf("Error: Tensor must have at least 1 dimension.\n");
+        return;
+    }
+
+    printf("Tensor of shape (");
+    for (int i = 0; i < tensor.num_dims; i++) {
+        printf("%d", tensor.shape[i]);
+        if (i < tensor.num_dims - 1) {
+            printf(", ");
+        }
+    }
+    printf("):\n");
+
+    print_tensor_recursive(tensor.data, tensor.shape, tensor.num_dims, 0, 0);
+    printf("\n");
+}
+
