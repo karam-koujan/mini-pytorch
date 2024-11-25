@@ -144,6 +144,22 @@ void print_tensor_recursive(float *data, int *shape, int num_dims, int index, in
     }
 }
 
+Tensor tensor_full(int dim,...)
+{
+	va_list arg;
+	Tensor tensor;
+
+	va_start(arg,dim);
+	tensor.shape =  create_shape(arg,dim);
+	tensor.num_dims = dim;
+	tensor.strides = create_stride(tensor.num_dims, tensor.shape);
+	add_options(arg,&tensor);
+	tensor.data = (float *)create_empty_data(dim,tensor.shape);
+	float fill_value = va_arg(arg,double);
+	tensor_fill(&tensor,fill_value);
+	va_end(arg);
+	return tensor;
+}
 
 void print_tensor(Tensor tensor) {
     if (tensor.num_dims <= 0) {
@@ -163,4 +179,3 @@ void print_tensor(Tensor tensor) {
     print_tensor_recursive(tensor.data, tensor.shape, tensor.num_dims, 0, 0);
     printf("\n");
 }
-
