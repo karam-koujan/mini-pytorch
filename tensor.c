@@ -179,3 +179,32 @@ void print_tensor(Tensor tensor) {
     print_tensor_recursive(tensor.data, tensor.shape, tensor.num_dims, 0, 0);
     printf("\n");
 }
+
+void tensor_set_seed(unsigned int seed)
+{
+	srand(seed);
+}
+float	generate_random()
+{
+	return (float)rand() / (float)RAND_MAX;	
+}
+
+Tensor tensor_rand(int dim,...)
+{
+	va_list arg;
+	Tensor tensor;
+
+	va_start(arg,dim);
+	tensor.shape =  create_shape(arg,dim);
+	tensor.num_dims = dim;
+	tensor.strides = create_stride(tensor.num_dims, tensor.shape);
+	add_options(arg,&tensor);
+	tensor.data = (float *)create_empty_data(dim,tensor.shape);
+	float *data = tensor.data;
+	for(int i = 0; i < tensor_entries_len(&tensor); i++)
+	{
+		data[i] = generate_random(); 
+	}
+	va_end(arg);
+	return tensor;
+}
