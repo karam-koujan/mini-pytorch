@@ -161,7 +161,8 @@ Tensor tensor_full(int dim,...)
 	return tensor;
 }
 
-void print_tensor(Tensor tensor) {
+void print_tensor(Tensor tensor) 
+{
     if (tensor.num_dims <= 0) {
         printf("Error: Tensor must have at least 1 dimension.\n");
         return;
