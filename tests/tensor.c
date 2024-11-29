@@ -16,7 +16,7 @@ void test_tensor_empty() {
 }
 
 void test_tensor_ones() {
-    Tensor tensor = tensor_ones(2, 3, 4,NULL,NULL); // Create a 2D tensor (3x4) filled with ones
+    Tensor tensor = tensor_ones(2, 3, 4,NULL,NULL,NULL); // Create a 2D tensor (3x4) filled with ones
     float *data = tensor.data;
 
     for (int i = 0; i < tensor_entries_len(&tensor); i++) {
@@ -31,7 +31,7 @@ void test_tensor_ones() {
 
 void test_tensor_rand() {
     tensor_set_seed(42); // Set seed for reproducibility
-    Tensor tensor = tensor_rand(2, 3, 4,NULL,NULL); // Create a 2D tensor (3x4) with random values
+    Tensor tensor = tensor_rand(2, 3, 4,NULL,NULL,NULL); // Create a 2D tensor (3x4) with random values
     float *data = tensor.data;
 
     for (int i = 0; i < tensor_entries_len(&tensor); i++) {
@@ -45,7 +45,7 @@ void test_tensor_rand() {
 }
 
 void test_tensor_entries_len() {
-    Tensor tensor = tensor_empty(3, 2, 3, 4,NULL,NULL); // Create a 3D tensor (2x3x4)
+    Tensor tensor = tensor_empty(3, 2, 3, 4,NULL,NULL,NULL); // Create a 3D tensor (2x3x4)
     int entries = tensor_entries_len(&tensor);
     assert(entries == 2 * 3 * 4);
     printf("test_tensor_entries_len passed.\n");
@@ -57,7 +57,7 @@ void test_tensor_entries_len() {
 
 
 void test_tensor_fill() {
-    Tensor tensor = tensor_empty(2, 3, 4,NULL,NULL); // Create an empty 2D tensor (3x4)
+    Tensor tensor = tensor_empty(2, 3, 4,NULL,NULL,NULL); // Create an empty 2D tensor (3x4)
     tensor_fill(&tensor, 5.0f); // Fill it with the value 5.0
 
     float *data = tensor.data;
@@ -72,7 +72,7 @@ void test_tensor_fill() {
 }
 
 void test_tensor_full() {
-    Tensor tensor = tensor_full(2, 3, 4, 7.0f,NULL,NULL); // Create a 2D tensor (3x4) filled with 7.0
+    Tensor tensor = tensor_full(2, 3, 4, 7.0f,NULL,NULL,NULL); // Create a 2D tensor (3x4) filled with 7.0
     float *data = tensor.data;
 
     for (int i = 0; i < tensor_entries_len(&tensor); i++) {
@@ -87,7 +87,7 @@ void test_tensor_full() {
 
 
 void test_add_options() {
-    Tensor tensor = tensor_empty(2, 3, 4, "gpu", "int");
+    Tensor tensor = tensor_empty(2, 3, 4, "gpu", "int",0);
     assert(tensor.device == GPU);
     assert(tensor.dtype == INT32);
     printf("test_add_options passed.\n");
@@ -97,7 +97,7 @@ void test_add_options() {
     free(tensor.strides);
 }
 void test_tensor_zeros() {
-    Tensor tensor = tensor_zeros(2, 3, 4, NULL, NULL); // Create a 2D tensor (3x4) filled with zeros
+    Tensor tensor = tensor_zeros(2, 3, 4, NULL, NULL,NULL); // Create a 2D tensor (3x4) filled with zeros
     float *data = tensor.data;
 
     for (int i = 0; i < tensor_entries_len(&tensor); i++) {

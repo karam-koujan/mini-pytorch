@@ -32,9 +32,15 @@ void	add_options(va_list arg,Tensor *tensor)
 {
 	tensor->device = CPU;
 	tensor->dtype = FLOAT32;
+	tensor->requires_grad = 1;
+
 	char	*device = va_arg(arg,char *);
 	char	*dtype = va_arg(arg,char *);
-
+	int		requires_grad = va_arg(arg, int);
+	if (requires_grad == 0)
+	{
+		tensor->requires_grad = 0;
+	}
 	if (device && !strcmp(device,"gpu"))
 	{
 		tensor->device = GPU;
