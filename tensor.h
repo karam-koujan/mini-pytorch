@@ -47,5 +47,6 @@ float	*create_empty_data(int dim,int *shape);
 void	add_options(va_list arg,Tensor *tensor);
 int	*create_stride(int num_dims, int *shape);
 int	*create_shape(va_list arg,int dim);
-int tensor_validate_shape(Tensor a, Tensor b);
+int tensor_validate_shape(Tensor *a, Tensor *b);
+int	tensor_is_broadcastable(Tensor *a,Tensor *b, char type);
 #endif
