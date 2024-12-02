@@ -75,7 +75,7 @@ void test_tensor_is_broadcastable() {
     printf("All test cases passed!\n");
 }
 int main() {
-    //test_tensor_validate_shape();
+    test_tensor_validate_shape();
 	test_tensor_is_broadcastable();
 	return 0;
 }
