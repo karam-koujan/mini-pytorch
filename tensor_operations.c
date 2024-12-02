@@ -36,6 +36,24 @@ int	tensor_is_broadcastable(Tensor *a,Tensor *b, char type)
 	return 1;
 }
 
+float	tensor_get_num(Tensor *a,...)
+{
+	va_list args;
+	va_start(args,a);
+	int i = 0;
+	int idx = 0;
+	while (i < a->num_dims)
+	{
+		int j = va_arg(args,int);
+		idx += j * a->strides[i];
+		i++;
+	}
+	printf("my idx %i",idx);
+	float *data = a->data;
+	return data[idx];
+}
+
+
 // Tensor *tensor_matmul(Tensor *a, Tensor *b)
 // {
 	

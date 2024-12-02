@@ -215,3 +215,18 @@ Tensor tensor_rand(int dim,...)
 	va_end(arg);
 	return tensor;
 }
+
+
+// int main()
+// {
+// 	tensor_set_seed(1337);
+// 	Tensor a  = tensor_rand(4,1,2,3,2,NULL,NULL,NULL);
+// 	Tensor b  = tensor_rand(4,1,2,3,2,NULL,NULL,NULL);
+// 	print_tensor(a);
+// 	printf("\n%f",tensor_get_num(&a,1,1,1,1));
+// 	printf("\n%f\n",tensor_get_num(&a,1,1,1,1));
+// 	for(int i = 0 ; i < 4;i++)
+// 	{
+// 		printf("%i,",a.strides[i]);
+// 	}
+// }
