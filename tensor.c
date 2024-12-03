@@ -152,7 +152,7 @@ void print_tensor_recursive(float *data, int *shape, int *strides, int num_dims,
     }
 }
 
-void print_tensor(Tensor tensor) {
+void tensor_print(Tensor tensor) {
     if (tensor.num_dims <= 0) {
         printf("Error: Tensor must have at least 1 dimension.\n");
         return;
