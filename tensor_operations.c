@@ -48,6 +48,7 @@ float	tensor_get_num(Tensor *a,...)
 		idx += j * a->strides[i];
 		i++;
 	}
+	va_end(args);
 	printf("my idx %i",idx);
 	float *data = a->data;
 	return data[idx];
