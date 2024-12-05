@@ -152,6 +152,8 @@ void print_tensor_recursive(float *data, int *shape, int *strides, int num_dims,
     }
 }
 
+
+
 void tensor_print(Tensor *tensor) 
 {
     if (tensor->num_dims <= 0) {
@@ -218,4 +220,16 @@ Tensor tensor_rand(int dim,...)
 	}
 	va_end(arg);
 	return tensor;
+}
+
+Tensor *tensor_reshape(Tensor *a,int num_dim,...)
+{
+
+	va_list arg;
+	va_start(arg,num_dim);
+	a->num_dims = num_dim;
+	a->shape = create_shape(arg,num_dim);
+	va_end(arg);
+	a->strides = create_stride(num_dim,a->shape);
+	return a;
 }

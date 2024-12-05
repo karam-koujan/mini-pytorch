@@ -60,6 +60,7 @@ Tensor	*tensor_matmul(Tensor *a, Tensor *b)
 	int rows = a->shape[a->num_dims - 2];
 	int cols = b->shape[b->num_dims - 1];
 	Tensor *res = tensor_empty(2,rows,cols,NULL,NULL,NULL);
+	
 	for(int i = 0; i < rows; i++)
 	{
 		for(int j = 0; j < cols; j++)
@@ -80,9 +81,11 @@ int main()
 {
 	tensor_set_seed(1337);
 	Tensor a = tensor_rand(2,2,2,NULL,NULL,NULL);
-	Tensor b = tensor_rand(2,2,2,NULL,NULL,NULL);
+	Tensor b = tensor_rand(4,2,4,3,2,NULL,NULL,NULL);
 	tensor_print(&a);
 	tensor_print(&b);
-	Tensor *c = tensor_matmul(&a,&b);
-	tensor_print(c);
+	// Tensor *c = tensor_matmul(&a,&b);
+	// tensor_print(c);
+	Tensor *d = tensor_reshape(&b,3,8,3,2);
+	tensor_print(&b);
 }

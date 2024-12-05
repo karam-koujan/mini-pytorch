@@ -50,4 +50,6 @@ int	*create_shape(va_list arg,int dim);
 int tensor_validate_shape(Tensor *a, Tensor *b);
 int	tensor_is_broadcastable(Tensor *a,Tensor *b, char type);
 float	tensor_get_num(Tensor *a,...);
+Tensor *tensor_reshape(Tensor *a,int num_dim,...);
+
 #endif
