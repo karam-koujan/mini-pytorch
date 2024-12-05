@@ -60,19 +60,22 @@ int	tensor_broadcast(Tensor *a, Tensor *b, char type)
 	
 	int	j = type == 'm' ? a->num_dims - 3 : a->num_dims - 1;
 	int i = type == 'm' ? b->num_dims - 3 : a->num_dims - 1;
-	while (i >= 0 && j >= 0)
-	{
-		if (a->shape[j] > b->shape[i])
-		{                                                                                                              
-			 b->shape[i] = a->shape[j];
-		}
-		if (a->shape[j] < b->shape[i])
-		{                                                                                                              
-			 a->shape[j] =  b->shape[i];
-		}
-		i--;
-		j--;
-	}
+
+  	int *new_a_shape = malloc(a->num_dims * sizeof(int));
+    int *new_b_shape = malloc(b->num_dims * sizeof(int));
+    memcpy(new_a_shape, a->shape, a->num_dims * sizeof(int));
+    memcpy(new_b_shape, b->shape, b->num_dims * sizeof(int));
+
+    while (i >= 0 && j >= 0) {
+        if (new_a_shape[j] > new_b_shape[i]) {
+            new_b_shape[i] = new_a_shape[j];
+        }
+        if (new_a_shape[j] < new_b_shape[i]) {
+            new_a_shape[j] = new_b_shape[i];
+        }
+        i--;
+        j--;
+    }
 	a->strides = create_stride(a->num_dims,a->shape);
 	b->strides = create_stride(b->num_dims,b->shape);
 	return 0;
@@ -113,26 +116,34 @@ Tensor	*tensor_matmul(Tensor *a, Tensor *b)
 	}
 	free(reshaped_a);
 	free(reshaped_b);
-	int *res_shape = a->shape;
+	int *res_shape = malloc(a->num_dims * sizeof(int));
+	memcpy(res_shape,a->shape, a->num_dims * sizeof(int));
 	res_shape[a->num_dims - 1] = cols;
 	res_shape[a->num_dims - 2] = rows;
-	res = tensor_reshape(res,a->num_dims,res_shape);
-	return res;
+	Tensor *result = tensor_reshape(res,a->num_dims,res_shape);
+	free(res);
+	return result;
 }
 /*
  Tasks;
  - test matmul 
  - rewrite tensor creation functions
 */
+void f()
+{
+	system("leaks a.out");
+}
 int main()
 {
 	tensor_set_seed(1337);
-	Tensor a = tensor_rand(4,3,3,2,3,NULL,NULL,NULL);
-	Tensor b = tensor_rand(4,3,3,3,5,NULL,NULL,NULL);
-	tensor_print(&a);
-	tensor_print(&b);
-	Tensor *c = tensor_matmul(&a,&b);
+	Tensor *a = tensor_empty(4,32,23,2,3,NULL,NULL,NULL);
+	Tensor *b = tensor_empty(4,32,23,3,5,NULL,NULL,NULL);
+	tensor_print(a);
+	tensor_print(b);
+	Tensor *c = tensor_matmul(a,b);
 	tensor_print(c);
+	tensor_print(a);
+	printf("Tensor num %f",tensor_get_num(a,2,2,1,2));
 	// Tensor *d = tensor_reshape(&b,3,8,3,2);
 	// tensor_print(&b);
 }
