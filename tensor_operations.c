@@ -53,21 +53,49 @@ float	tensor_get_num(Tensor *a,...)
 	return data[idx];
 }
 
+int	tensor_broadcast(Tensor *a, Tensor *b, char type)
+{
+	if(tensor_is_broadcastable(a,b,type) == -1)
+		return -1;
+	
+	int	j = type == 'm' ? a->num_dims - 3 : a->num_dims - 1;
+	int i = type == 'm' ? b->num_dims - 3 : a->num_dims - 1;
+	while (i >= 0 && j >= 0)
+	{
+		if (a->shape[j] > b->shape[i])
+		{                                                                                                              
+			 b->shape[i] = a->shape[j];
+		}
+		if (a->shape[j] < b->shape[i])
+		{                                                                                                              
+			 a->shape[j] =  b->shape[i];
+		}
+		i--;
+		j--;
+	}
+	a->strides = create_stride(a->num_dims,a->shape);
+	b->strides = create_stride(b->num_dims,b->shape);
+	return 0;
+}
+
 Tensor	*tensor_matmul(Tensor *a, Tensor *b)
 {
 	if (tensor_validate_shape(a,b) == -1)
 		return NULL;
+	tensor_broadcast(a,b,'m');
 	int rows = a->shape[a->num_dims - 2];
 	int cols = b->shape[b->num_dims - 1];
-	int	batch_dim = 1;
+	int	batch_size = 1;
 	for (int i = 0; i < a->num_dims - 2; i++)
 	{
-		batch_dim*= a->shape[i];
+		batch_size*= a->shape[i];
 	}
-	Tensor *res = tensor_empty(3,batch_dim,rows,cols,NULL,NULL,NULL);
-	tensor_reshape(a,3,batch_dim,rows,cols);
-	tensor_reshape(b,3,batch_dim,b->shape[b->num_dims - 2],cols);
-	for(int b_idx = 0; b_idx < batch_dim; b_idx++)
+	Tensor *res = tensor_empty(3,batch_size,rows,cols,NULL,NULL,NULL);
+	int	a_shape[3] = {batch_size,rows,cols};
+	int b_shape[3] = {batch_size,b->shape[b->num_dims - 2],cols};
+	Tensor *reshaped_a = tensor_reshape(a,3,a_shape);
+	Tensor *reshaped_b = tensor_reshape(b,3,b_shape);
+	for(int b_idx = 0; b_idx < batch_size; b_idx++)
 	{
 		for(int i = 0; i < rows; i++)
 		{
@@ -76,29 +104,31 @@ Tensor	*tensor_matmul(Tensor *a, Tensor *b)
 				float sum = 0;
 				for(int k = 0; k < cols; k++)
 				{
-					sum += tensor_get_num(a,b_idx,i,k) * tensor_get_num(b,b_idx,k,j);
+					sum += tensor_get_num(reshaped_a,b_idx,i,k) * tensor_get_num(reshaped_b,b_idx,k,j);
 				}
 					float *res_data = res->data;
 					res_data[b_idx * (rows * cols) + i * cols + j] = sum;
 			}
 		}
 	}
-
+	free(reshaped_a);
+	free(reshaped_b);
+	int *res_shape = a->shape;
+	res_shape[a->num_dims - 1] = cols;
+	res_shape[a->num_dims - 2] = rows;
+	res = tensor_reshape(res,a->num_dims,res_shape);
 	return res;
 }
 /*
  Tasks;
- - remove in place reshaping because we lose the shape and strides infos about the tensors
- - reshape the result tensor after calculation
- - add broadcast function
  - test matmul 
  - rewrite tensor creation functions
 */
 int main()
 {
 	tensor_set_seed(1337);
-	Tensor a = tensor_rand(4,3,3,2,2,NULL,NULL,NULL);
-	Tensor b = tensor_rand(4,3,3,2,2,NULL,NULL,NULL);
+	Tensor a = tensor_rand(4,3,3,2,3,NULL,NULL,NULL);
+	Tensor b = tensor_rand(4,3,3,3,5,NULL,NULL,NULL);
 	tensor_print(&a);
 	tensor_print(&b);
 	Tensor *c = tensor_matmul(&a,&b);

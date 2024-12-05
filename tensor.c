@@ -222,14 +222,13 @@ Tensor tensor_rand(int dim,...)
 	return tensor;
 }
 
-Tensor *tensor_reshape(Tensor *a,int num_dim,...)
+Tensor *tensor_reshape(Tensor *a,int num_dim,int *shape)
 {
 
-	va_list arg;
-	va_start(arg,num_dim);
-	a->num_dims = num_dim;
-	a->shape = create_shape(arg,num_dim);
-	va_end(arg);
-	a->strides = create_stride(num_dim,a->shape);
-	return a;
+	Tensor *res = (Tensor *)malloc(sizeof(Tensor));
+	res->num_dims = num_dim;
+	res->shape = shape;
+	res->strides = create_stride(num_dim, shape);
+	res->data = a->data;
+	return res;
 }
