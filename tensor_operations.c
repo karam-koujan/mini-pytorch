@@ -59,24 +59,28 @@ Tensor	*tensor_matmul(Tensor *a, Tensor *b)
 		return NULL;
 	int rows = a->shape[a->num_dims - 2];
 	int cols = b->shape[b->num_dims - 1];
-	Tensor *res = tensor_empty(2,rows,cols,NULL,NULL,NULL);
 	int	batch_dim = 1;
 	for (int i = 0; i < a->num_dims - 2; i++)
 	{
 		batch_dim*= a->shape[i];
 	}
-	printf("%i",batch_dim);
-	for(int i = 0; i < rows; i++)
+	Tensor *res = tensor_empty(3,batch_dim,rows,cols,NULL,NULL,NULL);
+	tensor_reshape(a,3,batch_dim,rows,cols);
+	tensor_reshape(b,3,batch_dim,b->shape[b->num_dims - 2],cols);
+	for(int b_idx = 0; b_idx < batch_dim; b_idx++)
 	{
-		for(int j = 0; j < cols; j++)
+		for(int i = 0; i < rows; i++)
 		{
-			float sum = 0;
-			for(int k = 0; k < cols; k++)
+			for(int j = 0; j < cols; j++)
 			{
-				sum += tensor_get_num(a,i,k) * tensor_get_num(b,k,j);
+				float sum = 0;
+				for(int k = 0; k < cols; k++)
+				{
+					sum += tensor_get_num(a,b_idx,i,k) * tensor_get_num(b,b_idx,k,j);
+				}
+					float *res_data = res->data;
+					res_data[b_idx * (rows * cols) + i * cols + j] = sum;
 			}
-				float *res_data = res->data;
-				res_data[i * cols + j] = sum;
 		}
 	}
 
@@ -85,8 +89,8 @@ Tensor	*tensor_matmul(Tensor *a, Tensor *b)
 int main()
 {
 	tensor_set_seed(1337);
-	Tensor a = tensor_rand(2,2,2,NULL,NULL,NULL);
-	Tensor b = tensor_rand(4,2,4,3,2,NULL,NULL,NULL);
+	Tensor a = tensor_rand(4,3,3,2,2,NULL,NULL,NULL);
+	Tensor b = tensor_rand(4,3,3,2,2,NULL,NULL,NULL);
 	tensor_print(&a);
 	tensor_print(&b);
 	Tensor *c = tensor_matmul(&a,&b);
