@@ -86,6 +86,14 @@ Tensor	*tensor_matmul(Tensor *a, Tensor *b)
 
 	return res;
 }
+/*
+ Tasks;
+ - remove in place reshaping because we lose the shape and strides infos about the tensors
+ - reshape the result tensor after calculation
+ - add broadcast function
+ - test matmul 
+ - rewrite tensor creation functions
+*/
 int main()
 {
 	tensor_set_seed(1337);
