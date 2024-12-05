@@ -83,17 +83,17 @@ void	tensor_fill(Tensor *tensor, float num)
 	}
 }
 
-Tensor	 tensor_empty(int dim,...)
+Tensor	 *tensor_empty(int dim,...)
 {
 	va_list arg;
-	Tensor tensor;
+	Tensor *tensor = (Tensor *)malloc(sizeof(Tensor));
 
 	va_start(arg,dim);
-	tensor.shape =  create_shape(arg,dim);
-	tensor.num_dims = dim;
-	tensor.strides = create_stride(tensor.num_dims, tensor.shape);
-	add_options(arg,&tensor);
-	tensor.data = (float *)create_empty_data(dim,tensor.shape);
+	tensor->shape =  create_shape(arg,dim);
+	tensor->num_dims = dim;
+	tensor->strides = create_stride(tensor->num_dims, tensor->shape);
+	add_options(arg,tensor);
+	tensor->data = (float *)create_empty_data(dim,tensor->shape);
 	va_end(arg);
 	return tensor;
 }
@@ -152,22 +152,23 @@ void print_tensor_recursive(float *data, int *shape, int *strides, int num_dims,
     }
 }
 
-void tensor_print(Tensor tensor) {
-    if (tensor.num_dims <= 0) {
+void tensor_print(Tensor *tensor) 
+{
+    if (tensor->num_dims <= 0) {
         printf("Error: Tensor must have at least 1 dimension.\n");
         return;
     }
 
     printf("Tensor of shape (");
-    for (int i = 0; i < tensor.num_dims; i++) {
-        printf("%d", tensor.shape[i]);
-        if (i < tensor.num_dims - 1) {
+    for (int i = 0; i < tensor->num_dims; i++) {
+        printf("%d", tensor->shape[i]);
+        if (i < tensor->num_dims - 1) {
             printf(", ");
         }
     }
     printf("):\n");
 
-    print_tensor_recursive(tensor.data, tensor.shape, tensor.strides, tensor.num_dims, 0, 0);
+    print_tensor_recursive(tensor->data, tensor->shape, tensor->strides, tensor->num_dims, 0, 0);
     printf("\n");
 }
 

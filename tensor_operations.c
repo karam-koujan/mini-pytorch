@@ -49,18 +49,40 @@ float	tensor_get_num(Tensor *a,...)
 		i++;
 	}
 	va_end(args);
-	printf("my idx %i",idx);
 	float *data = a->data;
 	return data[idx];
 }
 
+Tensor	*tensor_matmul(Tensor *a, Tensor *b)
+{
+	if (tensor_validate_shape(a,b) == -1)
+		return NULL;
+	int rows = a->shape[a->num_dims - 2];
+	int cols = b->shape[b->num_dims - 1];
+	Tensor *res = tensor_empty(2,rows,cols,NULL,NULL,NULL);
+	for(int i = 0; i < rows; i++)
+	{
+		for(int j = 0; j < cols; j++)
+		{
+			float sum = 0;
+			for(int k = 0; k < cols; k++)
+			{
+				sum += tensor_get_num(a,i,k) * tensor_get_num(b,k,j);
+			}
+				float *res_data = res->data;
+				res_data[i * cols + j] = sum;
+		}
+	}
 
-// Tensor *tensor_matmul(Tensor *a, Tensor *b)
-// {
-	
-// 	if (tensor_validate_shape(a,b) == -1)
-// 		return NULL;
-// 	Tensor tensors[2] = broadcast_tensor(a , b);
-// 	a = tensors;
-// 	b = tensors + 1;
-// }
+	return res;
+}
+int main()
+{
+	tensor_set_seed(1337);
+	Tensor a = tensor_rand(2,2,2,NULL,NULL,NULL);
+	Tensor b = tensor_rand(2,2,2,NULL,NULL,NULL);
+	tensor_print(&a);
+	tensor_print(&b);
+	Tensor *c = tensor_matmul(&a,&b);
+	tensor_print(c);
+}

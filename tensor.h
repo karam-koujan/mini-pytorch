@@ -36,11 +36,11 @@ typedef	struct
 Tensor tensor_rand(int dim,...);
 void tensor_set_seed(unsigned int seed);
 float	generate_random();
-void print_tensor(Tensor tensor);
+void tensor_print(Tensor *tensor);
 Tensor tensor_full(int dim,...);
 Tensor tensor_ones(int dim,...);
 Tensor tensor_zeros(int dim,...);
-Tensor	 tensor_empty(int dim,...);
+Tensor	 *tensor_empty(int dim,...);
 void	tensor_fill(Tensor *tensor, float num);
 int		tensor_entries_len(Tensor *tensor);
 float	*create_empty_data(int dim,int *shape);
