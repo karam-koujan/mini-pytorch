@@ -19,7 +19,7 @@ int tensor_validate_shape(Tensor *a, Tensor *b)
 int	tensor_is_broadcastable(Tensor *a,Tensor *b, char type)
 {
 	int	j = type == 'm' ? a->num_dims - 3 : a->num_dims - 1;
-	int i = type == 'm' ? b->num_dims - 3 : a->num_dims - 1;
+	int i = type == 'm' ? b->num_dims - 3 : b->num_dims - 1;
 	while (i >= 0 && j >= 0)
 	{
 		if (a->shape[j] != b->shape[i])
@@ -31,6 +31,24 @@ int	tensor_is_broadcastable(Tensor *a,Tensor *b, char type)
 			}
 		}
 		i--;
+		j--;
+	}
+ 	while(i >= 0 && j < 0)
+	{
+		if(b->shape[i] != 1)
+		{
+			fprintf(stderr,"tensor1 and tensor2 are not broadcastable");
+			return -1;
+		}
+		i--;
+	}
+	while(j >= 0 && i < 0)
+	{
+		if(a->shape[j] != 1)
+		{
+			fprintf(stderr,"tensor1 and tensor2 are not broadcastable");
+			return -1;
+		}
 		j--;
 	}
 	return 1;
@@ -53,39 +71,101 @@ float	tensor_get_num(Tensor *a,...)
 	return data[idx];
 }
 
-int	tensor_broadcast(Tensor *a, Tensor *b, char type)
+Tensor	**tensor_broadcast(Tensor *a, Tensor *b, char type)
 {
 	if(tensor_is_broadcastable(a,b,type) == -1)
-		return -1;
+		return NULL;
 	
 	int	j = type == 'm' ? a->num_dims - 3 : a->num_dims - 1;
-	int i = type == 'm' ? b->num_dims - 3 : a->num_dims - 1;
+	int i = type == 'm' ? b->num_dims - 3 : b->num_dims - 1;
+	int dims = a->num_dims > b->num_dims ? a->num_dims : b->num_dims;
 
-  	int *new_a_shape = malloc(a->num_dims * sizeof(int));
-    int *new_b_shape = malloc(b->num_dims * sizeof(int));
-    memcpy(new_a_shape, a->shape, a->num_dims * sizeof(int));
-    memcpy(new_b_shape, b->shape, b->num_dims * sizeof(int));
+  	int *new_a_shape = malloc(dims * sizeof(int));
+    int *new_b_shape = malloc(dims * sizeof(int));
+	int *new_a_stride = malloc(dims * sizeof(int));
+	int *new_b_stride = malloc(dims * sizeof(int));
+	if (!new_a_shape || !new_b_shape || !new_a_stride || !new_b_stride) {
+		free(new_a_shape);
+		free(new_b_shape);
+		free(new_a_stride);
+		free(new_b_stride);
+		return NULL;
+	}
 
+	for (int d = 0; d < dims; d++) {
+		new_a_shape[d] = (d >= dims - a->num_dims) ? a->shape[d - (dims - a->num_dims)] : 1;
+		new_b_shape[d] = (d >= dims - b->num_dims) ? b->shape[d - (dims - b->num_dims)] : 1;
+		new_a_stride[d] = (d >= dims - a->num_dims) ? a->strides[d - (dims - a->num_dims)] : 0;
+		new_b_stride[d] = (d >= dims - b->num_dims) ? b->strides[d - (dims - b->num_dims)] : 0;
+	}
     while (i >= 0 && j >= 0) {
-        if (new_a_shape[j] > new_b_shape[i]) {
-            new_b_shape[i] = new_a_shape[j];
+        if (a->shape[j] > b->shape[i]) {
+            new_b_shape[i] = a->shape[j];
+			new_b_stride[i] = 0;
         }
-        if (new_a_shape[j] < new_b_shape[i]) {
-            new_a_shape[j] = new_b_shape[i];
+        if (a->shape[j] < b->shape[i]) {
+        	new_a_shape[i] = b->shape[j];
+			new_a_stride[i] = 0;
         }
         i--;
         j--;
     }
-	a->strides = create_stride(a->num_dims,a->shape);
-	b->strides = create_stride(b->num_dims,b->shape);
-	return 0;
+	while(i >= 0 && j < 0)
+	{
+    new_a_shape[i] = b->shape[i];
+    new_a_stride[i] = 0;
+    i--;
+	}
+	while(j >= 0 && i < 0)
+	{
+		new_b_shape[j] = a->shape[j];
+		new_b_stride[j] = 0;
+		j--;
+	}
+	Tensor *new_a = tensor_empty(1,1,NULL,NULL,NULL);
+	Tensor *new_b = tensor_empty(1,1,NULL,NULL,NULL);
+	if (!new_b || !new_a)
+	{
+		free(new_b);
+		free(new_a);
+		free(new_a_shape);
+		free(new_b_shape);
+		free(new_a_stride);
+		free(new_b_stride);
+		return NULL;
+	}
+	new_a->shape = new_a_shape;
+	new_a->data = a->data;
+	new_a->strides = new_a_stride;
+	new_a->num_dims = dims;
+	new_b->shape = new_b_shape;
+	new_b->data = b->data;
+	new_b->strides = new_b_stride;
+	new_b->num_dims = dims;
+	Tensor **res = (Tensor **)malloc(2 * sizeof(Tensor *));
+	if (!res)
+	{
+		free(new_a);
+		free(new_b);
+		free(new_a_shape);
+		free(new_b_shape);
+		free(new_a_stride);
+		free(new_b_stride);
+		return NULL;
+	}
+	res[0] = new_a;
+	res[1] = new_b;
+
+	return res;
 }
 
 Tensor	*tensor_matmul(Tensor *a, Tensor *b)
 {
 	if (tensor_validate_shape(a,b) == -1)
 		return NULL;
-	tensor_broadcast(a,b,'m');
+	Tensor **broadcasted_tensors = tensor_broadcast(a,b,'m');
+	a = broadcasted_tensors[0];
+	b = broadcasted_tensors[1];
 	int rows = a->shape[a->num_dims - 2];
 	int cols = b->shape[b->num_dims - 1];
 	int	batch_size = 1;
@@ -126,6 +206,7 @@ Tensor	*tensor_matmul(Tensor *a, Tensor *b)
 }
 /*
  Tasks;
+ - create stride and remove inplace
  - test matmul 
  - rewrite tensor creation functions
 */
@@ -136,14 +217,14 @@ void f()
 int main()
 {
 	tensor_set_seed(1337);
-	Tensor *a = tensor_empty(4,32,23,2,3,NULL,NULL,NULL);
-	Tensor *b = tensor_empty(4,32,23,3,5,NULL,NULL,NULL);
-	tensor_print(a);
-	tensor_print(b);
+	Tensor *a = tensor_empty(4,1,2103,2,3,NULL,NULL,NULL);
+	Tensor *b = tensor_empty(4,1,2103,3,5,NULL,NULL,NULL);
+	//Tensor **arr = tensor_broadcast(a,b,'m');
 	Tensor *c = tensor_matmul(a,b);
 	tensor_print(c);
-	tensor_print(a);
-	printf("Tensor num %f",tensor_get_num(a,2,2,1,2));
+	 //tensor_print(c);
+	// tensor_print(a);
+	// printf("Tensor num %f",tensor_get_num(a,2,2,1,2));
 	// Tensor *d = tensor_reshape(&b,3,8,3,2);
 	// tensor_print(&b);
 }
