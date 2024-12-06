@@ -33,7 +33,7 @@ typedef	struct
 	int num_dims;
 } Tensor;
 
-Tensor tensor_rand(int dim,...);
+Tensor *tensor_rand(int dim,...);
 void tensor_set_seed(unsigned int seed);
 float	generate_random();
 void tensor_print(Tensor *tensor);

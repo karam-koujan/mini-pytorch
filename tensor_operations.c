@@ -101,11 +101,9 @@ Tensor	**tensor_broadcast(Tensor *a, Tensor *b, char type)
     while (i >= 0 && j >= 0) {
         if (a->shape[j] > b->shape[i]) {
             new_b_shape[i] = a->shape[j];
-			new_b_stride[i] = 0;
         }
         if (a->shape[j] < b->shape[i]) {
         	new_a_shape[i] = b->shape[j];
-			new_a_stride[i] = 0;
         }
         i--;
         j--;
@@ -217,9 +215,12 @@ void f()
 int main()
 {
 	tensor_set_seed(1337);
-	Tensor *a = tensor_empty(4,1,2103,2,3,NULL,NULL,NULL);
-	Tensor *b = tensor_empty(4,1,2103,3,5,NULL,NULL,NULL);
+	Tensor *a = tensor_rand(4,1,2,2,3,NULL,NULL,NULL);
+	Tensor *b = tensor_rand(4,1,2,3,5,NULL,NULL,NULL);
 	//Tensor **arr = tensor_broadcast(a,b,'m');
+	tensor_print(a);
+	tensor_print(b);
+
 	Tensor *c = tensor_matmul(a,b);
 	tensor_print(c);
 	 //tensor_print(c);

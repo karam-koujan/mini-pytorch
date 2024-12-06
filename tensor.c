@@ -201,23 +201,22 @@ float	generate_random()
 	return (float)rand() / (float)RAND_MAX;	
 }
 
-Tensor tensor_rand(int dim,...)
+Tensor *tensor_rand(int dim,...)
 {
 	va_list arg;
-	Tensor tensor;
+	Tensor *tensor = (Tensor *)malloc(sizeof(Tensor));
 
 	va_start(arg,dim);
-	tensor.shape =  create_shape(arg,dim);
-	tensor.num_dims = dim;
-	tensor.strides = create_stride(tensor.num_dims, tensor.shape);
-	add_options(arg,&tensor);
-	tensor.data = (float *)create_empty_data(dim,tensor.shape);
-	float *data = tensor.data;
-	printf("%i\n",tensor_entries_len(&tensor));
-	for(int i = 0; i < tensor_entries_len(&tensor); i++)
+	tensor->shape =  create_shape(arg,dim);
+	tensor->num_dims = dim;
+	tensor->strides = create_stride(tensor->num_dims, tensor->shape);
+	add_options(arg,tensor);
+	float *data = (float *)create_empty_data(dim,tensor->shape);
+	for(int i = 0; i < tensor_entries_len(tensor); i++)
 	{
 		data[i] = generate_random(); 
 	}
+	tensor->data = data;
 	va_end(arg);
 	return tensor;
 }
