@@ -216,7 +216,10 @@ Tensor *tensor_reshape(Tensor *a,int num_dim,int *shape)
 		return NULL;
 	res->num_dims = num_dim;
 	res->shape = shape;
-	res->strides = a->strides;
+	if (a->strides[0] == 0)
+		res->strides = a->strides;
+	else
+		res->strides = create_stride(num_dim,shape);
 	if (!res->strides)
 	{
 		free(res);
