@@ -120,8 +120,8 @@ Tensor	**tensor_broadcast(Tensor *a, Tensor *b, char type)
 		new_b_stride[j] = 0;
 		j--;
 	}
-	Tensor *new_a = tensor_empty(1,1,NULL,NULL,NULL);
-	Tensor *new_b = tensor_empty(1,1,NULL,NULL,NULL);
+	Tensor *new_a = tensor_empty(1,1,0);
+	Tensor *new_b = tensor_empty(1,1,0);
 	if (!new_b || !new_a)
 	{
 		free(new_b);
@@ -175,7 +175,7 @@ Tensor	*tensor_matmul(Tensor *a, Tensor *b)
 	}
 	int	a_shape[3] = {batch_size,rows,a->shape[a->num_dims - 1]};
 	int b_shape[3] = {batch_size,b->shape[b->num_dims - 2],cols};
-	Tensor *res = tensor_empty(3,batch_size,rows,cols,NULL,NULL,NULL);
+	Tensor *res = tensor_empty(3,batch_size,rows,cols,0);
 	Tensor *reshaped_a = tensor_reshape(a,3,a_shape);
 	Tensor *reshaped_b = tensor_reshape(b,3,b_shape);
 	if (!reshaped_a || !reshaped_b || !res)
@@ -254,8 +254,10 @@ void f()
 int main()
 {
 	tensor_set_seed(1337);
-	Tensor *a = tensor_rand(3,2,2,3,NULL,NULL,NULL);
-	Tensor *b = tensor_rand(4,1,2,3,5,NULL,NULL,NULL);
+	Tensor *a = tensor_rand(3,2,2,3,0);
+	Tensor *b = tensor_rand(4,1,2,3,5,0);
+
+
 	//Tensor **arr = tensor_broadcast(a,b,'m');
 	// tensor_print(a);
 	// //tensor_print(b);
@@ -277,13 +279,12 @@ int main()
 	// 		}
 	// 	}
 	// }
-	Tensor *c = tensor_matmul(a,b);
-	tensor_print(c);
-	free(c);
-	free(a);
-	free(b);
-	atexit(f);
-	 //tensor_print(c);
+	// free(c);
+	// free(a);
+	// free(b);
+	// atexit(f);
+	 Tensor *c = tensor_matmul(a,b);
+	 tensor_print(c);
 	// tensor_print(a);
 	// printf("Tensor num %f",tensor_get_num(a,2,2,1,2));
 	// Tensor *d = tensor_reshape(&b,3,8,3,2);

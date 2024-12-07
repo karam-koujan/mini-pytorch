@@ -41,7 +41,7 @@ void	add_options(va_list arg,Tensor *tensor)
 	char	*device = va_arg(arg,char *);
 	char	*dtype = va_arg(arg,char *);
 	int		requires_grad = va_arg(arg, int);
-	if (requires_grad == 0)
+	if (requires_grad && requires_grad == 0)
 	{
 		tensor->requires_grad = 0;
 	}
@@ -53,7 +53,7 @@ void	add_options(va_list arg,Tensor *tensor)
 	{
 		tensor->dtype = INT32;
 	}
-
+	va_end(arg);
 }
 float	*create_empty_data(int dim,int *shape)
 {
@@ -108,7 +108,9 @@ Tensor	 *tensor_empty(int dim,...)
 		return NULL;
 	}
 	tensor->num_dims = dim;
-	add_options(arg,tensor);
+	int op = va_arg(arg, int);
+	if (op > 0)
+		add_options(arg,tensor);
 	tensor->data = (float *)create_empty_data(dim,tensor->shape);
 	va_end(arg);
 	return tensor;
@@ -231,10 +233,13 @@ Tensor *tensor_rand(int dim,...)
 	{
 		free(tensor->shape);
 		free(tensor->strides);
+		va_end(arg);
 		return NULL;
 	}
 	tensor->num_dims = dim;
-	add_options(arg,tensor);
+	int op = va_arg(arg, int);
+	if (op > 0)
+		add_options(arg,tensor);
 	float *data = (float *)create_empty_data(dim,tensor->shape);
 	for(int i = 0; i < tensor_entries_len(tensor); i++)
 	{
