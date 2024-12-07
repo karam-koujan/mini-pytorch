@@ -33,24 +33,6 @@ int	tensor_is_broadcastable(Tensor *a,Tensor *b, char type)
 		i--;
 		j--;
 	}
- 	while(i >= 0 && j < 0)
-	{
-		if(b->shape[i] != 1)
-		{
-			fprintf(stderr,"tensor1 and tensor2 are not broadcastable");
-			return -1;
-		}
-		i--;
-	}
-	while(j >= 0 && i < 0)
-	{
-		if(a->shape[j] != 1)
-		{
-			fprintf(stderr,"tensor1 and tensor2 are not broadcastable");
-			return -1;
-		}
-		j--;
-	}
 	return 1;
 }
 
@@ -169,6 +151,7 @@ Tensor	*tensor_matmul(Tensor *a, Tensor *b)
 	int rows = a->shape[a->num_dims - 2];
 	int cols = b->shape[b->num_dims - 1];
 	int	batch_size = 1;
+
 	for (int i = 0; i < a->num_dims - 2; i++)
 	{
 		batch_size*= a->shape[i];
@@ -178,6 +161,7 @@ Tensor	*tensor_matmul(Tensor *a, Tensor *b)
 	Tensor *res = tensor_empty(3,batch_size,rows,cols,0);
 	Tensor *reshaped_a = tensor_reshape(a,3,a_shape);
 	Tensor *reshaped_b = tensor_reshape(b,3,b_shape);
+
 	if (!reshaped_a || !reshaped_b || !res)
 	{
 		free(reshaped_a);
@@ -232,7 +216,7 @@ Tensor *tensor_reshape(Tensor *a,int num_dim,int *shape)
 		return NULL;
 	res->num_dims = num_dim;
 	res->shape = shape;
-	res->strides = create_stride(num_dim, shape);
+	res->strides = a->strides;
 	if (!res->strides)
 	{
 		free(res);
@@ -241,3 +225,5 @@ Tensor *tensor_reshape(Tensor *a,int num_dim,int *shape)
 	res->data = a->data;
 	return res;
 }
+
+
