@@ -172,10 +172,11 @@ Tensor	*tensor_matmul(Tensor *a, Tensor *b)
 		batch_size*= a->shape[i];
 	}
 	Tensor *res = tensor_empty(3,batch_size,rows,cols,NULL,NULL,NULL);
-	int	a_shape[3] = {batch_size,rows,cols};
+	int	a_shape[3] = {batch_size,rows,a->shape[a->num_dims - 1]};
 	int b_shape[3] = {batch_size,b->shape[b->num_dims - 2],cols};
 	Tensor *reshaped_a = tensor_reshape(a,3,a_shape);
 	Tensor *reshaped_b = tensor_reshape(b,3,b_shape);
+	
 	for(int b_idx = 0; b_idx < batch_size; b_idx++)
 	{
 		for(int i = 0; i < rows; i++)
@@ -183,12 +184,13 @@ Tensor	*tensor_matmul(Tensor *a, Tensor *b)
 			for(int j = 0; j < cols; j++)
 			{
 				float sum = 0;
-				for(int k = 0; k < cols; k++)
+				for(int k = 0; k <  reshaped_a->shape[a->num_dims - 2]; k++)
 				{
 					sum += tensor_get_num(reshaped_a,b_idx,i,k) * tensor_get_num(reshaped_b,b_idx,k,j);
 				}
 					float *res_data = res->data;
-					res_data[b_idx * (rows * cols) + i * cols + j] = sum;
+					int idx = b_idx * res->strides[0] + i * res->strides[1] + j * res->strides[2];
+					res_data[idx] = sum;
 			}
 		}
 	}
@@ -218,9 +220,26 @@ int main()
 	Tensor *a = tensor_rand(4,1,2,2,3,NULL,NULL,NULL);
 	Tensor *b = tensor_rand(4,1,2,3,5,NULL,NULL,NULL);
 	//Tensor **arr = tensor_broadcast(a,b,'m');
-	tensor_print(a);
-	tensor_print(b);
-
+	// tensor_print(a);
+	// //tensor_print(b);
+	// int	a_shape[3] = {2,2,3};
+	// int b_shape[3] = {2,3,5};
+	// Tensor *reshaped_a = tensor_reshape(a,3,a_shape);
+	// Tensor *reshaped_b = tensor_reshape(b,3,b_shape);
+	// for(int b_idx = 0; b_idx < 2; b_idx++)
+	// {
+	// 	for(int i = 0; i < 2; i++)
+	// 	{
+	// 		for(int j = 0; j < 5; j++)
+	// 		{
+	// 			for(int k = 0; k < 2; k++)
+	// 			{
+	// 				printf("element: %f  idx : %i\n",tensor_get_num(reshaped_b,b_idx,k,j),b_idx);
+	// 			}
+		
+	// 		}
+	// 	}
+	// }
 	Tensor *c = tensor_matmul(a,b);
 	tensor_print(c);
 	 //tensor_print(c);
