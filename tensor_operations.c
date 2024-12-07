@@ -162,6 +162,8 @@ Tensor	*tensor_matmul(Tensor *a, Tensor *b)
 	if (tensor_validate_shape(a,b) == -1)
 		return NULL;
 	Tensor **broadcasted_tensors = tensor_broadcast(a,b,'m');
+	if (!broadcasted_tensors)
+		return (NULL);
 	a = broadcasted_tensors[0];
 	b = broadcasted_tensors[1];
 	int rows = a->shape[a->num_dims - 2];
@@ -171,12 +173,18 @@ Tensor	*tensor_matmul(Tensor *a, Tensor *b)
 	{
 		batch_size*= a->shape[i];
 	}
-	Tensor *res = tensor_empty(3,batch_size,rows,cols,NULL,NULL,NULL);
 	int	a_shape[3] = {batch_size,rows,a->shape[a->num_dims - 1]};
 	int b_shape[3] = {batch_size,b->shape[b->num_dims - 2],cols};
+	Tensor *res = tensor_empty(3,batch_size,rows,cols,NULL,NULL,NULL);
 	Tensor *reshaped_a = tensor_reshape(a,3,a_shape);
 	Tensor *reshaped_b = tensor_reshape(b,3,b_shape);
-	
+	if (!reshaped_a || !reshaped_b || !res)
+	{
+		free(reshaped_a);
+		free(reshaped_b);
+		free(res);
+		return NULL;
+	}
 	for(int b_idx = 0; b_idx < batch_size; b_idx++)
 	{
 		for(int i = 0; i < rows; i++)
@@ -197,10 +205,87 @@ Tensor	*tensor_matmul(Tensor *a, Tensor *b)
 	free(reshaped_a);
 	free(reshaped_b);
 	int *res_shape = malloc(a->num_dims * sizeof(int));
+	if (!res_shape)
+	{
+		free(res);
+		return NULL;
+	}
 	memcpy(res_shape,a->shape, a->num_dims * sizeof(int));
 	res_shape[a->num_dims - 1] = cols;
 	res_shape[a->num_dims - 2] = rows;
 	Tensor *result = tensor_reshape(res,a->num_dims,res_shape);
+	if (!result)
+	{
+		free(result);
+		free(res_shape);
+		free(res);
+		return NULL;
+	}
 	free(res);
 	return result;
+}
+
+Tensor *tensor_reshape(Tensor *a,int num_dim,int *shape)
+{
+	Tensor *res = (Tensor *)malloc(sizeof(Tensor));
+	if (!res)
+		return NULL;
+	res->num_dims = num_dim;
+	res->shape = shape;
+	res->strides = create_stride(num_dim, shape);
+	if (!res->strides)
+	{
+		free(res);
+		return NULL;
+	}
+	res->data = a->data;
+	return res;
+}
+/*
+ Tasks;
+ - create stride and remove inplace
+ - test matmul 
+ - rewrite tensor creation functions
+*/
+void f()
+{
+	system("leaks a.out");
+}
+int main()
+{
+	tensor_set_seed(1337);
+	Tensor *a = tensor_rand(3,2,2,3,NULL,NULL,NULL);
+	Tensor *b = tensor_rand(4,1,2,3,5,NULL,NULL,NULL);
+	//Tensor **arr = tensor_broadcast(a,b,'m');
+	// tensor_print(a);
+	// //tensor_print(b);
+	// int	a_shape[3] = {2,2,3};
+	// int b_shape[3] = {2,3,5};
+	// Tensor *reshaped_a = tensor_reshape(a,3,a_shape);
+	// Tensor *reshaped_b = tensor_reshape(b,3,b_shape);
+	// for(int b_idx = 0; b_idx < 2; b_idx++)
+	// {
+	// 	for(int i = 0; i < 2; i++)
+	// 	{
+	// 		for(int j = 0; j < 5; j++)
+	// 		{
+	// 			for(int k = 0; k < 2; k++)
+	// 			{
+	// 				printf("element: %f  idx : %i\n",tensor_get_num(reshaped_b,b_idx,k,j),b_idx);
+	// 			}
+		
+	// 		}
+	// 	}
+	// }
+	Tensor *c = tensor_matmul(a,b);
+	tensor_print(c);
+	free(c);
+	free(a);
+	free(b);
+	atexit(f);
+	 //tensor_print(c);
+	// tensor_print(a);
+	// printf("Tensor num %f",tensor_get_num(a,2,2,1,2));
+	// Tensor *d = tensor_reshape(&b,3,8,3,2);
+	// tensor_print(&b);
 }

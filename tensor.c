@@ -16,6 +16,8 @@ int	*create_shape(va_list arg,int dim)
 
 int	*create_stride(int num_dims, int *shape)
 {
+	if (!shape)
+		return NULL;
 	int *stride = malloc(num_dims);
 	if (!stride)
 		return NULL;
@@ -30,6 +32,8 @@ int	*create_stride(int num_dims, int *shape)
 
 void	add_options(va_list arg,Tensor *tensor)
 {
+	if (!tensor)
+		return ;
 	tensor->device = CPU;
 	tensor->dtype = FLOAT32;
 	tensor->requires_grad = 1;
@@ -53,6 +57,8 @@ void	add_options(va_list arg,Tensor *tensor)
 }
 float	*create_empty_data(int dim,int *shape)
 {
+	if (!shape)
+		return NULL;
 	int data_size = 1;
 	for(int i = 0; i < dim; i++)
 	{
@@ -65,6 +71,8 @@ float	*create_empty_data(int dim,int *shape)
 }
 int		tensor_entries_len(Tensor *tensor)
 {
+	if (!tensor)
+		return -1;
 	int count = 1;
 	for(int i = 0; i < tensor->num_dims; i++)
 	{
@@ -75,6 +83,8 @@ int		tensor_entries_len(Tensor *tensor)
 
 void	tensor_fill(Tensor *tensor, float num)
 {
+	if (!tensor)
+		return ;
 	int tensor_entries_num = tensor_entries_len(tensor);
 	float *data = (float *)tensor->data;
 	for(int i = 0; i < tensor_entries_num;i++)
@@ -90,8 +100,14 @@ Tensor	 *tensor_empty(int dim,...)
 
 	va_start(arg,dim);
 	tensor->shape =  create_shape(arg,dim);
+	tensor->strides = create_stride(dim, tensor->shape);
+	if (!tensor->shape || !tensor->strides)
+	{
+		free(tensor->shape);
+		free(tensor->strides);
+		return NULL;
+	}
 	tensor->num_dims = dim;
-	tensor->strides = create_stride(tensor->num_dims, tensor->shape);
 	add_options(arg,tensor);
 	tensor->data = (float *)create_empty_data(dim,tensor->shape);
 	va_end(arg);
@@ -156,6 +172,8 @@ void print_tensor_recursive(float *data, int *shape, int *strides, int num_dims,
 
 void tensor_print(Tensor *tensor) 
 {
+	if (!tensor)
+		return ;
     if (tensor->num_dims <= 0) {
         printf("Error: Tensor must have at least 1 dimension.\n");
         return;
@@ -208,8 +226,14 @@ Tensor *tensor_rand(int dim,...)
 
 	va_start(arg,dim);
 	tensor->shape =  create_shape(arg,dim);
+	tensor->strides = create_stride(dim, tensor->shape);
+	if (!tensor->shape || !tensor->strides)
+	{
+		free(tensor->shape);
+		free(tensor->strides);
+		return NULL;
+	}
 	tensor->num_dims = dim;
-	tensor->strides = create_stride(tensor->num_dims, tensor->shape);
 	add_options(arg,tensor);
 	float *data = (float *)create_empty_data(dim,tensor->shape);
 	for(int i = 0; i < tensor_entries_len(tensor); i++)
@@ -221,13 +245,4 @@ Tensor *tensor_rand(int dim,...)
 	return tensor;
 }
 
-Tensor *tensor_reshape(Tensor *a,int num_dim,int *shape)
-{
 
-	Tensor *res = (Tensor *)malloc(sizeof(Tensor));
-	res->num_dims = num_dim;
-	res->shape = shape;
-	res->strides = create_stride(num_dim, shape);
-	res->data = a->data;
-	return res;
-}
