@@ -3,7 +3,7 @@
 #include "../tensor.h"
 
 void test_tensor_empty() {
-    Tensor tensor = tensor_empty(2, 3, 4,NULL,NULL); // Create a 2D tensor (3x4)
+    Tensor tensor = tensor_empty(2, 3, 4,0); // Create a 2D tensor (3x4)
     assert(tensor.num_dims == 2);
     assert(tensor.shape[0] == 3);
     assert(tensor.shape[1] == 4);

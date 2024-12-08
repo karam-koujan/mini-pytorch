@@ -116,36 +116,52 @@ Tensor	 *tensor_empty(int dim,...)
 	return tensor;
 }
 
-Tensor tensor_zeros(int dim,...)
+Tensor *tensor_zeros(int dim,...)
 {
 	va_list arg;
-	Tensor tensor;
+	Tensor *tensor = (Tensor *)malloc(sizeof(Tensor));
 
 	va_start(arg,dim);
-	tensor.shape =  create_shape(arg,dim);
-	tensor.num_dims = dim;
-	tensor.strides = create_stride(tensor.num_dims, tensor.shape);
-	add_options(arg,&tensor);
-	tensor.data = (float *)create_empty_data(dim,tensor.shape);
-	tensor_fill(&tensor,0);
+	tensor->shape =  create_shape(arg,dim);
+	tensor->strides = create_stride(dim, tensor->shape);
+	if (!tensor->shape || !tensor->strides)
+	{
+		free(tensor->shape);
+		free(tensor->strides);
+		return NULL;
+	}
+	tensor->num_dims = dim;
+	int op = va_arg(arg, int);
+	if (op > 0)
+		add_options(arg,tensor);
+	tensor->data = (float *)create_empty_data(dim,tensor->shape);
+	tensor_fill(tensor,0);
 	va_end(arg);
 	return tensor;
 }
 
 
 
-Tensor tensor_ones(int dim,...)
+Tensor *tensor_ones(int dim,...)
 {
 	va_list arg;
-	Tensor tensor;
+	Tensor *tensor = (Tensor *)malloc(sizeof(Tensor));
 
 	va_start(arg,dim);
-	tensor.shape =  create_shape(arg,dim);
-	tensor.num_dims = dim;
-	tensor.strides = create_stride(tensor.num_dims, tensor.shape);
-	add_options(arg,&tensor);
-	tensor.data = (float *)create_empty_data(dim,tensor.shape);
-	tensor_fill(&tensor,1);
+	tensor->shape =  create_shape(arg,dim);
+	tensor->strides = create_stride(dim, tensor->shape);
+	if (!tensor->shape || !tensor->strides)
+	{
+		free(tensor->shape);
+		free(tensor->strides);
+		return NULL;
+	}
+	tensor->num_dims = dim;
+	int op = va_arg(arg, int);
+	if (op > 0)
+		add_options(arg,tensor);
+	tensor->data = (float *)create_empty_data(dim,tensor->shape);
+	tensor_fill(tensor,1);
 	va_end(arg);
 	return tensor;
 }
@@ -194,19 +210,29 @@ void tensor_print(Tensor *tensor)
     printf("\n");
 }
 
-Tensor tensor_full(int dim,...)
+Tensor *tensor_full(int dim,...)
 {
 	va_list arg;
-	Tensor tensor;
+	Tensor *tensor = (Tensor *)malloc(sizeof(Tensor));
 
 	va_start(arg,dim);
-	tensor.shape =  create_shape(arg,dim);
-	tensor.num_dims = dim;
-	tensor.strides = create_stride(tensor.num_dims, tensor.shape);
-	add_options(arg,&tensor);
-	tensor.data = (float *)create_empty_data(dim,tensor.shape);
+	tensor->shape =  create_shape(arg,dim);
+	tensor->strides = create_stride(dim, tensor->shape);
+	if (!tensor->shape || !tensor->strides)
+	{
+		free(tensor->shape);
+		free(tensor->strides);
+		va_end(arg);
+		return NULL;
+	}
+	tensor->num_dims = dim;
 	float fill_value = va_arg(arg,double);
-	tensor_fill(&tensor,fill_value);
+	int op = va_arg(arg, int);
+	if (op > 0)
+		add_options(arg,tensor);
+	
+	tensor->data = (float *)create_empty_data(dim,tensor->shape);
+	tensor_fill(tensor,fill_value);
 	va_end(arg);
 	return tensor;
 }

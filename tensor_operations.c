@@ -217,9 +217,13 @@ Tensor *tensor_reshape(Tensor *a,int num_dim,int *shape)
 	res->num_dims = num_dim;
 	res->shape = shape;
 	if (a->strides[0] == 0)
+	{
 		res->strides = a->strides;
+	}
 	else
+	{
 		res->strides = create_stride(num_dim,shape);
+	}
 	if (!res->strides)
 	{
 		free(res);
