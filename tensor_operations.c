@@ -143,7 +143,7 @@ Tensor	*tensor_matmul(Tensor *a, Tensor *b)
 {
 	if (tensor_validate_shape(a,b) == -1)
 		return NULL;
-	Tensor **broadcasted_tensors = tensor_broadcast(a,b,'m');
+	Tensor **broadcasted_tensors =  tensor_broadcast(a,b,'m');
 	if (!broadcasted_tensors)
 		return (NULL);
 	a = broadcasted_tensors[0];
@@ -209,6 +209,50 @@ Tensor	*tensor_matmul(Tensor *a, Tensor *b)
 	return result;
 }
 
+Tensor *tensor_add(Tensor *a, Tensor *b)
+{
+	if (tensor_is_broadcastable(a,b,'e') == -1)
+		return NULL;
+	Tensor **arr = tensor_broadcast(a,b,'e');
+	Tensor *res = tensor_empty(1,1,0);
+	if (!arr || !res)
+	{
+		free(arr[0]);
+		free(arr[1]);
+		free(arr);
+		free(res);
+	}
+	a = arr[0];
+	b = arr[1];
+	int size = 1;
+	for(int i = 0; i < a->num_dims; i++)
+	{
+		size*= a->shape[i];
+	}
+	
+	res->num_dims = a->num_dims;
+	memcpy(res->shape,a->shape,a->num_dims * sizeof(int));
+	res->data = create_empty_data(a->num_dims,res->shape);
+	res->strides = create_stride(a->num_dims,res->shape);
+	if (!res->data || !res->data)
+	{
+		free(arr[0]);
+		free(arr[1]);
+		free(arr);
+		free(res);
+		free(res->data);
+		free(res->strides);
+	}
+	for(int i = 0 ; i < size; i++)
+	{
+		float *res_data  = res->data;
+		float *a_data  = a->data;
+		float *b_data  = b->data;
+		res_data[i] = a_data[i] + b_data[i]; 
+	}
+	return res;
+}
+
 Tensor *tensor_reshape(Tensor *a,int num_dim,int *shape)
 {
 	Tensor *res = (Tensor *)malloc(sizeof(Tensor));
@@ -218,7 +262,7 @@ Tensor *tensor_reshape(Tensor *a,int num_dim,int *shape)
 	res->shape = shape;
 	if (a->strides[0] == 0)
 	{
-		res->strides = a->strides;
+		memcpy(res->strides,a->strides,num_dim * sizeof(int));
 	}
 	else
 	{
@@ -234,3 +278,11 @@ Tensor *tensor_reshape(Tensor *a,int num_dim,int *shape)
 }
 
 
+int main()
+{
+	Tensor *a = tensor_full(2,2,2,5.0,0);
+	Tensor *b = tensor_full(2,2,2,3.0,0);
+	tensor_print(a);
+	tensor_print(b);
+	tensor_print(tensor_add(a,b));
+}
