@@ -74,53 +74,45 @@ Tensor	**tensor_broadcast(Tensor *a, Tensor *b, char type)
 		return NULL;
 	}
 
-	for (int d = 0; d < dims; d++) {
+	for (int d = 0; d < dims + 1; d++) {
 		new_a_shape[d] = (d >= dims - a->num_dims) ? a->shape[d - (dims - a->num_dims)] : 1;
 		new_b_shape[d] = (d >= dims - b->num_dims) ? b->shape[d - (dims - b->num_dims)] : 1;
 		new_a_stride[d] = (d >= dims - a->num_dims) ? a->strides[d - (dims - a->num_dims)] : 0;
 		new_b_stride[d] = (d >= dims - b->num_dims) ? b->strides[d - (dims - b->num_dims)] : 0;
 	}
-    while (i >= 0 && j >= 0) {
-        if (a->shape[j] > b->shape[i]) {
-            new_b_shape[i] = a->shape[j];
-        }
-        if (a->shape[j] < b->shape[i]) {
-        	new_a_shape[i] = b->shape[j];
-        }
-        i--;
-        j--;
-    }
-	while(i >= 0 && j < 0)
+	for (int i = dims ; i >=0; i--)
 	{
-    new_a_shape[i] = b->shape[i];
-    new_a_stride[i] = 0;
-    i--;
-	}
-	while(j >= 0 && i < 0)
-	{
-		new_b_shape[j] = a->shape[j];
-		new_b_stride[j] = 0;
-		j--;
+		if (new_a_shape[i] == 1 && new_b_shape[i] > 1)
+		{
+			new_a_shape[i] = new_b_shape[i];
+    		new_a_stride[i] = 0;
+		}
+		else if(new_b_shape[i] == 1 && new_a_shape[i] > 1)
+		{
+			new_b_shape[i] = new_a_shape[i];
+    		new_b_stride[i] = 0;
+		}
+	
 	}
 	Tensor *new_a = tensor_empty(1,1,0);
 	Tensor *new_b = tensor_empty(1,1,0);
-	if (!new_b || !new_a)
-	{
-		free(new_b);
-		free(new_a);
-		free(new_a_shape);
-		free(new_b_shape);
-		free(new_a_stride);
-		free(new_b_stride);
-		return NULL;
-	}
-	new_a->shape = new_a_shape;
+	// if (!new_b || !new_a)
+	// {
+	// 	free(new_b);
+	// 	free(new_a);
+	// 	free(new_a_shape);
+	// 	free(new_b_shape);
+	// 	free(new_a_stride);
+	// 	free(new_b_stride);
+	// 	return NULL;
+	// }
+	memcpy(new_a->shape,new_a_shape, dims * sizeof(int));
+	memcpy(new_a->strides,new_a_stride, dims * sizeof(int));
+	memcpy(new_b->shape,new_b_shape, dims * sizeof(int));
+	memcpy(new_b->strides,new_b_stride, dims * sizeof(int));
 	new_a->data = a->data;
-	new_a->strides = new_a_stride;
 	new_a->num_dims = dims;
-	new_b->shape = new_b_shape;
 	new_b->data = b->data;
-	new_b->strides = new_b_stride;
 	new_b->num_dims = dims;
 	Tensor **res = (Tensor **)malloc(2 * sizeof(Tensor *));
 	if (!res)
@@ -224,12 +216,13 @@ Tensor *tensor_add(Tensor *a, Tensor *b)
 	}
 	a = arr[0];
 	b = arr[1];
+	tensor_print(a);
+	tensor_print(b);
 	int size = 1;
 	for(int i = 0; i < a->num_dims; i++)
 	{
 		size*= a->shape[i];
 	}
-	
 	res->num_dims = a->num_dims;
 	memcpy(res->shape,a->shape,a->num_dims * sizeof(int));
 	res->data = create_empty_data(a->num_dims,res->shape);
@@ -243,12 +236,17 @@ Tensor *tensor_add(Tensor *a, Tensor *b)
 		free(res->data);
 		free(res->strides);
 	}
+	int shape[1] = {size};
+	Tensor *reshaped_a = tensor_reshape(a,1,shape);
+	Tensor *reshaped_b = tensor_reshape(b,1,shape);
+
 	for(int i = 0 ; i < size; i++)
 	{
 		float *res_data  = res->data;
 		float *a_data  = a->data;
 		float *b_data  = b->data;
-		res_data[i] = a_data[i] + b_data[i]; 
+		int idx = 
+		res_data[i] = tensor_get_num(reshaped_a,i) + tensor_get_num(reshaped_b,i);
 	}
 	return res;
 }
@@ -280,9 +278,7 @@ Tensor *tensor_reshape(Tensor *a,int num_dim,int *shape)
 
 int main()
 {
-	Tensor *a = tensor_full(2,2,2,5.0,0);
-	Tensor *b = tensor_full(2,2,2,3.0,0);
-	tensor_print(a);
-	tensor_print(b);
+	Tensor *a = tensor_ones(3,2,3,2,0);
+	Tensor *b = tensor_ones(2,1,2,0);
 	tensor_print(tensor_add(a,b));
 }
