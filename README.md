@@ -1,4 +1,4 @@
-# Mini-PyTorch in C
+# Mini-PyTorch
 
 This project is a simplified version of PyTorch implemented in C, aiming to replicate essential tensor operations and functionalities, including tensor creation, broadcasting, matrix operations, and eventually, building a neural network.
 
