@@ -213,11 +213,10 @@ Tensor *tensor_add(Tensor *a, Tensor *b)
 		free(arr[1]);
 		free(arr);
 		free(res);
+		return NULL;
 	}
 	a = arr[0];
 	b = arr[1];
-	tensor_print(a);
-	tensor_print(b);
 	int size = 1;
 	for(int i = 0; i < a->num_dims; i++)
 	{
@@ -245,7 +244,6 @@ Tensor *tensor_add(Tensor *a, Tensor *b)
 		float *res_data  = res->data;
 		float *a_data  = a->data;
 		float *b_data  = b->data;
-		int idx = 
 		res_data[i] = tensor_get_num(reshaped_a,i) + tensor_get_num(reshaped_b,i);
 	}
 	return res;
@@ -257,10 +255,16 @@ Tensor *tensor_reshape(Tensor *a,int num_dim,int *shape)
 	if (!res)
 		return NULL;
 	res->num_dims = num_dim;
-	res->shape = shape;
+  	res->shape = (int *)malloc(num_dim * sizeof(int));
+    if (!res->shape)
+    {
+        free(res);
+        return NULL;
+    }
+    memcpy(res->shape, shape, num_dim * sizeof(int));
 	if (a->strides[0] == 0)
 	{
-		memcpy(res->strides,a->strides,num_dim * sizeof(int));
+	  res->strides = a->strides;
 	}
 	else
 	{
