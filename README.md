@@ -6,7 +6,7 @@ This project is a simplified version of PyTorch implemented in C, aiming to repl
 
 - [Overview](#overview)
 - [Tensor Creation Functions](#tensor-creation-functions)
--[Tensor Operations](#tensor-operations)
+- [Tensor Operations](#tensor-operations)
 
 ## Overview
 
