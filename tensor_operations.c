@@ -282,7 +282,7 @@ Tensor *tensor_reshape(Tensor *a,int num_dim,int *shape)
 
 int main()
 {
-	Tensor *a = tensor_ones(3,2,3,2,0);
-	Tensor *b = tensor_ones(2,1,2,0);
-	tensor_print(tensor_add(a,b));
+	Tensor *a = tensor_full(2,2,2,3.0,0);
+	Tensor *b = tensor_full(3,2,2,2,2.0,0);
+	tensor_print(tensor_matmul(a,b));
 }
