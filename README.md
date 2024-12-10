@@ -10,7 +10,6 @@ This project is a simplified version of PyTorch implemented in C, aiming to repl
   - [Tensor Reshaping](#tensor-reshaping)
   - [Tensor Broadcasting](#tensor-broadcasting)
   - [Tensor Operations](#tensor-operations)
-- [Memory Management](#memory-management)
 - [Backpropagation and Gradients](#backpropagation-and-gradients)
 - [Neural Network](#neural-network)
 - [Usage Examples](#usage-examples)
