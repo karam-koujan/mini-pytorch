@@ -201,7 +201,7 @@ Tensor	*tensor_matmul(Tensor *a, Tensor *b)
 	return result;
 }
 
-Tensor *tensor_add(Tensor *a, Tensor *b)
+Tensor *tensor_pairwise_operation(Tensor *a, Tensor *b, char operation)
 {
 	if (tensor_is_broadcastable(a,b,'e') == -1)
 		return NULL;
@@ -244,9 +244,33 @@ Tensor *tensor_add(Tensor *a, Tensor *b)
 		float *res_data  = res->data;
 		float *a_data  = a->data;
 		float *b_data  = b->data;
-		res_data[i] = tensor_get_num(reshaped_a,i) + tensor_get_num(reshaped_b,i);
+		if (operation == '+')
+			res_data[i] = tensor_get_num(reshaped_a,i) + tensor_get_num(reshaped_b,i);
+		if (operation == '-')
+			res_data[i] = tensor_get_num(reshaped_a,i) - tensor_get_num(reshaped_b,i);
+		if (operation == '*')
+			res_data[i] = tensor_get_num(reshaped_a,i) * tensor_get_num(reshaped_b,i);
+		if (operation == '/')
+			res_data[i] = tensor_get_num(reshaped_a,i) / tensor_get_num(reshaped_b,i);
 	}
 	return res;
+}
+
+Tensor *tensor_add(Tensor *a, Tensor *b)
+{
+	return tensor_pairwise_operation(a,b,'+');
+}
+Tensor *tensor_sub(Tensor *a, Tensor *b)
+{
+	return tensor_pairwise_operation(a,b,'-');
+}
+Tensor *tensor_div(Tensor *a, Tensor *b)
+{
+	return tensor_pairwise_operation(a,b,'/');
+}
+Tensor *tensor_pairwise_mul(Tensor *a, Tensor *b)
+{
+	return tensor_pairwise_operation(a,b,'*');
 }
 
 Tensor *tensor_reshape(Tensor *a,int num_dim,int *shape)
@@ -284,5 +308,9 @@ int main()
 {
 	Tensor *a = tensor_full(2,2,2,3.0,0);
 	Tensor *b = tensor_full(3,2,2,2,2.0,0);
-	tensor_print(tensor_matmul(a,b));
+	tensor_print(tensor_add(a,b));
+	tensor_print(tensor_sub(a,b));
+	tensor_print(tensor_pairwise_mul(a,b));
+	tensor_print(tensor_div(a,b));
+
 }

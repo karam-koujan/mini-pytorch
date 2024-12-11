@@ -51,5 +51,10 @@ int tensor_validate_shape(Tensor *a, Tensor *b);
 int	tensor_is_broadcastable(Tensor *a,Tensor *b, char type);
 float	tensor_get_num(Tensor *a,...);
 Tensor *tensor_reshape(Tensor *a,int num_dim, int *shape);
+Tensor *tensor_pairwise_mul(Tensor *a, Tensor *b);
+Tensor *tensor_matmul(Tensor *a, Tensor *b);
+Tensor *tensor_div(Tensor *a, Tensor *b);
+Tensor *tensor_sub(Tensor *a, Tensor *b);
+Tensor *tensor_add(Tensor *a, Tensor *b);
 
 #endif
