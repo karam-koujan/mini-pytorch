@@ -96,16 +96,16 @@ Tensor	**tensor_broadcast(Tensor *a, Tensor *b, char type)
 	}
 	Tensor *new_a = tensor_empty(1,1,0);
 	Tensor *new_b = tensor_empty(1,1,0);
-	// if (!new_b || !new_a)
-	// {
-	// 	free(new_b);
-	// 	free(new_a);
-	// 	free(new_a_shape);
-	// 	free(new_b_shape);
-	// 	free(new_a_stride);
-	// 	free(new_b_stride);
-	// 	return NULL;
-	// }
+	if (!new_b || !new_a)
+	{
+		free(new_b);
+		free(new_a);
+		free(new_a_shape);
+		free(new_b_shape);
+		free(new_a_stride);
+		free(new_b_stride);
+		return NULL;
+	}
 	memcpy(new_a->shape,new_a_shape, dims * sizeof(int));
 	memcpy(new_a->strides,new_a_stride, dims * sizeof(int));
 	memcpy(new_b->shape,new_b_shape, dims * sizeof(int));
