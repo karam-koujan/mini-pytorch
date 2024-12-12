@@ -96,7 +96,7 @@ void test_add_options() {
     free(tensor->strides);
 }
 void test_tensor_zeros() {
-    Tensor *tensor = tensor_zeros(2, 3, 4, NULL, NULL,NULL); // Create a 2D tensor (3x4) filled with zeros
+    Tensor *tensor = tensor_zeros(2, 3, 4,0); // Create a 2D tensor (3x4) filled with zeros
     float *data = tensor->data;
 
     for (int i = 0; i < tensor_entries_len(tensor); i++) {

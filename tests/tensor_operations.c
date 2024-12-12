@@ -50,7 +50,7 @@ void test_tensor_is_broadcastable() {
     printf("Test Case 2 passed: Broadcastable with a 1 dimension.\n");
 
     Tensor *e = tensor_empty(3, 2, 3, 4,0);  // Shape (2, 3, 4)
-    Tensor *f = tensor_empty(3, 2, 5,0);     // Shape (2, 3)
+    Tensor *f = tensor_empty(2, 2, 5,0);     // Shape (2, 3)
     assert(tensor_is_broadcastable(e, f,'m') == 1);
     printf("Test Case 3 passed: Incompatible batch dimensions.\n");
 
@@ -71,3 +71,5 @@ void test_tensor_is_broadcastable() {
 
     printf("All test cases passed!\n");
 }
+
+
