@@ -131,6 +131,7 @@ Tensor	**tensor_broadcast(Tensor *a, Tensor *b, char type)
 	return res;
 }
 
+
 Tensor	*tensor_matmul(Tensor *a, Tensor *b)
 {
 	if (tensor_validate_shape(a,b) == -1)
@@ -142,12 +143,7 @@ Tensor	*tensor_matmul(Tensor *a, Tensor *b)
 	b = broadcasted_tensors[1];
 	int rows = a->shape[a->num_dims - 2];
 	int cols = b->shape[b->num_dims - 1];
-	int	batch_size = 1;
-
-	for (int i = 0; i < a->num_dims - 2; i++)
-	{
-		batch_size*= a->shape[i];
-	}
+	ssize_t	batch_size = tensor_size(a,a->num_dims - 2);
 	int	a_shape[3] = {batch_size,rows,a->shape[a->num_dims - 1]};
 	int b_shape[3] = {batch_size,b->shape[b->num_dims - 2],cols};
 	Tensor *res = tensor_empty(3,batch_size,rows,cols,0);
@@ -217,11 +213,7 @@ Tensor *tensor_pairwise_operation(Tensor *a, Tensor *b, char operation)
 	}
 	a = arr[0];
 	b = arr[1];
-	int size = 1;
-	for(int i = 0; i < a->num_dims; i++)
-	{
-		size*= a->shape[i];
-	}
+	ssize_t size = tensor_size(a,a->num_dims);
 	res->num_dims = a->num_dims;
 	memcpy(res->shape,a->shape,a->num_dims * sizeof(int));
 	res->data = create_empty_data(a->num_dims,res->shape);
@@ -312,5 +304,5 @@ int main()
 	tensor_print(tensor_sub(a,b));
 	tensor_print(tensor_pairwise_mul(a,b));
 	tensor_print(tensor_div(a,b));
-
+	tensor_print(tensor_matmul(a,b));
 }

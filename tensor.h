@@ -56,5 +56,6 @@ Tensor *tensor_matmul(Tensor *a, Tensor *b);
 Tensor *tensor_div(Tensor *a, Tensor *b);
 Tensor *tensor_sub(Tensor *a, Tensor *b);
 Tensor *tensor_add(Tensor *a, Tensor *b);
+ssize_t	tensor_size(Tensor *a, ssize_t num_dims);
 
 #endif

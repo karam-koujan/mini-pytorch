@@ -276,4 +276,17 @@ Tensor *tensor_rand(int dim,...)
 	return tensor;
 }
 
-
+ssize_t	tensor_size(Tensor *a, ssize_t num_dims)
+{
+	ssize_t size = 1;
+	if (num_dims > a->num_dims)
+	{
+		fprintf(stderr,"num_dims is bigger than the tensor dims!!");
+		return -1;
+	}
+	for(int i = 0; i < num_dims; i++)
+	{
+		size*= a->shape[i];
+	}
+	return size;
+}
