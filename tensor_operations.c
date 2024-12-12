@@ -58,8 +58,6 @@ Tensor	**tensor_broadcast(Tensor *a, Tensor *b, char type)
 	if(tensor_is_broadcastable(a,b,type) == -1)
 		return NULL;
 	
-	int	j = type == 'm' ? a->num_dims - 3 : a->num_dims - 1;
-	int i = type == 'm' ? b->num_dims - 3 : b->num_dims - 1;
 	int dims = a->num_dims > b->num_dims ? a->num_dims : b->num_dims;
 
   	int *new_a_shape = malloc(dims * sizeof(int));
@@ -234,8 +232,6 @@ Tensor *tensor_pairwise_operation(Tensor *a, Tensor *b, char operation)
 	for(int i = 0 ; i < size; i++)
 	{
 		float *res_data  = res->data;
-		float *a_data  = a->data;
-		float *b_data  = b->data;
 		if (operation == '+')
 			res_data[i] = tensor_get_num(reshaped_a,i) + tensor_get_num(reshaped_b,i);
 		if (operation == '-')

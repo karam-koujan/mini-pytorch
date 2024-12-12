@@ -1,8 +1,17 @@
 
-OBJ = tensor.o
+OBJ = tensor.o tensor_operations.o
 CFLAGS = -Wall -Wextra -Werror
+TESTOBJ = /tests/tensor.o /tests/tensor_operations.o
+NAME = mini-pytorch.a
+all : $(NAME)
 
-all: $(OBJ)
+$(NAME) : $(OBJ)
+	ar rc $(NAME) $^
 
 %.o : %.c tensor.h
-	$(CC) -c $(CFLAGS) $< -o $@
+	$(CC) -c  $< $(CFLAGS) -o $@
+
+clean :
+	rm -f $(OBJ)
+fclean : clean
+	rm -f $(NAME)
