@@ -129,7 +129,7 @@ Tensor	**tensor_broadcast(Tensor *a, Tensor *b, char type)
 	return res;
 }
 
-
+ 
 Tensor	*tensor_matmul(Tensor *a, Tensor *b)
 {
 	if (tensor_validate_shape(a,b) == -1)
@@ -291,14 +291,3 @@ Tensor *tensor_reshape(Tensor *a,int num_dim,int *shape)
 	return res;
 }
 
-
-int main()
-{
-	Tensor *a = tensor_full(2,2,2,3.0,0);
-	Tensor *b = tensor_full(3,2,2,2,2.0,0);
-	tensor_print(tensor_add(a,b));
-	tensor_print(tensor_sub(a,b));
-	tensor_print(tensor_pairwise_mul(a,b));
-	tensor_print(tensor_div(a,b));
-	tensor_print(tensor_matmul(a,b));
-}
