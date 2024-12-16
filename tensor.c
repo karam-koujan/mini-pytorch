@@ -290,9 +290,8 @@ ssize_t	tensor_size(Tensor *a, ssize_t num_dims)
 	}
 	return size;
 }
-Tensor *tensor_contigous_data(Tensor *a)
+float	*tensor_contigous_data(Tensor *a, int *new_shape)
 {
-	a->strides = create_stride(a->num_dims,a->shape);
 	int size = tensor_size(a,a->num_dims);
 	float *data = malloc(size * sizeof(float));
 	float *old_data = a->data;
@@ -302,19 +301,18 @@ Tensor *tensor_contigous_data(Tensor *a)
 	{
 		int tmp = i;
 		int offset = 0;
-		for(int j = 0; j < a->num_dims; j++)
+		for(int j = a->num_dims - 1; j >= 0; j--)
 		{
-			int coord = tmp % a->shape[j];
+			int coord = tmp % new_shape[j];
 			offset+= coord * a->strides[j];
-			tmp /= a->shape[j];
+			tmp /= new_shape[j];
 		}
 		data[i] = old_data[offset];
 	}
-	a->data = data;
-	return a;
+	return data;
 }
 
-Tensor *tensor_contigous(Tensor *a)
+float	*tensor_contigous(Tensor *a, int *new_shape)
 {
 	int is_contigious = 1;
 	int prev_stride = a->strides[0];
@@ -328,7 +326,7 @@ Tensor *tensor_contigous(Tensor *a)
 		prev_stride = a->strides[i];
 	}
 	if (is_contigious == 1)
-		return a;
-	return tensor_contigous_data(a);
+		return a->data;
+	return tensor_contigous_data(a, new_shape);
 }
 

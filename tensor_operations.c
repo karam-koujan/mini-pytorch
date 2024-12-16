@@ -287,7 +287,8 @@ Tensor *tensor_reshape(Tensor *a,int num_dim,int *shape)
 		free(res);
 		return NULL;
 	}
-	res->data = tensor_contigous(a->data);
+	res->data = tensor_contigous(a,shape);
+
 	return res;
 }
 
@@ -331,5 +332,6 @@ Tensor *tensor_transpose(Tensor *a, int dim0, int dim1)
 	res->num_dims = a->num_dims;
 	return res;
 }
+
 
 

@@ -73,3 +73,22 @@ void test_tensor_is_broadcastable() {
 }
 
 
+void test_tensor_reshape()
+{
+	Tensor *a = tensor_rand(2,2,3,0);
+	tensor_print(a);
+	Tensor *b = tensor_transpose(a,1,0);
+	tensor_print(b);
+	float *data = b->data;
+	printf("first number before reshape %f\n",data[1]);
+	b = tensor_reshape(b,b->num_dims,b->shape);
+	for(int i = 0 ; i < b->num_dims ; i++)
+	{
+		printf("%i ",b->strides[i]);
+	}
+	printf("\n");
+	tensor_print(b);
+	data = b->data;
+	printf("first number after reshape %f\n",data[1]);
+	printf("%f",tensor_get_num(b,0,1));
+}
