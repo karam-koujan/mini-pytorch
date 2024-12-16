@@ -300,13 +300,12 @@ Tensor *tensor_contigous_data(Tensor *a)
 		return NULL;
 	for(int i = 0; i < size; i++)
 	{
-		int idx = 0;
-		int tmp = idx;
+		int tmp = i;
 		int offset = 0;
 		for(int j = 0; j < a->num_dims; j++)
 		{
 			int coord = tmp % a->shape[j];
-			offset+= tmp * a->strides[j];
+			offset+= coord * a->strides[j];
 			tmp /= a->shape[j];
 		}
 		data[i] = old_data[offset];
@@ -330,6 +329,6 @@ Tensor *tensor_contigous(Tensor *a)
 	}
 	if (is_contigious == 1)
 		return a;
-	return tensor_create_contigous_data(a);
+	return tensor_contigous_data(a);
 }
 

@@ -291,3 +291,45 @@ Tensor *tensor_reshape(Tensor *a,int num_dim,int *shape)
 	return res;
 }
 
+Tensor *tensor_t(Tensor *a)
+{
+	Tensor *res = (Tensor *)malloc(sizeof(Tensor));
+	int dim = a->num_dims;
+	int *shape = (int *)malloc(a->num_dims * sizeof(int));
+	int *strides = (int *)malloc(a->num_dims * sizeof(int));
+	memcpy(shape,a->shape, a->num_dims * sizeof(int));
+	memcpy(strides,a->strides, a->num_dims * sizeof(int));
+	int tmp = strides[dim - 1];
+	strides[dim - 1] = strides[dim - 2];
+	strides[dim - 2] = tmp;
+	tmp = shape[dim - 1];
+	shape[dim - 1] = shape[dim - 2];
+	shape[dim - 2] = tmp;
+	res->shape = shape;
+	res->strides = strides;
+	res->data = a->data;
+	res->num_dims = a->num_dims;
+	return res;
+}
+
+Tensor *tensor_transpose(Tensor *a, int dim0, int dim1)
+{
+	Tensor *res = (Tensor *)malloc(sizeof(Tensor));
+	int *shape = (int *)malloc(a->num_dims * sizeof(int));
+	int *strides = (int *)malloc(a->num_dims * sizeof(int));
+	memcpy(shape,a->shape, a->num_dims * sizeof(int));
+	memcpy(strides,a->strides, a->num_dims * sizeof(int));
+	int tmp = strides[dim0];
+	strides[dim0] = strides[dim1];
+	strides[dim1] = tmp;
+	tmp = shape[dim0];
+	shape[dim0] = shape[dim1];
+	shape[dim1] = tmp;
+	res->shape = shape;
+	res->strides = strides;
+	res->data = a->data;
+	res->num_dims = a->num_dims;
+	return res;
+}
+
+
