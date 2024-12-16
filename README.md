@@ -27,10 +27,9 @@ The following functions allow the creation of tensors for different purposes:
 
 The following functions allow operations on tensors:
 
-- **`tensor_reshape`**: returns a new tensor with new shape but it does not copy the original tensor data.
-- **`tensor_broadcast`**: returns a new broadcasted tensors following the pytorch broadcasting semantics.
-- **`tensor_matmul`**: recreates the behavior of pytorch matmul, returning a batch matrix multiply, or matrix-matrix product if both arguments are two dimentional.
-- **`tensor_add`**: preforms pairwise addition if shapes are not equals it broadcasts the tensor according to the pytorch broadcasting semantics.
-
-
-
+- **`tensor_reshape(Tensor *input1, int dim, int *shape)`**: Returns a new tensor with new shape but it does not copy the original tensor data if data is contigious otherwise it create a contigious copy of the data.
+- **`tensor_broadcast(Tensor *input1,Tensor *input2)`**: Returns a new broadcasted tensors following the pytorch broadcasting semantics.
+- **`tensor_matmul(Tensor *input1,Tensor *input2)`**: Recreates the behavior of pytorch matmul, returning a batch matrix multiply, or matrix-matrix product if both arguments are two dimentional.
+- **`tensor_add(Tensor *input1,Tensor *input2)`**: Preforms pairwise addition if shapes are not equals it broadcasts the tensor according to the pytorch broadcasting semantics.
+- **`tensor_transpose(Tensor *input,dim0,dim1)`**: Returns a tensor that is a transposed version of input. The given dimensions dim0 and dim1 are swapped.
+- **`tensor_t(Tensor *input)`**: It transpose the last two dimensions.

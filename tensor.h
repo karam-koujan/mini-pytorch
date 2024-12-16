@@ -58,4 +58,6 @@ Tensor *tensor_sub(Tensor *a, Tensor *b);
 Tensor *tensor_add(Tensor *a, Tensor *b);
 ssize_t	tensor_size(Tensor *a, ssize_t num_dims);
 float	*tensor_contigous(Tensor *a, int *new_shape);
+Tensor *tensor_t(Tensor *a);
+Tensor *tensor_transpose(Tensor *a, int dim0, int dim1);
 #endif
