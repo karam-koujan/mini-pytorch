@@ -335,3 +335,18 @@ Tensor *tensor_transpose(Tensor *a, int dim0, int dim1)
 
 
 
+
+
+/*
+
+tensor_backward(tensor a)
+
+	a->gradfn 
+	ctx = 1;
+
+  
+
+
+
+
+*/
