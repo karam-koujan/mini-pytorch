@@ -192,6 +192,8 @@ Tensor	*tensor_matmul(Tensor *a, Tensor *b)
 		return NULL;
 	}
 	free(res);
+	result->is_leaf = 0;
+	result->grad_fn = tensor_backmatmul(a,b);
 	return result;
 }
 

@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+
 enum Dtype
 {
 	FLOAT32,
@@ -21,6 +22,7 @@ enum Device
 	GPU
 };
 
+
 typedef	struct
 {
 	void *data;
@@ -32,8 +34,14 @@ typedef	struct
 	int	requires_grad;
 	int num_dims;
 	int	is_leaf;
+	void *grad_fn;
 } Tensor;
 
+typedef struct
+{
+	Tensor **saved_tensors;
+	void *(**next_functions)(Tensor*,Tensor*);
+}	Grad_Node;
 Tensor *tensor_rand(int dim,...);
 void tensor_set_seed(unsigned int seed);
 float	generate_random();
@@ -61,4 +69,6 @@ ssize_t	tensor_size(Tensor *a, ssize_t num_dims);
 float	*tensor_contigous(Tensor *a, int *new_shape);
 Tensor *tensor_t(Tensor *a);
 Tensor *tensor_transpose(Tensor *a, int dim0, int dim1);
+void *tensor_backmatmul(Tensor *a, Tensor *b);
+
 #endif

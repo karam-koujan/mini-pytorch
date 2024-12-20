@@ -1,17 +1,11 @@
 #include "tensor.h"
 
-typedef struct
+void *tensor_backmatmul(Tensor *a, Tensor *b)
 {
-	Tensor **saved_tensors;
-	Tensor	*(**next_functions)(Tensor*,Tensor*);
-}	Node;
-
-Node *tensor_backmatmul(Tensor *a, Tensor *b)
-{
-	Node *node;
-	node = malloc(sizeof(Node *));
-	Tensor *(**next_functions)(Tensor*,Tensor*);
-	next_functions = malloc(2 * sizeof(	Tensor *(*)(Tensor*,Tensor*)));
+	Grad_Node *node;
+	node = malloc(sizeof(Grad_Node *));
+	void *(**next_functions)(Tensor*,Tensor*);
+	next_functions = malloc(2 * sizeof(	void *(*)(Tensor*,Tensor*)));
 	Tensor **saved_tensors = malloc(2 * sizeof(Tensor *));
 	if (!next_functions || !node || !saved_tensors)
 		free(next_functions);
@@ -35,3 +29,10 @@ Node *tensor_backmatmul(Tensor *a, Tensor *b)
 	return node; 
 }
 
+int main()
+{
+	Tensor *a = tensor_rand(2,2,2,0);
+	Tensor *b = tensor_rand(2,2,2,0);
+	Tensor *c = tensor_matmul(a,b);
+	
+}
