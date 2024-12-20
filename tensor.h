@@ -31,6 +31,7 @@ typedef	struct
 	void *grad;
 	int	requires_grad;
 	int num_dims;
+	int	is_leaf;
 } Tensor;
 
 Tensor *tensor_rand(int dim,...);

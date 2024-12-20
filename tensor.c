@@ -112,6 +112,7 @@ Tensor	 *tensor_empty(int dim,...)
 	if (op > 0)
 		add_options(arg,tensor);
 	tensor->data = (float *)create_empty_data(dim,tensor->shape);
+	tensor->is_leaf = 1;
 	va_end(arg);
 	return tensor;
 }
@@ -135,6 +136,7 @@ Tensor *tensor_zeros(int dim,...)
 	if (op > 0)
 		add_options(arg,tensor);
 	tensor->data = (float *)create_empty_data(dim,tensor->shape);
+	tensor->is_leaf = 1;
 	tensor_fill(tensor,0);
 	va_end(arg);
 	return tensor;
@@ -161,6 +163,7 @@ Tensor *tensor_ones(int dim,...)
 	if (op > 0)
 		add_options(arg,tensor);
 	tensor->data = (float *)create_empty_data(dim,tensor->shape);
+	tensor->is_leaf = 1;
 	tensor_fill(tensor,1);
 	va_end(arg);
 	return tensor;
@@ -232,6 +235,7 @@ Tensor *tensor_full(int dim,...)
 		add_options(arg,tensor);
 	
 	tensor->data = (float *)create_empty_data(dim,tensor->shape);
+	tensor->is_leaf = 1;
 	tensor_fill(tensor,fill_value);
 	va_end(arg);
 	return tensor;
@@ -272,6 +276,7 @@ Tensor *tensor_rand(int dim,...)
 		data[i] = generate_random(); 
 	}
 	tensor->data = data;
+	tensor->is_leaf = 1;
 	va_end(arg);
 	return tensor;
 }
