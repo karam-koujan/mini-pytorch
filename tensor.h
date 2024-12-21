@@ -31,6 +31,7 @@ typedef	struct
 	enum Dtype dtype;
 	enum Device device;
 	void *grad;
+	int size;
 	int	requires_grad;
 	int num_dims;
 	int	is_leaf;
