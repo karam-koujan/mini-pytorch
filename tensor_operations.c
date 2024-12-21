@@ -94,6 +94,8 @@ Tensor	**tensor_broadcast(Tensor *a, Tensor *b, char type)
 	}
 	Tensor *new_a = tensor_empty(1,1,0);
 	Tensor *new_b = tensor_empty(1,1,0);
+	new_a->size = a->size;
+	new_b->size = b->size;
 	if (!new_b || !new_a)
 	{
 		free(new_b);
@@ -137,6 +139,7 @@ Tensor	*tensor_matmul(Tensor *a, Tensor *b)
 	Tensor **broadcasted_tensors =  tensor_broadcast(a,b,'m');
 	if (!broadcasted_tensors)
 		return (NULL);
+		
 	a = broadcasted_tensors[0];
 	b = broadcasted_tensors[1];
 	int rows = a->shape[a->num_dims - 2];
@@ -294,6 +297,7 @@ Tensor *tensor_reshape(Tensor *a,int num_dim,int *shape)
 	// 	return res;
 	// }
 	res->strides = create_stride(num_dim,shape);
+	res->size = a->size;
 	if (!res->strides)
 	{
 		free(res);

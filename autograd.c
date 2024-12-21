@@ -28,6 +28,7 @@ void *tensor_backmatmul(Tensor *a, Tensor *b)
 		}
 	}
 	Tensor *grad_a = tensor_ones(a->num_dims,a->shape,0);
+	printf("size b : %i", b->size);
 	tensor_print(grad_a);
 	grad_a = tensor_pairwise_mul(grad_a,b);
 	tensor_print(grad_a);
@@ -45,6 +46,6 @@ int main()
 	Tensor *a = tensor_rand(2,2,2,0);
 	Tensor *b = tensor_rand(2,2,1,0);
 	Tensor *c = tensor_matmul(a,b);
-	//Tensor *c = tensor_pairwise_mul(a,b);
+	// Tensor *c = tensor_pairwise_mul(a,b);
 	tensor_print(b);
 }

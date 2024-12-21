@@ -317,7 +317,7 @@ float	*tensor_contigous_data(Tensor *a, int *new_shape)
 			offset+= coord * a->strides[j];
 			tmp /= new_shape[j];
 		}
-		data[i] = old_data[offset%2];
+		data[i] = old_data[offset % a->size];
 	}
 	return data;
 }
