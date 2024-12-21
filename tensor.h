@@ -39,6 +39,7 @@ typedef	struct
 
 typedef struct
 {
+	Tensor *grad;
 	Tensor **saved_tensors;
 	void *(**next_functions)(Tensor*,Tensor*);
 }	Grad_Node;
@@ -70,5 +71,7 @@ float	*tensor_contigous(Tensor *a, int *new_shape);
 Tensor *tensor_t(Tensor *a);
 Tensor *tensor_transpose(Tensor *a, int dim0, int dim1);
 void *tensor_backmatmul(Tensor *a, Tensor *b);
+Tensor	**tensor_broadcast(Tensor *a, Tensor *b, char type);
+
 
 #endif
