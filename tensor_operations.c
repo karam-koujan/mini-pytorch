@@ -230,10 +230,8 @@ Tensor *tensor_pairwise_operation(Tensor *a, Tensor *b, char operation)
 		return NULL;
 	}
 	int shape[1] = {size};
-	tensor_print(b);
 	Tensor *reshaped_a = tensor_reshape(a,1,shape);
 	Tensor *reshaped_b = tensor_reshape(b,1,shape);
-	tensor_print(reshaped_b);
 	for(int i = 0 ; i < size; i++)
 	{
 		float *res_data  = res->data;
@@ -243,7 +241,6 @@ Tensor *tensor_pairwise_operation(Tensor *a, Tensor *b, char operation)
 			res_data[i] = tensor_get_num(reshaped_a,i) - tensor_get_num(reshaped_b,i);
 		if (operation == '*')
 		{
-			printf("%li ",i % size);
 			res_data[i] = tensor_get_num(reshaped_a,i) * tensor_get_num(reshaped_b,i);
 		}
 		if (operation == '/')
@@ -282,23 +279,7 @@ Tensor *tensor_reshape(Tensor *a,int num_dim,int *shape)
         return NULL;
     }
     memcpy(res->shape, shape, num_dim * sizeof(int));
-	int is_broadcasted = 0;
-	for(int i = 0; i < a->num_dims; i++)
-	{
-		if (a->strides[i] == 0)
-		{
-			is_broadcasted = 1;
-			break;
-		}
-	}
-	if (is_broadcasted)
-	{
-		res->strides = create_stride(num_dim,shape);
-	}
-	else
-	{
-		res->strides = create_stride(num_dim,shape);
-	}
+	res->strides = create_stride(num_dim,shape);
 	if (!res->strides)
 	{
 		free(res);

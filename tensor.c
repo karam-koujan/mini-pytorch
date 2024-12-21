@@ -323,6 +323,11 @@ float	*tensor_contigous(Tensor *a, int *new_shape)
 	int prev_stride = a->strides[0];
 	for(int i = 1; i < a->num_dims;i++)
 	{
+		if (a->strides[i] == 0)
+		{
+			is_contigious = 0;
+			break;
+		}
 		if (a->strides[i] > prev_stride)
 		{
 			is_contigious = 0;
