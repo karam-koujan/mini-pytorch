@@ -279,13 +279,31 @@ Tensor *tensor_reshape(Tensor *a,int num_dim,int *shape)
         return NULL;
     }
     memcpy(res->shape, shape, num_dim * sizeof(int));
+	// int is_broadcasted = 0;
+	// for(int i = 1; i < a->num_dims;i++)
+	// {
+	// 	if (a->strides[i] == 0)
+	// 	{
+	// 		is_broadcasted = 1;
+	// 	}
+	// }
+	// if (is_broadcasted)
+	// {
+	// 	res->strides = a->strides;
+	// 	res->data = tensor_contigous(a,shape);
+	// 	return res;
+	// }
 	res->strides = create_stride(num_dim,shape);
 	if (!res->strides)
 	{
 		free(res);
 		return NULL;
 	}
-	res->data = tensor_contigous(a,shape);
+	res->data = a->data;
+	if (tensor_is_contigious(a)){
+		return res;
+	}
+	res->data = tensor_contigous(res,shape);
 	return res;
 }
 

@@ -48,7 +48,7 @@ void tensor_set_seed(unsigned int seed);
 float	generate_random();
 void tensor_print(Tensor *tensor);
 Tensor *tensor_full(int dim,...);
-Tensor *tensor_ones(int dim,...);
+Tensor *tensor_ones(int dim,int *shape,...);
 Tensor *tensor_zeros(int dim,...);
 Tensor	 *tensor_empty(int dim,...);
 void	tensor_fill(Tensor *tensor, float num);
@@ -72,6 +72,6 @@ Tensor *tensor_t(Tensor *a);
 Tensor *tensor_transpose(Tensor *a, int dim0, int dim1);
 void *tensor_backmatmul(Tensor *a, Tensor *b);
 Tensor	**tensor_broadcast(Tensor *a, Tensor *b, char type);
-
+int tensor_is_contigious(Tensor *a);
 
 #endif

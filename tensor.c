@@ -144,13 +144,13 @@ Tensor *tensor_zeros(int dim,...)
 
 
 
-Tensor *tensor_ones(int dim,...)
+Tensor *tensor_ones(int dim,int *shape,...)
 {
 	va_list arg;
 	Tensor *tensor = (Tensor *)malloc(sizeof(Tensor));
 
-	va_start(arg,dim);
-	tensor->shape =  create_shape(arg,dim);
+	va_start(arg,shape);
+	tensor->shape =  shape;
 	tensor->strides = create_stride(dim, tensor->shape);
 	if (!tensor->shape || !tensor->strides)
 	{
@@ -312,16 +312,16 @@ float	*tensor_contigous_data(Tensor *a, int *new_shape)
 			offset+= coord * a->strides[j];
 			tmp /= new_shape[j];
 		}
-		data[i] = old_data[offset];
+		data[i] = old_data[offset%2];
 	}
 	return data;
 }
 
-float	*tensor_contigous(Tensor *a, int *new_shape)
+int tensor_is_contigious(Tensor *a)
 {
 	int is_contigious = 1;
 	int prev_stride = a->strides[0];
-	for(int i = 1; i < a->num_dims;i++)
+	for(int i = 0; i < a->num_dims;i++)
 	{
 		if (a->strides[i] == 0)
 		{
@@ -335,8 +335,11 @@ float	*tensor_contigous(Tensor *a, int *new_shape)
 		}
 		prev_stride = a->strides[i];
 	}
-	if (is_contigious == 1)
-		return a->data;
+	return is_contigious;
+}
+
+float	*tensor_contigous(Tensor *a, int *new_shape)
+{
 	return tensor_contigous_data(a, new_shape);
 }
 
