@@ -139,7 +139,7 @@ Tensor	*tensor_matmul(Tensor *a, Tensor *b)
 	Tensor **broadcasted_tensors =  tensor_broadcast(a,b,'m');
 	if (!broadcasted_tensors)
 		return (NULL);
-		
+	Grad_Node *grad_fn = tensor_backmatmul(a,b);
 	a = broadcasted_tensors[0];
 	b = broadcasted_tensors[1];
 	int rows = a->shape[a->num_dims - 2];
@@ -196,7 +196,7 @@ Tensor	*tensor_matmul(Tensor *a, Tensor *b)
 	}
 	free(res);
 	result->is_leaf = 0;
-	result->grad_fn = tensor_backmatmul(a,b);
+	result->grad_fn = grad_fn;
 	return result;
 }
 
