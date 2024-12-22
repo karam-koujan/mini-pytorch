@@ -32,6 +32,7 @@ void *tensor_backmatmul(Tensor *a, Tensor *b)
 	tensor_print(grad_a);
 	grad_a = tensor_pairwise_mul(grad_a,b);
 	tensor_print(grad_a);
+	Tensor *grad_b = tensor_ones(b->num_dims,b->shape,0);
 	node->next_functions = next_functions;
 	node->saved_tensors = saved_tensors;
 	return node; 
@@ -43,8 +44,8 @@ void	tensor_accumulate_grad(Tensor *a, Tensor *grad)
 
 int main()
 {
-	Tensor *a = tensor_rand(2,2,2,0);
-	Tensor *b = tensor_rand(2,2,1,0);
+	Tensor *a = tensor_rand(2,3,3,0);
+	Tensor *b = tensor_rand(2,3,1,0);
 	Tensor *c = tensor_matmul(a,b);
 	// Tensor *c = tensor_pairwise_mul(a,b);
 	tensor_print(b);
