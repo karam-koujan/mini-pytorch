@@ -16,12 +16,79 @@ This project implements a mini version of PyTorch using the C programming langua
 
 The following functions allow the creation of tensors for different purposes:
 
-- **`tensor_empty`**: Creates a tensor with an uninitialized data buffer.
-- **`tensor_zeros`**: Creates a tensor filled with zeros.
-- **`tensor_ones`**: Creates a tensor filled with ones.
-- **`tensor_rand`**: Creates a tensor filled with random values between 0 and 1. The random number generation is seeded using `srand()` to ensure variability across runs.
-- **`tensor_full`**: Creates a tensor filled with a constant value (specified by the user).
-- **`tensor_print`**: prints a given tensor to stdout.
+- **`tensor_empty`**: 
+  - Creates a tensor with an uninitialized data buffer. The tensor's shape is defined by the `dim` and `shape` parameters, but the data values are not initialized, meaning they may contain garbage values.
+  - **Parameters:**
+    - `dim` (int): The number of dimensions of the tensor.
+    - `shape` (int*): An array specifying the size of each dimension.
+    - Additional arguments (`...`): Any other arguments that might be needed for tensor initialization.
+  - **Returns**: 
+    - `Tensor*`: A tensor with the specified shape but with uninitialized data.
+
+- **`tensor_zeros`**: 
+  - Creates a tensor filled with zeros. The tensor's shape is defined by the `dim` and `shape` parameters, and all elements are initialized to `0`.
+  - **Parameters:**
+    - `dim` (int): The number of dimensions of the tensor.
+    - `shape` (int*): An array specifying the size of each dimension.
+    - Additional arguments (`...`): Any other arguments that might be needed for tensor initialization.
+  - **Returns**:
+    - `Tensor*`: A tensor with the specified shape filled with zeros.
+
+- **`tensor_ones`**: 
+  - Creates a tensor filled with ones. The tensor's shape is defined by the `dim` and `shape` parameters, and all elements are initialized to `1`.
+  - **Parameters:**
+    - `dim` (int): The number of dimensions of the tensor.
+    - `shape` (int*): An array specifying the size of each dimension.
+    - Additional arguments (`...`): Any other arguments that might be needed for tensor initialization.
+  - **Returns**:
+    - `Tensor*`: A tensor with the specified shape filled with ones.
+
+- **`tensor_rand`**: 
+  - Creates a tensor filled with random values between 0 and 1. The random number generation is seeded using `srand()` to ensure variability across runs.
+  - **Parameters:**
+    - `dim` (int): The number of dimensions of the tensor.
+    - `shape` (int*): An array specifying the size of each dimension.
+    - Additional arguments (`...`): Any other arguments that might be needed for tensor initialization.
+  - **Returns**:
+    - `Tensor*`: A tensor with the specified shape filled with random values between 0 and 1.
+
+- **`tensor_full`**: 
+  - Creates a tensor filled with a constant value (specified by the user). The tensor's shape is defined by the `dim` and `shape` parameters, and all elements are initialized to the specified constant value.
+  - **Parameters:**
+    - `dim` (int): The number of dimensions of the tensor.
+    - `shape` (int*): An array specifying the size of each dimension.
+    - `value` (float): The constant value used to fill the tensor.
+    - Additional arguments (`...`): Any other arguments that might be needed for tensor initialization.
+  - **Returns**:
+    - `Tensor*`: A tensor with the specified shape filled with the given constant value.
+
+- **`tensor_print`**: 
+  - Prints a given tensor to `stdout`. The function iterates over the tensor's data and prints it in a readable format.
+  - **Parameters:**
+    - `tensor` (Tensor*): The tensor to print.
+  - **Returns**:
+    - `void`: This function does not return any value. It simply prints the tensor to the standard output.
+
+- **`tensor_set_require_grad`**: 
+  - Sets the `requires_grad` flag for a given tensor. If `require_grad` is set to `1`, it initializes a gradient buffer for the tensor and marks it to track gradients. If `require_grad` is set to `0`, it frees the gradient buffer and disables gradient tracking.
+  - **Parameters:**
+    - `a` (Tensor*): The tensor whose `requires_grad` flag is being set.
+    - `require_grad` (int): Flag indicating whether to enable (`1`) or disable (`0`) gradient tracking.
+
+- **`tensor_detach`**: 
+  - Creates a new tensor that shares the same data as the original tensor but does not track gradients. This is useful when you want to stop the tensor from contributing to the computational graph while retaining its data.
+  - **Parameters:**
+    - `a` (Tensor*): The tensor to detach.
+  - **Returns**: 
+    - `Tensor*`: A new tensor that shares the data of `a` but with `requires_grad` set to `0` and no gradient function.
+
+- **`tensor_clone`**: 
+  - Creates a new tensor that is a deep copy of the original tensor. The new tensor will have its own data (allocated memory) and preserve the original tensor's gradient information and metadata.
+  - **Parameters:**
+    - `a` (Tensor*): The tensor to clone.
+  - **Returns**:
+    - `Tensor*`: A new tensor that is a deep copy of `a`, with its own data and gradient metadata.
+
 
 ## Tensor Operations
 

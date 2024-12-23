@@ -93,12 +93,12 @@ void	tensor_fill(Tensor *tensor, float num)
 	}
 }
 
-Tensor	 *tensor_empty(int dim,...)
+Tensor	 *tensor_empty(int dim,int *shape,...)
 {
 	va_list arg;
 	Tensor *tensor = (Tensor *)malloc(sizeof(Tensor));
 
-	va_start(arg,dim);
+	va_start(arg,shape);
 	tensor->shape =  create_shape(arg,dim);
 	tensor->strides = create_stride(dim, tensor->shape);
 	if (!tensor->shape || !tensor->strides)
@@ -219,13 +219,13 @@ void tensor_print(Tensor *tensor)
     printf("\n");
 }
 
-Tensor *tensor_full(int dim,...)
+Tensor *tensor_full(int dim,int *shape,...)
 {
 	va_list arg;
 	Tensor *tensor = (Tensor *)malloc(sizeof(Tensor));
 
-	va_start(arg,dim);
-	tensor->shape =  create_shape(arg,dim);
+	va_start(arg,shape);
+	tensor->shape =  shape;
 	tensor->strides = create_stride(dim, tensor->shape);
 	if (!tensor->shape || !tensor->strides)
 	{
