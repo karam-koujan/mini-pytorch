@@ -379,3 +379,22 @@ Tensor *tensor_detach(Tensor *a)
 
     return copy;
 }
+
+Tensor *tensor_clone(Tensor *a)
+{
+    Tensor *copy = malloc(sizeof(Tensor));
+    if (!copy) return NULL;
+    *copy = *a;
+
+    copy->data = malloc(a->size * sizeof(float)); 
+    if (!copy->data) {
+        free(copy);
+        return NULL;
+    }
+    memcpy(copy->data, a->data, a->size * sizeof(float));
+
+    copy->requires_grad = a->requires_grad;
+    copy->grad_fn = a->grad_fn;
+
+    return copy;
+}
