@@ -42,7 +42,6 @@ typedef struct Node
 {
 	Tensor *grad;
 	Tensor **saved_tensors;
-	struct Node  *(**next_functions)(Tensor*,Tensor*);
 	Tensor **(*calculate_gradient)(struct Node *node,Tensor *grad);
 }	Grad_Node;
 Tensor *tensor_rand(int dim,...);
@@ -77,7 +76,7 @@ Tensor	**tensor_broadcast(Tensor *a, Tensor *b, char type);
 int tensor_is_contigious(Tensor *a);
 Tensor *tensor_detach(Tensor *a);
 Grad_Node	*create_matmul_node(Tensor *a, Tensor *b);
-Grad_Node	*tensor_accumulate_grad(Tensor *a, Tensor *grad);
+void	tensor_accumulate_grad(Tensor *a, Tensor *grad);
 void	tensor_set_require_grad(Tensor *a, int require_grad);
 
 #endif
