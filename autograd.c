@@ -18,6 +18,51 @@ Grad_Node	*create_matmul_node(Tensor *a, Tensor *b)
 	node->calculate_gradient = tensor_backmatmul;
 	return node;
 }
+
+Grad_Node	*create_add_node(Tensor *a, Tensor *b)
+{
+	Grad_Node *node;
+
+	node = malloc(sizeof(Grad_Node ));
+	Tensor **saved_tensors = malloc(2 * sizeof(Tensor *));
+	if ( !node || !saved_tensors)
+	{
+		free(node);
+		free(saved_tensors);
+		return NULL;
+	}
+	saved_tensors[0] = a;
+	saved_tensors[1] = b;
+	node->saved_tensors = saved_tensors;
+	node->calculate_gradient = tensor_backadd;
+	return node;
+}
+
+Tensor **tensor_backadd(Grad_Node *node, Tensor *grad)
+{
+	Tensor *a = node->saved_tensors[0];
+	Tensor *b = node->saved_tensors[1];
+	Tensor **res = malloc(2 * sizeof(Tensor *));
+	if (!res)
+		return NULL;
+	Tensor *grad_a = NULL;
+	Tensor *grad_b = NULL;
+	if (a->requires_grad == 1)
+	{
+		grad_a = grad;
+		tensor_set_require_grad(grad_a,0);
+	}
+	if (b->requires_grad == 1)
+	{
+		grad_b = grad;
+		tensor_set_require_grad(grad_b,0);
+	}
+	res[0] = grad_a;
+	res[1] = grad_b;
+	return res;
+}
+
+
 Tensor **tensor_backmatmul(Grad_Node *node, Tensor *grad)
 {
 	Tensor **res = malloc(2 * sizeof(Tensor *));
@@ -25,7 +70,6 @@ Tensor **tensor_backmatmul(Grad_Node *node, Tensor *grad)
 		return NULL;
 	Tensor *a = node->saved_tensors[0];
 	Tensor *b = node->saved_tensors[1];
-	int batch_size = tensor_size(a,a->num_dims - 2);
 	Tensor *b_t = tensor_t(b);
 	Tensor *a_t = tensor_t(a);
 	Tensor *grad_a = NULL;
@@ -46,6 +90,8 @@ Tensor **tensor_backmatmul(Grad_Node *node, Tensor *grad)
 }
 void	tensor_accumulate_grad(Tensor *a, Tensor *grad)
 {
+	printf("this is grad : \n");
+	tensor_print(grad);
 	a->grad = tensor_add(a->grad,grad);
 }
 
@@ -80,20 +126,21 @@ void	tensor_backward(Tensor *a, Tensor *prev_grad)
 int main()
 {
 	Tensor *a = tensor_full(3,1,2,2,2.0,0);
-	Tensor *b = tensor_full(3,1,2,3,3.0,0);
+	Tensor *b = tensor_full(3,1,2,2,3.0,0);
 	int shape [3]= {1,2,2};
 	Tensor *j = tensor_ones(3,shape,0);
 	tensor_set_require_grad(a,1);
 	tensor_set_require_grad(b,1);
 	tensor_set_require_grad(j,1);
-	Tensor *c = tensor_matmul(a,b);
+	Tensor *c = tensor_add(a,b);
 	Tensor *v = tensor_matmul(j,c);
 	// Tensor *c = tensor_pairwise_mul(a,b);
 	tensor_backward(v,NULL);
 	printf("\nresult     \n");
 	tensor_print(c);
-	
-	tensor_print(c->grad);
+	tensor_print(v);
+	tensor_print(a->grad);
+	tensor_print(b->grad);
 	printf("grad add %p\n",c->grad);
 
 }

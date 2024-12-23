@@ -223,7 +223,7 @@ Tensor *tensor_pairwise_operation(Tensor *a, Tensor *b, char operation)
 	memcpy(res->shape,a->shape,a->num_dims * sizeof(int));
 	res->data = create_empty_data(a->num_dims,res->shape);
 	res->strides = create_stride(a->num_dims,res->shape);
-	res->requires_grad = 1;
+	res->is_leaf = 0;
 	if (!res->data || !res->data)
 	{
 		free(arr[0]);
@@ -251,12 +251,16 @@ Tensor *tensor_pairwise_operation(Tensor *a, Tensor *b, char operation)
 		if (operation == '/')
 			res_data[i] = tensor_get_num(reshaped_a,i) / tensor_get_num(reshaped_b,i);
 	}
+	tensor_set_require_grad(res,1);
 	return res;
 }
 
 Tensor *tensor_add(Tensor *a, Tensor *b)
 {
-	return tensor_pairwise_operation(a,b,'+');
+	Grad_Node *grad_fn = a->requires_grad || b->requires_grad ? create_add_node(a,b) : NULL;
+	Tensor *res = tensor_pairwise_operation(a,b,'+');
+	res->grad_fn = grad_fn;
+	return res;
 }
 Tensor *tensor_sub(Tensor *a, Tensor *b)
 {
