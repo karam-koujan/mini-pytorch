@@ -114,6 +114,7 @@ Tensor	 *tensor_empty(int dim,...)
 	tensor->data = (float *)create_empty_data(dim,tensor->shape);
 	tensor->is_leaf = 1;
 	tensor->size = tensor_entries_len(tensor);
+	tensor->requires_grad = 0;
 	va_end(arg);
 	return tensor;
 }
@@ -138,6 +139,8 @@ Tensor *tensor_zeros(int dim,...)
 		add_options(arg,tensor);
 	tensor->data = (float *)create_empty_data(dim,tensor->shape);
 	tensor->is_leaf = 1;
+	tensor->requires_grad = 0;
+	tensor->size = tensor_entries_len(tensor);
 	tensor_fill(tensor,0);
 	va_end(arg);
 	return tensor;
@@ -165,6 +168,7 @@ Tensor *tensor_ones(int dim,int *shape,...)
 		add_options(arg,tensor);
 	tensor->data = (float *)create_empty_data(dim,tensor->shape);
 	tensor->is_leaf = 1;
+	tensor->requires_grad = 0;
 	tensor->size = tensor_entries_len(tensor);
 	tensor_fill(tensor,1);
 	va_end(arg);
@@ -239,6 +243,7 @@ Tensor *tensor_full(int dim,...)
 	tensor->data = (float *)create_empty_data(dim,tensor->shape);
 	tensor->is_leaf = 1;
 	tensor->size = tensor_entries_len(tensor);
+	tensor->requires_grad = 0;
 
 	tensor_fill(tensor,fill_value);
 	va_end(arg);
@@ -282,6 +287,7 @@ Tensor *tensor_rand(int dim,...)
 	tensor->data = data;
 	tensor->is_leaf = 1;
 	tensor->size = tensor_entries_len(tensor);
+	tensor->requires_grad = 0;
 	va_end(arg);
 	return tensor;
 }
@@ -348,3 +354,12 @@ float	*tensor_contigous(Tensor *a, int *new_shape)
 	return tensor_contigous_data(a, new_shape);
 }
 
+
+
+Tensor *tensor_detach(Tensor *a)
+{
+	Tensor *copy = tensor_ones(a->num_dims,a->shape,0);
+	copy->requires_grad = 0;
+	memcpy(copy->data,a->data,a->size * sizeof(float));
+	return copy;
+}

@@ -74,5 +74,7 @@ Tensor *tensor_transpose(Tensor *a, int dim0, int dim1);
 void *tensor_backmatmul(Tensor *a, Tensor *b);
 Tensor	**tensor_broadcast(Tensor *a, Tensor *b, char type);
 int tensor_is_contigious(Tensor *a);
+Tensor *tensor_detach(Tensor *a);
+Grad_Node	*create_matmul_node(Tensor *a, Tensor *b);
 
 #endif

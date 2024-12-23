@@ -139,7 +139,7 @@ Tensor	*tensor_matmul(Tensor *a, Tensor *b)
 	Tensor **broadcasted_tensors =  tensor_broadcast(a,b,'m');
 	if (!broadcasted_tensors)
 		return (NULL);
-	Grad_Node *grad_fn = tensor_backmatmul(a,b);
+	Grad_Node *grad_fn = a->requires_grad || b->requires_grad ? create_matmul_node(a,b) : NULL;
 	a = broadcasted_tensors[0];
 	b = broadcasted_tensors[1];
 	int rows = a->shape[a->num_dims - 2];
@@ -197,6 +197,7 @@ Tensor	*tensor_matmul(Tensor *a, Tensor *b)
 	free(res);
 	result->is_leaf = 0;
 	result->grad_fn = grad_fn;
+	result->requires_grad = 1;
 	return result;
 }
 
@@ -222,6 +223,7 @@ Tensor *tensor_pairwise_operation(Tensor *a, Tensor *b, char operation)
 	memcpy(res->shape,a->shape,a->num_dims * sizeof(int));
 	res->data = create_empty_data(a->num_dims,res->shape);
 	res->strides = create_stride(a->num_dims,res->shape);
+	res->requires_grad = 1;
 	if (!res->data || !res->data)
 	{
 		free(arr[0]);
@@ -328,6 +330,7 @@ Tensor *tensor_t(Tensor *a)
 	res->shape = shape;
 	res->strides = strides;
 	res->data = a->data;
+	res->size = a->size;
 	res->num_dims = a->num_dims;
 	return res;
 }
@@ -348,6 +351,7 @@ Tensor *tensor_transpose(Tensor *a, int dim0, int dim1)
 	res->shape = shape;
 	res->strides = strides;
 	res->data = a->data;
+	res->size = a->size;
 	res->num_dims = a->num_dims;
 	return res;
 }
