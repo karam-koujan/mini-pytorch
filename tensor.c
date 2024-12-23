@@ -360,10 +360,12 @@ void	tensor_set_require_grad(Tensor *a, int require_grad)
 	if (require_grad == 1)
 	{
 		a->grad = tensor_zeros(a->num_dims,a->shape,0);
+		a->requires_grad = 1;
 	}
 	if (require_grad == 0)
 	{
 		free(a->grad);
+		a->requires_grad = 0;
 	}
 }
 

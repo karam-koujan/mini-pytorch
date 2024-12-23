@@ -5,29 +5,30 @@ Grad_Node	*create_matmul_node(Tensor *a, Tensor *b)
 	Grad_Node *node;
 
 	node = malloc(sizeof(Grad_Node ));
-	Grad_Node *(**next_functions)(Tensor *,Tensor*);
-	next_functions = malloc(2 * sizeof(	void *(**)(Tensor *,Tensor*)));
+	// Grad_Node *(**next_functions)(Tensor *,Tensor*);
+	// next_functions = malloc(2 * sizeof(	void *(**)(Tensor *,Tensor*)));
 	Tensor **saved_tensors = malloc(2 * sizeof(Tensor *));
-	if (!next_functions || !node || !saved_tensors)
+	if ( !node || !saved_tensors)
 	{
-		free(next_functions);
+		//free(next_functions);
 		free(node);
 		free(saved_tensors);
 		return NULL;
 	}
 	saved_tensors[0] = a;
 	saved_tensors[1] = b;
-	for(int i = 0; i < 2; i++)
-	{
-		Tensor *curr = saved_tensors[i];
-		if(curr->is_leaf == 1)
-		{
-			next_functions[i] = tensor_accumulate_grad;
-		}else{
-			next_functions[i] = curr->grad_fn;
-		}
-	}
-	node->next_functions = next_functions;
+	// for(int i = 0; i < 2; i++)
+	// {
+	// 	Tensor *curr = saved_tensors[i];
+	// 	if(curr->is_leaf == 1)
+	// 	{
+	// 		next_functions[i] = tensor_accumulate_grad;
+	// 	}else{
+	// 		next_functions[i] = curr->grad_fn;
+	// 	}
+	//}
+	//
+	// node->next_functions = next_functions;
 	node->saved_tensors = saved_tensors;
 	node->calculate_gradient = tensor_backmatmul;
 	return node;
@@ -60,7 +61,7 @@ Tensor **tensor_backmatmul(Grad_Node *node, Tensor *grad)
 }
 Grad_Node	*tensor_accumulate_grad(Tensor *a, Tensor *grad)
 {
-	a->grad = tensor_add(a,grad);
+	a->grad = tensor_add(a->grad,grad);
 	printf("tensor accumulate");
 	return NULL;
 }
@@ -76,7 +77,7 @@ void	tensor_backward(Tensor *a)
 	tensor_print(grad_b);
 	if (node->saved_tensors[0]->is_leaf == 1)
 	{
-		tensor_accumulate_grad(node->saved_tensors[0]->grad,grad_a);
+		tensor_accumulate_grad(node->saved_tensors[0],grad_a);
 	}
 	else if (node->saved_tensors[0]->is_leaf == 0)
 	{
@@ -84,7 +85,7 @@ void	tensor_backward(Tensor *a)
 	}
 	if (node->saved_tensors[1]->is_leaf == 1)
 	{
-		tensor_accumulate_grad(node->saved_tensors[1]->grad,grad_b);
+		tensor_accumulate_grad(node->saved_tensors[1],grad_b);
 	}
 	else if (node->saved_tensors[1]->is_leaf == 0)
 	{
@@ -102,7 +103,7 @@ int main()
 	tensor_set_require_grad(b,1);
 	Tensor *c = tensor_matmul(a,b);
 	// Tensor *c = tensor_pairwise_mul(a,b);
-	//tensor_backward(c);
+	tensor_backward(c);
 	tensor_print(a->grad);
 	tensor_print(b->grad);
 	
