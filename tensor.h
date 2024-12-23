@@ -42,7 +42,7 @@ typedef struct
 {
 	Tensor *grad;
 	Tensor **saved_tensors;
-	void *(**next_functions)(Tensor*,Tensor*);
+	Tensor **(**next_functions)(Tensor*,Tensor*,Tensor*);
 }	Grad_Node;
 Tensor *tensor_rand(int dim,...);
 void tensor_set_seed(unsigned int seed);
@@ -71,7 +71,7 @@ ssize_t	tensor_size(Tensor *a, ssize_t num_dims);
 float	*tensor_contigous(Tensor *a, int *new_shape);
 Tensor *tensor_t(Tensor *a);
 Tensor *tensor_transpose(Tensor *a, int dim0, int dim1);
-void *tensor_backmatmul(Tensor *a, Tensor *b);
+Tensor **tensor_backmatmul(Tensor *a, Tensor *b, Tensor *grad);
 Tensor	**tensor_broadcast(Tensor *a, Tensor *b, char type);
 int tensor_is_contigious(Tensor *a);
 Tensor *tensor_detach(Tensor *a);
