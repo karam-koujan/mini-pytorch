@@ -38,11 +38,12 @@ typedef	struct
 	void *grad_fn;
 } Tensor;
 
-typedef struct
+typedef struct Node
 {
 	Tensor *grad;
 	Tensor **saved_tensors;
-	Tensor **(**next_functions)(Tensor*,Tensor*,Tensor*);
+	struct Node  *(**next_functions)(Tensor*,Tensor*);
+	Tensor **(*calculate_gradient)(struct Node *node,Tensor *grad);
 }	Grad_Node;
 Tensor *tensor_rand(int dim,...);
 void tensor_set_seed(unsigned int seed);
@@ -71,10 +72,11 @@ ssize_t	tensor_size(Tensor *a, ssize_t num_dims);
 float	*tensor_contigous(Tensor *a, int *new_shape);
 Tensor *tensor_t(Tensor *a);
 Tensor *tensor_transpose(Tensor *a, int dim0, int dim1);
-Tensor **tensor_backmatmul(Tensor *a, Tensor *b, Tensor *grad);
+Tensor **tensor_backmatmul(Grad_Node *node, Tensor *grad);
 Tensor	**tensor_broadcast(Tensor *a, Tensor *b, char type);
 int tensor_is_contigious(Tensor *a);
 Tensor *tensor_detach(Tensor *a);
 Grad_Node	*create_matmul_node(Tensor *a, Tensor *b);
+Grad_Node	*tensor_accumulate_grad(Tensor *a, Tensor *grad);
 
 #endif

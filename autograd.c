@@ -5,8 +5,8 @@ Grad_Node	*create_matmul_node(Tensor *a, Tensor *b)
 	Grad_Node *node;
 
 	node = malloc(sizeof(Grad_Node ));
-	Tensor **(**next_functions)(Tensor*,Tensor*,Tensor*);
-	next_functions = malloc(2 * sizeof(	void **(*)(Tensor*,Tensor*,Tensor*)));
+	Grad_Node *(**next_functions)(Tensor *,Tensor*);
+	next_functions = malloc(2 * sizeof(	void *(**)(Tensor *,Tensor*)));
 	Tensor **saved_tensors = malloc(2 * sizeof(Tensor *));
 	if (!next_functions || !node || !saved_tensors)
 	{
@@ -22,20 +22,23 @@ Grad_Node	*create_matmul_node(Tensor *a, Tensor *b)
 		Tensor *curr = saved_tensors[i];
 		if(curr->is_leaf == 1)
 		{
-			next_functions[i] = tensor_backmatmul;
+			next_functions[i] = tensor_accumulate_grad;
 		}else{
-			next_functions[i] = tensor_backmatmul;
+			next_functions[i] = curr->grad_fn;
 		}
 	}
 	node->next_functions = next_functions;
 	node->saved_tensors = saved_tensors;
+	node->calculate_gradient = tensor_backmatmul;
 	return node;
 }
-Tensor **tensor_backmatmul(Tensor *a, Tensor *b, Tensor *grad)
+Tensor **tensor_backmatmul(Grad_Node *node, Tensor *grad)
 {
 	Tensor **res = malloc(2 * sizeof(Tensor *));
 	if (!res)
 		return NULL;
+	Tensor *a = node->saved_tensors[0];
+	Tensor *b = node->saved_tensors[1];
 	int batch_size = tensor_size(a,a->num_dims - 2);
 	Tensor *b_t = tensor_t(b);
 	Tensor *a_t = tensor_t(a);
@@ -51,33 +54,24 @@ Tensor **tensor_backmatmul(Tensor *a, Tensor *b, Tensor *grad)
 		grad_b = tensor_matmul(a_t,grad);
 		grad_b->requires_grad = 0;
 	}
+	tensor_print(grad_a);
+	tensor_print(grad_b);
 	res[0] = grad_a;
 	res[1] = grad_b;
 	return res;
 }
-void	tensor_accumulate_grad(Tensor *a, Tensor *grad)
+Grad_Node	*tensor_accumulate_grad(Tensor *a, Tensor *grad)
 {
-	a->grad = tensor_pairwise_add(a,grad);
+	a->grad = tensor_add(a,grad);
 	printf("tensor accumulate");
+	return NULL;
 }
 
 void	tensor_backward(Tensor *a)
 {
 	Grad_Node *node = (Grad_Node *)a->grad_fn;
 	Tensor *grad_c = tensor_ones(a->num_dims,a->shape,0);
-	for(int i = 0; i < 2; i++)
-	{
-		Tensor **gradients = NULL;
-		if (node->next_functions[0])
-		{
-			gradients = node->next_functions[0](node->saved_tensors[0],node->saved_tensors[1],grad_c);
-		}
-		if (gradients)
-		{
-			tensor_print(gradients[0]);
-			tensor_print(gradients[1]);
-		}
-	}
+	node->calculate_gradient(node,grad_c);
 }
 
 
