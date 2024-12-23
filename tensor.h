@@ -51,7 +51,7 @@ float	generate_random();
 void tensor_print(Tensor *tensor);
 Tensor *tensor_full(int dim,...);
 Tensor *tensor_ones(int dim,int *shape,...);
-Tensor *tensor_zeros(int dim,...);
+Tensor *tensor_zeros(int dim,int *shape,...);
 Tensor	 *tensor_empty(int dim,...);
 void	tensor_fill(Tensor *tensor, float num);
 int		tensor_entries_len(Tensor *tensor);
@@ -78,5 +78,6 @@ int tensor_is_contigious(Tensor *a);
 Tensor *tensor_detach(Tensor *a);
 Grad_Node	*create_matmul_node(Tensor *a, Tensor *b);
 Grad_Node	*tensor_accumulate_grad(Tensor *a, Tensor *grad);
+void	tensor_set_require_grad(Tensor *a, int require_grad);
 
 #endif

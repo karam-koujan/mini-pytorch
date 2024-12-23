@@ -54,8 +54,6 @@ Tensor **tensor_backmatmul(Grad_Node *node, Tensor *grad)
 		grad_b = tensor_matmul(a_t,grad);
 		grad_b->requires_grad = 0;
 	}
-	tensor_print(grad_a);
-	tensor_print(grad_b);
 	res[0] = grad_a;
 	res[1] = grad_b;
 	return res;
@@ -71,19 +69,41 @@ void	tensor_backward(Tensor *a)
 {
 	Grad_Node *node = (Grad_Node *)a->grad_fn;
 	Tensor *grad_c = tensor_ones(a->num_dims,a->shape,0);
-	node->calculate_gradient(node,grad_c);
+	Tensor **gradients = node->calculate_gradient(node,grad_c);
+	Tensor *grad_a = gradients[0];
+	Tensor *grad_b = gradients[1];
+	tensor_print(grad_a);
+	tensor_print(grad_b);
+	if (node->saved_tensors[0]->is_leaf == 1)
+	{
+		tensor_accumulate_grad(node->saved_tensors[0]->grad,grad_a);
+	}
+	else if (node->saved_tensors[0]->is_leaf == 0)
+	{
+		tensor_backward(node->saved_tensors[0]);
+	}
+	if (node->saved_tensors[1]->is_leaf == 1)
+	{
+		tensor_accumulate_grad(node->saved_tensors[1]->grad,grad_b);
+	}
+	else if (node->saved_tensors[1]->is_leaf == 0)
+	{
+		tensor_backward(node->saved_tensors[1]);
+	}
+
 }
 
 
 int main()
 {
 	Tensor *a = tensor_full(3,1,2,2,2.0,0);
-	a->requires_grad = 1;
 	Tensor *b = tensor_full(3,1,2,3,3.0,0);
-	b->requires_grad = 1;
+	tensor_set_require_grad(a,1);
+	tensor_set_require_grad(b,1);
 	Tensor *c = tensor_matmul(a,b);
 	// Tensor *c = tensor_pairwise_mul(a,b);
-	tensor_backward(c);
-
+	//tensor_backward(c);
+	tensor_print(a->grad);
+	tensor_print(b->grad);
 	
 }
