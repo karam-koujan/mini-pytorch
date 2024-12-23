@@ -371,8 +371,11 @@ void	tensor_set_require_grad(Tensor *a, int require_grad)
 
 Tensor *tensor_detach(Tensor *a)
 {
-	Tensor *copy = tensor_ones(a->num_dims,a->shape,0);
-	copy->requires_grad = 0;
-	memcpy(copy->data,a->data,a->size * sizeof(float));
-	return copy;
+	Tensor *copy = malloc(sizeof(Tensor));
+    if (!copy) return NULL; 
+    *copy = *a;
+    copy->requires_grad = 0;
+    copy->grad_fn = NULL;
+
+    return copy;
 }

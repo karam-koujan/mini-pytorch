@@ -90,8 +90,6 @@ Tensor **tensor_backmatmul(Grad_Node *node, Tensor *grad)
 }
 void	tensor_accumulate_grad(Tensor *a, Tensor *grad)
 {
-	printf("this is grad : \n");
-	tensor_print(grad);
 	a->grad = tensor_add(a->grad,grad);
 }
 
@@ -128,17 +126,19 @@ int main()
 	Tensor *a = tensor_full(3,1,2,2,2.0,0);
 	Tensor *b = tensor_full(3,1,2,2,3.0,0);
 	int shape [3]= {1,2,2};
-	Tensor *j = tensor_ones(3,shape,0);
+	Tensor *j = tensor_full(3,1,2,2,3.0,0);
 	tensor_set_require_grad(a,1);
 	tensor_set_require_grad(b,1);
 	tensor_set_require_grad(j,1);
+	tensor_print(a->grad);
+	tensor_print(b->grad);
 	Tensor *c = tensor_add(a,b);
 	Tensor *v = tensor_matmul(j,c);
 	// Tensor *c = tensor_pairwise_mul(a,b);
 	tensor_backward(v,NULL);
 	printf("\nresult     \n");
 	tensor_print(c);
-	tensor_print(v);
+	tensor_print(j);
 	tensor_print(a->grad);
 	tensor_print(b->grad);
 	printf("grad add %p\n",c->grad);
