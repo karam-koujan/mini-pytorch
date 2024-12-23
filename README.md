@@ -21,7 +21,6 @@ The following functions allow the creation of tensors for different purposes:
   - **Parameters:**
     - `dim` (int): The number of dimensions of the tensor.
     - `shape` (int*): An array specifying the size of each dimension.
-    - Additional arguments (`...`): Any other arguments that might be needed for tensor initialization.
   - **Returns**: 
     - `Tensor*`: A tensor with the specified shape but with uninitialized data.
 
@@ -30,7 +29,6 @@ The following functions allow the creation of tensors for different purposes:
   - **Parameters:**
     - `dim` (int): The number of dimensions of the tensor.
     - `shape` (int*): An array specifying the size of each dimension.
-    - Additional arguments (`...`): Any other arguments that might be needed for tensor initialization.
   - **Returns**:
     - `Tensor*`: A tensor with the specified shape filled with zeros.
 
@@ -39,7 +37,6 @@ The following functions allow the creation of tensors for different purposes:
   - **Parameters:**
     - `dim` (int): The number of dimensions of the tensor.
     - `shape` (int*): An array specifying the size of each dimension.
-    - Additional arguments (`...`): Any other arguments that might be needed for tensor initialization.
   - **Returns**:
     - `Tensor*`: A tensor with the specified shape filled with ones.
 
@@ -48,7 +45,6 @@ The following functions allow the creation of tensors for different purposes:
   - **Parameters:**
     - `dim` (int): The number of dimensions of the tensor.
     - `shape` (int*): An array specifying the size of each dimension.
-    - Additional arguments (`...`): Any other arguments that might be needed for tensor initialization.
   - **Returns**:
     - `Tensor*`: A tensor with the specified shape filled with random values between 0 and 1.
 
@@ -58,7 +54,6 @@ The following functions allow the creation of tensors for different purposes:
     - `dim` (int): The number of dimensions of the tensor.
     - `shape` (int*): An array specifying the size of each dimension.
     - `value` (float): The constant value used to fill the tensor.
-    - Additional arguments (`...`): Any other arguments that might be needed for tensor initialization.
   - **Returns**:
     - `Tensor*`: A tensor with the specified shape filled with the given constant value.
 
