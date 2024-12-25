@@ -92,10 +92,10 @@ Tensor	**tensor_broadcast(Tensor *a, Tensor *b, char type)
 		}
 	
 	}
-	Tensor *new_a = tensor_empty(1,1,0);
-	Tensor *new_b = tensor_empty(1,1,0);
-	new_a->size = a->size;
-	new_b->size = b->size;
+	Tensor *new_a = (Tensor *)malloc(sizeof(Tensor));
+	Tensor *new_b = (Tensor *)malloc(sizeof(Tensor));
+	*new_a = *a;
+	*new_b = *b;
 	if (!new_b || !new_a)
 	{
 		free(new_b);
@@ -147,7 +147,8 @@ Tensor	*tensor_matmul(Tensor *a, Tensor *b)
 	ssize_t	batch_size = tensor_size(a,a->num_dims - 2);
 	int	a_shape[3] = {batch_size,rows,a->shape[a->num_dims - 1]};
 	int b_shape[3] = {batch_size,b->shape[b->num_dims - 2],cols};
-	Tensor *res = tensor_empty(3,batch_size,rows,cols,0);
+	int res_shape[3] = {batch_size,rows,cols};
+	Tensor *res = tensor_empty(3,res_shape,0);
 	Tensor *reshaped_a = tensor_reshape(a,3,a_shape);
 	Tensor *reshaped_b = tensor_reshape(b,3,b_shape);
 
@@ -177,27 +178,27 @@ Tensor	*tensor_matmul(Tensor *a, Tensor *b)
 	}
 	free(reshaped_a);
 	free(reshaped_b);
-	int *res_shape = malloc(a->num_dims * sizeof(int));
-	if (!res_shape)
+	int *result_shape = malloc(a->num_dims * sizeof(int));
+	if (!result_shape)
 	{
 		free(res);
 		return NULL;
 	}
-	memcpy(res_shape,a->shape, a->num_dims * sizeof(int));
-	res_shape[a->num_dims - 1] = cols;
-	res_shape[a->num_dims - 2] = rows;
-	Tensor *result = tensor_reshape(res,a->num_dims,res_shape);
+	memcpy(result_shape,a->shape, a->num_dims * sizeof(int));
+	result_shape[a->num_dims - 1] = cols;
+	result_shape[a->num_dims - 2] = rows;
+	Tensor *result = tensor_reshape(res,a->num_dims,result_shape);
 	if (!result)
 	{
 		free(result);
-		free(res_shape);
+		free(result_shape);
 		free(res);
 		return NULL;
 	}
 	free(res);
 	result->is_leaf = 0;
 	result->grad_fn = grad_fn;
-	result->requires_grad = 1;
+	tensor_set_require_grad(result,1);
 	return result;
 }
 
@@ -206,7 +207,8 @@ Tensor *tensor_pairwise_operation(Tensor *a, Tensor *b, char operation)
 	if (tensor_is_broadcastable(a,b,'e') == -1)
 		return NULL;
 	Tensor **arr = tensor_broadcast(a,b,'e');
-	Tensor *res = tensor_empty(1,1,0);
+	Tensor *res = (Tensor *)malloc(sizeof(Tensor));
+
 	if (!arr || !res)
 	{
 		free(arr[0]);
@@ -220,6 +222,7 @@ Tensor *tensor_pairwise_operation(Tensor *a, Tensor *b, char operation)
 	
 	ssize_t size = tensor_size(a,a->num_dims);
 	res->num_dims = a->num_dims;
+	res->shape = malloc(a->num_dims * sizeof(int));
 	memcpy(res->shape,a->shape,a->num_dims * sizeof(int));
 	res->data = create_empty_data(a->num_dims,res->shape);
 	res->strides = create_stride(a->num_dims,res->shape);
@@ -288,20 +291,6 @@ Tensor *tensor_reshape(Tensor *a,int num_dim,int *shape)
         return NULL;
     }
     memcpy(res->shape, shape, num_dim * sizeof(int));
-	// int is_broadcasted = 0;
-	// for(int i = 1; i < a->num_dims;i++)
-	// {
-	// 	if (a->strides[i] == 0)
-	// 	{
-	// 		is_broadcasted = 1;
-	// 	}
-	// }
-	// if (is_broadcasted)
-	// {
-	// 	res->strides = a->strides;
-	// 	res->data = tensor_contigous(a,shape);
-	// 	return res;
-	// }
 	res->strides = create_stride(num_dim,shape);
 	res->size = a->size;
 	if (!res->strides)

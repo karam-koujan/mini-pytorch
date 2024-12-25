@@ -123,24 +123,17 @@ void	tensor_backward(Tensor *a, Tensor *prev_grad)
 
 int main()
 {
-	Tensor *a = tensor_full(3,1,2,2,2.0,0);
-	Tensor *b = tensor_full(3,1,2,2,3.0,0);
-	int shape [3]= {1,2,2};
-	Tensor *j = tensor_full(3,1,2,2,3.0,0);
+	int a_shape[3] = {1,2,2};
+	int b_shape[3] = {1,2,3};
+	Tensor *a = tensor_full(3,a_shape,2.0,0);
+	Tensor *b = tensor_full(3,b_shape,3.0,0);
 	tensor_set_require_grad(a,1);
 	tensor_set_require_grad(b,1);
-	tensor_set_require_grad(j,1);
-	tensor_print(a->grad);
-	tensor_print(b->grad);
-	Tensor *c = tensor_add(a,b);
-	Tensor *v = tensor_matmul(j,c);
-	// Tensor *c = tensor_pairwise_mul(a,b);
-	tensor_backward(v,NULL);
-	printf("\nresult     \n");
+	Tensor *c = tensor_matmul(a,b);
 	tensor_print(c);
-	tensor_print(j);
+	tensor_backward(c,NULL);
+	tensor_print(a);
 	tensor_print(a->grad);
+	tensor_print(b);
 	tensor_print(b->grad);
-	printf("grad add %p\n",c->grad);
-
 }

@@ -44,14 +44,14 @@ typedef struct Node
 	Tensor **saved_tensors;
 	Tensor **(*calculate_gradient)(struct Node *node,Tensor *grad);
 }	Grad_Node;
-Tensor *tensor_rand(int dim,...);
+Tensor *tensor_rand(int dim,int *shape,...);
 void tensor_set_seed(unsigned int seed);
 float	generate_random();
 void tensor_print(Tensor *tensor);
-Tensor *tensor_full(int dim,...);
+Tensor *tensor_full(int dim,int *shape,...);
 Tensor *tensor_ones(int dim,int *shape,...);
 Tensor *tensor_zeros(int dim,int *shape,...);
-Tensor	 *tensor_empty(int dim,...);
+Tensor	 *tensor_empty(int dim,int *shape,...);
 void	tensor_fill(Tensor *tensor, float num);
 int		tensor_entries_len(Tensor *tensor);
 float	*create_empty_data(int dim,int *shape);
@@ -80,5 +80,4 @@ void	tensor_accumulate_grad(Tensor *a, Tensor *grad);
 void	tensor_set_require_grad(Tensor *a, int require_grad);
 Grad_Node	*create_add_node(Tensor *a, Tensor *b);
 Tensor **tensor_backadd(Grad_Node *node, Tensor *grad);
-
 #endif

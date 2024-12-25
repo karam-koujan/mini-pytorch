@@ -7,6 +7,7 @@ This project is a simplified version of PyTorch implemented in C, aiming to repl
 - [Overview](#overview)
 - [Tensor Creation Functions](#tensor-creation-functions)
 - [Tensor Operations](#tensor-operations)
+- [Autograd](#autograd)
 
 ## Overview
 
@@ -95,3 +96,49 @@ The following functions allow operations on tensors:
 - **`tensor_add(Tensor *input1,Tensor *input2)`**: Preforms pairwise addition if shapes are not equals it broadcasts the tensor according to the pytorch broadcasting semantics.
 - **`tensor_transpose(Tensor *input,dim0,dim1)`**: Returns a tensor that is a transposed version of input. The given dimensions dim0 and dim1 are swapped.
 - **`tensor_t(Tensor *input)`**: It transpose the last two dimensions.
+
+## Autograd
+
+## Autograd: PyTorch-like Autograd Based on Backward Differentiation
+
+This library implements a PyTorch-inspired automatic differentiation engine that supports operations like matrix multiplication (`matmul`). Gradients are computed using **backward mode autodifferentiation**, and tensors can be flagged with `require_grad` to track their gradients during computations.
+
+### Example: Matrix Multiplication with Autograd
+
+Below is an example of computing gradients for a matrix multiplication operation using the custom autograd system:
+
+```c
+
+    int a_shape[3] = {1, 2, 2};  // Shape of tensor `a`: 1 x 2 x 2
+    int b_shape[3] = {1, 2, 3};  // Shape of tensor `b`: 1 x 2 x 3
+
+    // Create tensors initialized with constant values
+    Tensor *a = tensor_full(3, a_shape, 2.0, 0);  // Tensor a:
+    /* [[2.0, 2.0], */
+    /*  [2.0, 2.0]] */
+
+    Tensor *b = tensor_full(3, b_shape, 3.0, 0);  // Tensor b:
+    /* [[3.0, 3.0, 3.0], */
+    /*  [3.0, 3.0, 3.0]] */
+
+    // Enable gradient tracking
+    tensor_set_require_grad(a, 1);
+    tensor_set_require_grad(b, 1);
+
+    // Perform matrix multiplication
+    Tensor *c = tensor_matmul(a, b);
+    /* [[12.0, 12.0, 12.0], */
+    /*  [12.0, 12.0, 12.0]] */
+
+    // Compute gradients
+    tensor_backward(c, NULL);
+
+    // Print tensors and their gradients
+    tensor_print(a);  // Gradient of a:
+    /* [[6.0, 6.0], */
+    /*  [6.0, 6.0]] */
+
+    tensor_print(b);  // Gradient of b:
+    /* [[4.0, 4.0, 4.0], */
+    /*  [4.0, 4.0, 4.0]] */
+```

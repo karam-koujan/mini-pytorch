@@ -99,7 +99,7 @@ Tensor	 *tensor_empty(int dim,int *shape,...)
 	Tensor *tensor = (Tensor *)malloc(sizeof(Tensor));
 
 	va_start(arg,shape);
-	tensor->shape =  create_shape(arg,dim);
+	tensor->shape =  shape;
 	tensor->strides = create_stride(dim, tensor->shape);
 	if (!tensor->shape || !tensor->strides)
 	{
@@ -260,13 +260,13 @@ float	generate_random()
 	return (float)rand() / (float)RAND_MAX;	
 }
 
-Tensor *tensor_rand(int dim,...)
+Tensor *tensor_rand(int dim,int *shape,...)
 {
 	va_list arg;
 	Tensor *tensor = (Tensor *)malloc(sizeof(Tensor));
 
-	va_start(arg,dim);
-	tensor->shape =  create_shape(arg,dim);
+	va_start(arg,shape);
+	tensor->shape =  shape;
 	tensor->strides = create_stride(dim, tensor->shape);
 	if (!tensor->shape || !tensor->strides)
 	{
@@ -359,7 +359,9 @@ void	tensor_set_require_grad(Tensor *a, int require_grad)
 {
 	if (require_grad == 1)
 	{
-		a->grad = tensor_zeros(a->num_dims,a->shape,0);
+		int *shape = malloc(a->num_dims * sizeof(int));
+		memcpy(shape, a->shape, a->num_dims * sizeof(int));
+		a->grad = tensor_zeros(a->num_dims,shape,0);
 		a->requires_grad = 1;
 	}
 	if (require_grad == 0)
@@ -392,9 +394,6 @@ Tensor *tensor_clone(Tensor *a)
         return NULL;
     }
     memcpy(copy->data, a->data, a->size * sizeof(float));
-
-    copy->requires_grad = a->requires_grad;
-    copy->grad_fn = a->grad_fn;
 
     return copy;
 }
