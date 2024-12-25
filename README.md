@@ -90,12 +90,54 @@ The following functions allow the creation of tensors for different purposes:
 
 The following functions allow operations on tensors:
 
-- **`tensor_reshape(Tensor *input1, int dim, int *shape)`**: Returns a new tensor with new shape but it does not copy the original tensor data if data is contigious otherwise it create a contigious copy of the data.
-- **`tensor_broadcast(Tensor *input1,Tensor *input2)`**: Returns a new broadcasted tensors following the pytorch broadcasting semantics.
-- **`tensor_matmul(Tensor *input1,Tensor *input2)`**: Recreates the behavior of pytorch matmul, returning a batch matrix multiply, or matrix-matrix product if both arguments are two dimentional.
-- **`tensor_add(Tensor *input1,Tensor *input2)`**: Preforms pairwise addition if shapes are not equals it broadcasts the tensor according to the pytorch broadcasting semantics.
-- **`tensor_transpose(Tensor *input,dim0,dim1)`**: Returns a tensor that is a transposed version of input. The given dimensions dim0 and dim1 are swapped.
-- **`tensor_t(Tensor *input)`**: It transpose the last two dimensions.
+- **`tensor_reshape`**:  
+  - Changes the shape of a tensor. If the data is contiguous, no copy is made; otherwise, it creates a contiguous copy of the data.  
+  - **Parameters**:  
+    - `input1` (Tensor*): Input tensor.  
+    - `dim` (int): Number of dimensions for the new shape.  
+    - `shape` (int*): Array specifying the new shape.  
+  - **Returns**:  
+    - `Tensor*`: A new tensor with the specified shape.
+
+- **`tensor_broadcast`**:  
+  - Broadcasts two tensors to a common shape according to PyTorch broadcasting semantics.  
+  - **Parameters**:  
+    - `input1` (Tensor*): First tensor.  
+    - `input2` (Tensor*): Second tensor.  
+  - **Returns**:  
+    - `Tensor*`: A new tensor with the broadcasted shape.
+
+- **`tensor_matmul`**:  
+  - Performs a matrix multiplication. Supports both batch matrix multiplication and matrix-matrix products if both arguments are 2-dimensional.  
+  - **Parameters**:  
+    - `input1` (Tensor*): First input tensor.  
+    - `input2` (Tensor*): Second input tensor.  
+  - **Returns**:  
+    - `Tensor*`: The result of the matrix multiplication.
+
+- **`tensor_add`**:  
+  - Adds two tensors element-wise. If their shapes do not match, it broadcasts them according to PyTorch broadcasting semantics.  
+  - **Parameters**:  
+    - `input1` (Tensor*): First input tensor.  
+    - `input2` (Tensor*): Second input tensor.  
+  - **Returns**:  
+    - `Tensor*`: A tensor with the result of the addition.
+
+- **`tensor_transpose`**:  
+  - Swaps two specified dimensions of a tensor.  
+  - **Parameters**:  
+    - `input` (Tensor*): The tensor to transpose.  
+    - `dim0` (int): The first dimension to swap.  
+    - `dim1` (int): The second dimension to swap.  
+  - **Returns**:  
+    - `Tensor*`: A transposed tensor with the specified dimensions swapped.
+
+- **`tensor_t`**:  
+  - Transposes the last two dimensions of a tensor.  
+  - **Parameters**:  
+    - `input` (Tensor*): The tensor to transpose.  
+  - **Returns**:  
+    - `Tensor*`: A tensor with the last two dimensions transposed.
 
 ## Autograd
 
