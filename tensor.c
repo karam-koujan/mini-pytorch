@@ -99,7 +99,9 @@ Tensor	 *tensor_empty(int dim,int *shape,...)
 	Tensor *tensor = (Tensor *)malloc(sizeof(Tensor));
 
 	va_start(arg,shape);
-	tensor->shape =  shape;
+	tensor->shape = (int *)malloc(dim * sizeof(int));
+	if (!tensor->shape) return NULL;
+	memcpy(tensor->shape, shape, dim * sizeof(int));	
 	tensor->strides = create_stride(dim, tensor->shape);
 	if (!tensor->shape || !tensor->strides)
 	{
@@ -125,7 +127,9 @@ Tensor *tensor_zeros(int dim,int *shape,...)
 	Tensor *tensor = (Tensor *)malloc(sizeof(Tensor));
 
 	va_start(arg,shape);
-	tensor->shape = shape;
+	tensor->shape = (int *)malloc(dim * sizeof(int));
+	if (!tensor->shape) return NULL;
+	memcpy(tensor->shape, shape, dim * sizeof(int));		
 	tensor->strides = create_stride(dim, tensor->shape);
 	if (!tensor->shape || !tensor->strides)
 	{
@@ -154,7 +158,9 @@ Tensor *tensor_ones(int dim,int *shape,...)
 	Tensor *tensor = (Tensor *)malloc(sizeof(Tensor));
 
 	va_start(arg,shape);
-	tensor->shape =  shape;
+	tensor->shape = (int *)malloc(dim * sizeof(int));
+	if (!tensor->shape) return NULL;
+	memcpy(tensor->shape, shape, dim * sizeof(int));	
 	tensor->strides = create_stride(dim, tensor->shape);
 	if (!tensor->shape || !tensor->strides)
 	{
@@ -225,7 +231,9 @@ Tensor *tensor_full(int dim,int *shape,...)
 	Tensor *tensor = (Tensor *)malloc(sizeof(Tensor));
 
 	va_start(arg,shape);
-	tensor->shape =  shape;
+	tensor->shape = (int *)malloc(dim * sizeof(int));
+	if (!tensor->shape) return NULL;
+	memcpy(tensor->shape, shape, dim * sizeof(int));
 	tensor->strides = create_stride(dim, tensor->shape);
 	if (!tensor->shape || !tensor->strides)
 	{
@@ -266,7 +274,9 @@ Tensor *tensor_rand(int dim,int *shape,...)
 	Tensor *tensor = (Tensor *)malloc(sizeof(Tensor));
 
 	va_start(arg,shape);
-	tensor->shape =  shape;
+	tensor->shape = (int *)malloc(dim * sizeof(int));
+	if (!tensor->shape) return NULL;
+	memcpy(tensor->shape, shape, dim * sizeof(int));	
 	tensor->strides = create_stride(dim, tensor->shape);
 	if (!tensor->shape || !tensor->strides)
 	{

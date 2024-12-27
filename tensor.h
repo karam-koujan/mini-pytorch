@@ -80,4 +80,8 @@ void	tensor_accumulate_grad(Tensor *a, Tensor *grad);
 void	tensor_set_require_grad(Tensor *a, int require_grad);
 Grad_Node	*create_add_node(Tensor *a, Tensor *b);
 Tensor **tensor_backadd(Grad_Node *node, Tensor *grad);
+Tensor *tensor_mm(Tensor *a,Tensor *b);
+Grad_Node	*create_mm_node(Tensor *a, Tensor *b);
+Tensor **tensor_backmm(Grad_Node *node, Tensor *grad);
+
 #endif

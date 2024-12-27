@@ -202,6 +202,33 @@ Tensor	*tensor_matmul(Tensor *a, Tensor *b)
 	return result;
 }
 
+Tensor *tensor_mm(Tensor *a,Tensor *b)
+{
+	Grad_Node *grad_fn = a->requires_grad || b->requires_grad ? create_mm_node(a,b) : NULL;
+	int cols = b->shape[b->num_dims - 1];
+	int rows = a->shape[a->num_dims - 2];
+	int shape[2] = {rows, cols};
+	Tensor *result = tensor_empty(2,shape,0);
+	float *res_data = result->data;
+	for(int i = 0; i < rows; i++)
+	{
+		for(int j = 0; j < cols; j++)
+		{
+			float sum = 0;
+			int idx = i * result->strides[0] + j * result->strides[1];
+			for (int k = 0; k < a->shape[a->num_dims - 1]; k++)
+			{
+				sum+= tensor_get_num(a,i,k) * tensor_get_num(b,k,j);
+			}
+			res_data[idx] = sum;
+		}
+	}
+	result->is_leaf = 0;
+	result->grad_fn = grad_fn;
+	tensor_set_require_grad(result,1);
+	return result;
+}
+
 Tensor *tensor_pairwise_operation(Tensor *a, Tensor *b, char operation)
 {
 	if (tensor_is_broadcastable(a,b,'e') == -1)
