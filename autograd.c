@@ -140,6 +140,8 @@ void	tensor_accumulate_grad(Tensor *a, Tensor *grad)
 void	tensor_backward(Tensor *a, Tensor *prev_grad)
 {
 	Grad_Node *node = (Grad_Node *)a->grad_fn;
+	if (!node)
+		return;
 	if (!prev_grad)
 		prev_grad = tensor_ones(a->num_dims,a->shape,0);
 	Tensor **gradients = node->calculate_gradient(node,prev_grad);
@@ -171,8 +173,6 @@ int main()
 	int b_shape[2] = {2,1};
 	Tensor *a = tensor_full(2,a_shape,2.0,0);
 	Tensor *b = tensor_full(2,b_shape,3.0,0);
-	tensor_set_require_grad(a,1);
-	tensor_set_require_grad(b,1);
 	Tensor *c = tensor_mm(a,b);
 	tensor_backward(c,NULL);
 	tensor_print(a->grad);
