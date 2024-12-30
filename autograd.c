@@ -169,11 +169,15 @@ void	tensor_backward(Tensor *a, Tensor *prev_grad)
 
 int main()
 {
-	int a_shape[2] = {2,2};
-	int b_shape[2] = {2,1};
-	Tensor *a = tensor_full(2,a_shape,2.0,0);
-	Tensor *b = tensor_full(2,b_shape,3.0,0);
-	Tensor *c = tensor_mm(a,b);
+	int a_shape[3] = {2,2,2};
+	int b_shape[3] = {1,2,1};
+	Tensor *a = tensor_full(3,a_shape,2.0,0);
+	Tensor *b = tensor_full(3,b_shape,3.0,0);
+	tensor_set_require_grad(a,1);
+	tensor_set_require_grad(b,1);
+	Tensor *c = tensor_matmul(a,b);
+	tensor_print(a);
+	tensor_print(b);
 	tensor_backward(c,NULL);
 	tensor_print(a->grad);
 	tensor_print(b->grad);

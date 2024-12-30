@@ -15,7 +15,7 @@ int tensor_validate_shape(Tensor *a, Tensor *b)
 
 	return 1;
 }
-
+ 
 int	tensor_is_broadcastable(Tensor *a,Tensor *b, char type)
 {
 	int	j = type == 'm' ? a->num_dims - 3 : a->num_dims - 1;
@@ -72,13 +72,14 @@ Tensor	**tensor_broadcast(Tensor *a, Tensor *b, char type)
 		return NULL;
 	}
 
-	for (int d = 0; d < dims + 1; d++) {
+	for (int d = 0; d < dims; d++) {
 		new_a_shape[d] = (d >= dims - a->num_dims) ? a->shape[d - (dims - a->num_dims)] : 1;
 		new_b_shape[d] = (d >= dims - b->num_dims) ? b->shape[d - (dims - b->num_dims)] : 1;
 		new_a_stride[d] = (d >= dims - a->num_dims) ? a->strides[d - (dims - a->num_dims)] : 0;
 		new_b_stride[d] = (d >= dims - b->num_dims) ? b->strides[d - (dims - b->num_dims)] : 0;
 	}
-	for (int i = dims ; i >=0; i--)
+	int start_broadcast = type == 'm' ? dims - 3 : dims - 1;
+	for (int i = start_broadcast ; i >=0; i--)
 	{
 		if (new_a_shape[i] == 1 && new_b_shape[i] > 1)
 		{
