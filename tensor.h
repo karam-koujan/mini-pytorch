@@ -83,5 +83,6 @@ Tensor **tensor_backadd(Grad_Node *node, Tensor *grad);
 Tensor *tensor_mm(Tensor *a,Tensor *b);
 Grad_Node	*create_mm_node(Tensor *a, Tensor *b);
 Tensor **tensor_backmm(Grad_Node *node, Tensor *grad);
+Tensor *tensor_collapse(Tensor *a, int *original_shape,int new_dim);
 
 #endif

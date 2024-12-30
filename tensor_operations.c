@@ -167,7 +167,7 @@ Tensor	*tensor_matmul(Tensor *a, Tensor *b)
 			for(int j = 0; j < cols; j++)
 			{
 				float sum = 0;
-				for(int k = 0; k <  reshaped_a->shape[a->num_dims - 2]; k++)
+				for(int k = 0; k <  reshaped_a->shape[a->num_dims - 1]; k++)
 				{
 					sum += tensor_get_num(reshaped_a,b_idx,i,k) * tensor_get_num(reshaped_b,b_idx,k,j);
 				}
@@ -374,6 +374,43 @@ Tensor *tensor_transpose(Tensor *a, int dim0, int dim1)
 	res->data = a->data;
 	res->size = a->size;
 	res->num_dims = a->num_dims;
+	return res;
+}
+
+Tensor *tensor_collapse(Tensor *a, int *original_shape, int new_dim)
+{
+	if (new_dim == a->num_dims && original_shape[0] != 1)
+	{
+		fprintf(stderr,"tensor_collapse work only on broadcasted tensors");
+		return NULL;
+	}
+	int dims = a->num_dims;
+	ssize_t batch_size = tensor_size(a,dims - 2);
+	int shape[3] = {batch_size,original_shape[dims - 2],original_shape[dims - 1]};
+	Tensor *reshaped_a = tensor_reshape(a,3,shape);
+	Tensor *res = tensor_empty(new_dim,original_shape,0);
+	ssize_t res_batch_size = tensor_size(res,new_dim - 2);
+	int res_shape[3] = {res_batch_size,original_shape[dims - 2],original_shape[dims - 1]};
+	Tensor *reshaped_res = tensor_reshape(res,3,res_shape);
+	float *res_data = reshaped_res->data;
+		for(int i = 0; i < original_shape[dims - 1]; i++)
+		{
+			for(int j = 0; j < original_shape[dims - 2]; j++)
+			{
+				float sum = 0;
+				for(int b_idx = 0; b_idx < batch_size; b_idx++)
+				{
+					 sum+= tensor_get_num(reshaped_a,b_idx,j,i);
+				}
+				for(ssize_t res_b_idx = 0; res_b_idx < res_batch_size; res_b_idx++)
+				{
+				int idx = res_b_idx * reshaped_a->strides[0] + j * reshaped_a->strides[1] + i * reshaped_a->strides[2];
+				res_data[idx] = sum;
+				}
+			}
+		}
+	res = tensor_reshape(reshaped_a,new_dim,original_shape);
+	res->data = res_data;
 	return res;
 }
 
