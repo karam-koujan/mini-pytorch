@@ -96,14 +96,14 @@ Tensor **tensor_backmatmul(Grad_Node *node, Tensor *grad)
 	if(a->requires_grad)
 	{
 	
-		grad_a = tensor_collapse(tensor_matmul(grad,b_t),a->shape,a->num_dims);
+		grad_a = tensor_matmul(grad,b_t);
 		tensor_set_require_grad(grad_a,0);
 	}
 	if(b->requires_grad)
 	{
 			tensor_print(a_t);
 		tensor_print(grad);
-		grad_b =tensor_collapse(tensor_matmul(a_t,grad),b->shape,a->num_dims);
+		grad_b =tensor_matmul(a_t,grad);
 		tensor_set_require_grad(grad_b,0);
 	}
 	res[0] = grad_a;
@@ -172,10 +172,10 @@ void	tensor_backward(Tensor *a, Tensor *prev_grad)
 
 int main()
 {
-	int a_shape[3] = {3,1,2};
-	int b_shape[3] = {1,2,2};
+	int a_shape[4] = {3,2,1,2};
+	int b_shape[3] = {2,2,2};
 	int grad_shape[3] = {3,1,2};
-	Tensor *a = tensor_full(3,a_shape,3.0,0);
+	Tensor *a = tensor_full(4,a_shape,3.0,0);
 	Tensor *b = tensor_full(3,b_shape,1.0,0);
 
 	Tensor *grad = tensor_ones(3,grad_shape,0);
