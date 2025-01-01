@@ -96,21 +96,25 @@ Tensor **tensor_backmatmul(Grad_Node *node, Tensor *grad)
 	Tensor *grad_b = NULL;
 	if(a->requires_grad)
 	{
-	
-		//grad_a = tensor_collapse(tensor_matmul(grad,b_t),a->shape,a->num_dims);
-		if (1)
+		tensor_print(grad_a);
+		tensor_print(b_t);
+		grad_a = tensor_matmul(grad,b_t);
+		if (!grad_a)
+			return NULL;
+		grad_a = tensor_collapse(grad_a,a->shape,a->num_dims);
+		if (!grad_a)
 		{
 			grad_a = tensor_matmul(grad,b_t);
-			tensor_print(grad);
-			tensor_print(b_t);
-			tensor_print(grad_a);
 		}
 		tensor_set_require_grad(grad_a,0);
 	}
 	if(b->requires_grad)
 	{
-		//grad_b =tensor_collapse(tensor_matmul(a_t,grad),b->shape,a->num_dims);
-		if (1)
+		grad_b = tensor_matmul(a_t,grad);
+		if (grad_b)
+			return NULL;
+		grad_b =tensor_collapse(grad_b,b->shape,a->num_dims);
+		if (!grad_b)
 		{
 			grad_b = tensor_matmul(a_t,grad);
 		}
@@ -158,6 +162,8 @@ void	tensor_backward(Tensor *a, Tensor *prev_grad)
 	if (!prev_grad)
 		prev_grad = tensor_ones(a->num_dims,a->shape,0);
 	Tensor **gradients = node->calculate_gradient(node,prev_grad);
+	if (!gradients)
+		return;
 	Tensor *grad_a = gradients[0];
 	Tensor *grad_b = gradients[1];
 	if (node->saved_tensors[0]->is_leaf == 1 && node->saved_tensors[0]->requires_grad == 1)
@@ -183,16 +189,17 @@ void	tensor_backward(Tensor *a, Tensor *prev_grad)
 int main()
 {
 	int a_shape[4] = {3,2,1,2};
-	int b_shape[4] = {1,2,2,2};
+	int b_shape[3] = {2,2,2};
 	int grad_shape[4] = {3,2,1,2};
 	Tensor *a = tensor_full(4,a_shape,3.0,0);
-	Tensor *b = tensor_full(4,b_shape,1.0,0);
+	Tensor *b = tensor_full(3,b_shape,1.0,0);
 
 	Tensor *grad = tensor_ones(4,grad_shape,0);
 	tensor_set_require_grad(a,1);
 	tensor_set_require_grad(b,1);
 	Tensor *c = tensor_matmul(a,b);
-	tensor_backward(c,NULL);
-	tensor_print(a->grad);
-	tensor_print(b->grad);
+	//tensor_print(c);
+	tensor_backward(c,grad);
+	// tensor_print(a->grad);
+	// tensor_print(b->grad);
 }

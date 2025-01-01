@@ -20,6 +20,8 @@ int	tensor_is_broadcastable(Tensor *a,Tensor *b, char type)
 {
 	int	j = type == 'm' ? a->num_dims - 3 : a->num_dims - 1;
 	int i = type == 'm' ? b->num_dims - 3 : b->num_dims - 1;
+	printf(" j %i i %i\n",j,i);
+
 	while (i >= 0 && j >= 0)
 	{
 		if (a->shape[j] != b->shape[i])
@@ -33,6 +35,7 @@ int	tensor_is_broadcastable(Tensor *a,Tensor *b, char type)
 		i--;
 		j--;
 	}
+
 	return 1;
 }
 
@@ -97,8 +100,7 @@ Tensor	**tensor_broadcast(Tensor *a, Tensor *b, char type)
 	Tensor *new_b = (Tensor *)malloc(sizeof(Tensor));
 	*new_a = *a;
 	*new_b = *b;
-
-	if (!new_b || !new_a )
+	if (!new_b || !new_a)
 	{
 		free(new_b);
 		free(new_a);
@@ -108,10 +110,10 @@ Tensor	**tensor_broadcast(Tensor *a, Tensor *b, char type)
 		free(new_b_stride);
 		return NULL;
 	}
-	new_a->shape = new_a_shape;
-	new_a->strides = new_a_stride;
-	new_b->shape = new_b_shape;
-	new_b->strides = new_b_stride;
+	memcpy(new_a->shape,new_a_shape, dims * sizeof(int));
+	memcpy(new_a->strides,new_a_stride, dims * sizeof(int));
+	memcpy(new_b->shape,new_b_shape, dims * sizeof(int));
+	memcpy(new_b->strides,new_b_stride, dims * sizeof(int));
 	new_a->data = a->data;
 	new_a->num_dims = dims;
 	new_b->data = b->data;
@@ -144,7 +146,6 @@ Tensor	*tensor_matmul(Tensor *a, Tensor *b)
 	Grad_Node *grad_fn = a->requires_grad || b->requires_grad ? create_matmul_node(a,b) : NULL;
 	a = broadcasted_tensors[0];
 	b = broadcasted_tensors[1];
-	
 	int rows = a->shape[a->num_dims - 2];
 	int cols = b->shape[b->num_dims - 1];
 	ssize_t	batch_size = tensor_size(a,a->num_dims - 2);
@@ -169,7 +170,7 @@ Tensor	*tensor_matmul(Tensor *a, Tensor *b)
 			for(int j = 0; j < cols; j++)
 			{
 				float sum = 0;
-				for(int k = 0; k <  reshaped_a->shape[a->num_dims - 1]; k++)
+				for(int k = 0; k <  a->shape[a->num_dims - 1]; k++)
 				{
 					sum += tensor_get_num(reshaped_a,b_idx,i,k) * tensor_get_num(reshaped_b,b_idx,k,j);
 				}
@@ -381,7 +382,10 @@ Tensor *tensor_transpose(Tensor *a, int dim0, int dim1)
 
 Tensor *tensor_collapse(Tensor *a, int *original_shape, int new_dim)
 {
-
+	if (new_dim == a->num_dims && original_shape[0] != 1)
+	{
+		return NULL;
+	}
 	int dims = a->num_dims;
 	ssize_t batch_size = tensor_size(a,dims - 2);
 	int shape[3] = {batch_size,original_shape[dims - 2],original_shape[dims - 1]};
