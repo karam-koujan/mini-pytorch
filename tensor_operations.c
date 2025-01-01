@@ -20,7 +20,6 @@ int	tensor_is_broadcastable(Tensor *a,Tensor *b, char type)
 {
 	int	j = type == 'm' ? a->num_dims - 3 : a->num_dims - 1;
 	int i = type == 'm' ? b->num_dims - 3 : b->num_dims - 1;
-	printf(" j %i i %i\n",j,i);
 
 	while (i >= 0 && j >= 0)
 	{
@@ -110,10 +109,10 @@ Tensor	**tensor_broadcast(Tensor *a, Tensor *b, char type)
 		free(new_b_stride);
 		return NULL;
 	}
-	memcpy(new_a->shape,new_a_shape, dims * sizeof(int));
-	memcpy(new_a->strides,new_a_stride, dims * sizeof(int));
-	memcpy(new_b->shape,new_b_shape, dims * sizeof(int));
-	memcpy(new_b->strides,new_b_stride, dims * sizeof(int));
+	new_a->shape = new_a_shape;
+	new_a->strides = new_a_stride;
+	new_b->shape = new_b_shape;
+	new_b->strides =new_b_stride;
 	new_a->data = a->data;
 	new_a->num_dims = dims;
 	new_b->data = b->data;
@@ -382,7 +381,7 @@ Tensor *tensor_transpose(Tensor *a, int dim0, int dim1)
 
 Tensor *tensor_collapse(Tensor *a, int *original_shape, int new_dim)
 {
-	if (new_dim == a->num_dims && original_shape[0] != 1)
+	if (new_dim == a->num_dims && original_shape[0] != 1 )
 	{
 		return NULL;
 	}
@@ -395,9 +394,9 @@ Tensor *tensor_collapse(Tensor *a, int *original_shape, int new_dim)
 	int res_shape[3] = {res_batch_size,original_shape[dims - 2],original_shape[dims - 1]};
 	Tensor *reshaped_res = tensor_reshape(res,3,res_shape);
 	float *res_data = reshaped_res->data;
-		for(int i = 0; i < original_shape[dims - 1]; i++)
+		for(int i = 0; i < original_shape[new_dim - 1]; i++)
 		{
-			for(int j = 0; j < original_shape[dims - 2]; j++)
+			for(int j = 0; j < original_shape[new_dim - 2]; j++)
 			{
 				float sum = 0;
 				for(int b_idx = 0; b_idx < batch_size; b_idx++)
@@ -415,21 +414,3 @@ Tensor *tensor_collapse(Tensor *a, int *original_shape, int new_dim)
 	res->data = res_data;
 	return res;
 }
-
-
-
-
-
-/*
-
-tensor_backward(tensor a)
-
-	a->gradfn 
-	ctx = 1;
-
-  
-
-
-
-
-*/
