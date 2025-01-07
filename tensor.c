@@ -407,16 +407,15 @@ Tensor *tensor_clone(Tensor *a)
 
     return copy;
 }
-int calculate1DIndex(int *indices, int *dims, int n) {
-    int index = 0, multiplier = 1;
-    for (int i = n - 1; i >= 0; i--) {
-        index += indices[i] * multiplier;
-        multiplier *= dims[i];
-    }
-    return index;
-}
+// int calculate1DIndex(int *indices, int *dims, int n) {
+//     int index = 0, multiplier = 1;
+//     for (int i = n - 1; i >= 0; i--) {
+//         index += indices[i] * multiplier;
+//         multiplier *= dims[i];
+//     }
+//     return index;
+// }
 
-// Recursive function to flatten the N-dimensional array
 
 float	*flattenNDArray(float *input, int *dims, int n, int size) {
     int totalElements = 1;
@@ -425,12 +424,10 @@ float	*flattenNDArray(float *input, int *dims, int n, int size) {
 	{
 		return NULL;
 	}
-    // Calculate total number of elements
     for (int i = 0; i < n; i++) {
         totalElements *= dims[i];
     }
 
-    // Copy elements to the output array
     for (int i = 0; i < totalElements; i++) {
         output[i] = input[i];
     }
