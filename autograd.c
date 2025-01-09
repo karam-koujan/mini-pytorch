@@ -56,6 +56,24 @@ Grad_Node	*create_add_node(Tensor *a, Tensor *b)
 	node->calculate_gradient = tensor_backadd;
 	return node;
 }
+Grad_Node	*create_sub_node(Tensor *a, Tensor *b)
+{
+	Grad_Node *node;
+
+	node = malloc(sizeof(Grad_Node ));
+	Tensor **saved_tensors = malloc(2 * sizeof(Tensor *));
+	if ( !node || !saved_tensors)
+	{
+		free(node);
+		free(saved_tensors);
+		return NULL;
+	}
+	saved_tensors[0] = a;
+	saved_tensors[1] = b;
+	node->saved_tensors = saved_tensors;
+	node->calculate_gradient = tensor_backsub;
+	return node;
+}
 
 Tensor **tensor_backadd(Grad_Node *node, Tensor *grad)
 {
@@ -89,6 +107,38 @@ Tensor **tensor_backadd(Grad_Node *node, Tensor *grad)
 	return res;
 }
 
+Tensor **tensor_backsub(Grad_Node *node, Tensor *grad)
+{
+	Tensor *a = node->saved_tensors[0];
+	Tensor *b = node->saved_tensors[1];
+	Tensor **res = malloc(2 * sizeof(Tensor *));
+	if (!res)
+		return NULL;
+	Tensor *grad_a = NULL;
+	Tensor *grad_b = NULL;
+	if (a->requires_grad == 1)
+	{
+		grad_a = tensor_collapse(grad,a->shape,a->num_dims);
+		if (!grad_a)
+		{
+			grad_a = grad;
+		}
+		tensor_set_require_grad(grad_a,0);
+	}
+	if (b->requires_grad == 1)
+	{
+		grad_b = tensor_collapse(grad,b->shape,b->num_dims);
+		if (!grad_b)
+		{
+			Tensor *neg = tensor_full(grad->num_dims, grad->shape,-1.0,0);
+			grad_b = tensor_pairwise_mul(neg,grad);
+		}
+		tensor_set_require_grad(grad_b,0);
+	}
+	res[0] = grad_a;
+	res[1] = grad_b;
+	return res;
+}
 
 Tensor **tensor_backmatmul(Grad_Node *node, Tensor *grad)
 {

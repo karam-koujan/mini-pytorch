@@ -48,7 +48,19 @@ Tensor *foward(Tensor *a)
 Tensor *cost(Tensor *pred, Tensor *label)
 {
 	Tensor *res = tensor_sub(pred,label);
-	return (tensor_pairwise_mul(res,res));
+	Tensor *se  = tensor_pairwise_mul(res,res);
+	float	m = 0;
+	int i = 0;
+	while(i < 4)
+	{
+		float *data = se->data;
+		m+= data[i];
+		i++;
+	}
+	printf("%f",m);
+	int mse_shape[2] = {1,1};
+	Tensor *mse = tensor_full(2,mse_shape,m / i,0);
+	return (mse); 
 }
 int main()
 {
@@ -72,5 +84,6 @@ int main()
 	}
 	tensor_print(prediction);
 	Tensor *cost_fn = cost(prediction, l);
+	tensor_backward(cost_fn, NULL);
 	tensor_print(cost_fn);
 }
