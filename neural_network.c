@@ -10,8 +10,8 @@ Tensor *Linear(Module *module, Tensor *a, int in_features, int out_features, int
 	weights_shape[a->num_dims - 1] = in_features;
 	weights_shape[a->num_dims - 2] = out_features;
 	Tensor *weights = tensor_ones(a->num_dims, weights_shape,0);
-	tensor_set_require_grad(weights,1);
 	Tensor *weights_t = tensor_t(weights);
+	tensor_set_require_grad(weights_t,1);
 	module_param_add(module, weights_t);
 	Tensor *result = tensor_matmul(a, weights_t);
 	Tensor *bias = bias ? tensor_rand(result->num_dims, result->shape, 0) : NULL;
@@ -56,11 +56,8 @@ int	arr_len(Tensor	**arr)
 Tensor *foward(Module *module,Tensor *a)
 {
 	Tensor *layer = Linear(module,a, a->shape[a->num_dims - 1], 5, 0);
-	layer = Relu(layer);
 	layer = Linear(module,layer, layer->shape[layer->num_dims - 1], 5, 0);
-	layer = Relu(layer);
 	layer = Linear(module,layer, layer->shape[layer->num_dims - 1], 5, 0);
-	layer = Relu(layer);
 
 	return Linear(module,layer, layer->shape[layer->num_dims - 1], 1, 0);
 }
@@ -111,6 +108,21 @@ void	module_param_add(Module *module,Tensor *a)
 	free(params);
 	module->parameters = new_params;
 }
+void	zero_grad(Module *module)
+{
+	Tensor **params = module->parameters;
+	for(int i = 0;  params[i]; i++)
+	{
+		Tensor *grad =  params[i]->grad;
+		int	*shape = malloc(grad->num_dims * sizeof(int));
+		if (!shape)
+			return ;
+		memcpy(shape, grad->shape, grad->num_dims * sizeof(int));
+		Tensor *zero = tensor_zeros(grad->num_dims,shape,0);
+		free(grad);
+		params[i]->grad = zero;
+	}
+}
 int main()
 {
 	float data[4][2] = {
@@ -132,12 +144,13 @@ int main()
 	{
 		prediction = foward(module,d);
 	}
-	tensor_print(prediction);
+	//tensor_print(prediction);
 	Tensor *cost_fn = cost(prediction, l);
 	tensor_backward(cost_fn, NULL);
-	tensor_print(cost_fn);
+	// tensor_print(cost_fn);
 	for(int i = 0; module->parameters[i]; i++)
 	{
-		tensor_print(module->parameters[i]);
+		tensor_print(module->parameters[i]->grad);
 	}
+
 }
