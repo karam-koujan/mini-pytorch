@@ -12,6 +12,7 @@ Tensor *Linear(Module *module, Tensor *a, int in_features, int out_features, int
 	Tensor *weights = tensor_ones(a->num_dims, weights_shape,0);
 	tensor_set_require_grad(weights,1);
 	Tensor *weights_t = tensor_t(weights);
+	module_param_add(module, weights_t);
 	Tensor *result = tensor_matmul(a, weights_t);
 	Tensor *bias = bias ? tensor_rand(result->num_dims, result->shape, 0) : NULL;
 	if (!bias)
@@ -52,15 +53,15 @@ int	arr_len(Tensor	**arr)
 } 
 
 
-Tensor *foward(Tensor *a)
+Tensor *foward(Module *module,Tensor *a)
 {
-	Module *module = nn();
 	Tensor *layer = Linear(module,a, a->shape[a->num_dims - 1], 5, 0);
 	layer = Relu(layer);
 	layer = Linear(module,layer, layer->shape[layer->num_dims - 1], 5, 0);
 	layer = Relu(layer);
 	layer = Linear(module,layer, layer->shape[layer->num_dims - 1], 5, 0);
 	layer = Relu(layer);
+
 	return Linear(module,layer, layer->shape[layer->num_dims - 1], 1, 0);
 }
 Tensor *cost(Tensor *pred, Tensor *label)
@@ -123,15 +124,20 @@ int main()
 	Tensor *d = tensor_tensor(data,data_shape,2);
 	int label_shape[] = {4,1};
 	Tensor *l = tensor_tensor(labels,label_shape,2);
+	Module *module = nn();	
 	tensor_print(d);
 	tensor_print(l);
 	Tensor *prediction;
 	for(int epoch = 0; epoch < 50; epoch++)
 	{
-		prediction = foward(d);
+		prediction = foward(module,d);
 	}
 	tensor_print(prediction);
 	Tensor *cost_fn = cost(prediction, l);
 	tensor_backward(cost_fn, NULL);
 	tensor_print(cost_fn);
+	for(int i = 0; module->parameters[i]; i++)
+	{
+		tensor_print(module->parameters[i]);
+	}
 }

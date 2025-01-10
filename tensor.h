@@ -94,4 +94,5 @@ Tensor *tensor_tensor(void *data, int *shape, int dims);
 void	tensor_backward(Tensor *a, Tensor *prev_grad);
 Grad_Node	*create_sub_node(Tensor *a, Tensor *b);
 Tensor **tensor_backsub(Grad_Node *node, Tensor *grad);
+void	module_param_add(Module *module,Tensor *a);
 #endif

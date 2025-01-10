@@ -207,7 +207,6 @@ void tensor_print(Tensor *tensor)
 {
 	if (!tensor)
 		return ;
-	printf("tensor size %i\n",tensor->num_dims);
     if (tensor->num_dims <= 0) {
         printf("Error: Tensor must have at least 1 dimension.\n");
         return;
