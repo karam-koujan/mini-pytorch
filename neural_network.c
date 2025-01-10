@@ -1,7 +1,7 @@
 #include "tensor.h"
 #include <math.h>
 
-Tensor *Linear(Tensor *a, int in_features, int out_features, int use_bias)
+Tensor *Linear(Module *module, Tensor *a, int in_features, int out_features, int use_bias)
 {
 	int *weights_shape = (int *)malloc(a->num_dims * sizeof(int));
 	if (!weights_shape)
@@ -35,15 +35,33 @@ Tensor *Relu(Tensor *a)
 	return a;
 }
 
+Module *nn()
+{
+	Module *module = malloc(sizeof(Module));
+	if (!module)
+		return NULL;
+	module->parameters = NULL;
+	return module;
+}
+int	arr_len(Tensor	**arr)
+{
+	int i = 0;
+	while (arr[i])
+		i++;
+	return i;
+} 
+
+
 Tensor *foward(Tensor *a)
 {
-	Tensor *layer = Linear(a, a->shape[a->num_dims - 1], 5, 0);
+	Module *module = nn();
+	Tensor *layer = Linear(module,a, a->shape[a->num_dims - 1], 5, 0);
 	layer = Relu(layer);
-	layer = Linear(layer, layer->shape[layer->num_dims - 1], 5, 0);
+	layer = Linear(module,layer, layer->shape[layer->num_dims - 1], 5, 0);
 	layer = Relu(layer);
-	layer = Linear(layer, layer->shape[layer->num_dims - 1], 5, 0);
+	layer = Linear(module,layer, layer->shape[layer->num_dims - 1], 5, 0);
 	layer = Relu(layer);
-	return Linear(layer, layer->shape[layer->num_dims - 1], 1, 0);
+	return Linear(module,layer, layer->shape[layer->num_dims - 1], 1, 0);
 }
 Tensor *cost(Tensor *pred, Tensor *label)
 {
@@ -61,6 +79,36 @@ Tensor *cost(Tensor *pred, Tensor *label)
 	int mse_shape[2] = {1,1};
 	Tensor *mse = tensor_full(2,mse_shape,m / i,0);
 	return (mse); 
+}
+
+void	module_param_add(Module *module,Tensor *a)
+{
+	if(!module->parameters)
+	{
+		module->parameters = malloc(2 * sizeof(Tensor *));
+		if (!module->parameters)
+			return ;
+		module->parameters[0] = malloc(sizeof(Tensor ));
+		if (!module->parameters[0])
+		{
+			free(module->parameters);
+			return ;
+		}
+		memcpy(module->parameters[0], a, sizeof(Tensor));
+		module->parameters[1] = NULL;
+		return ;
+	}
+	Tensor **params = module->parameters;
+	int	size = arr_len(params);
+	Tensor **new_params = malloc((size + 2) * sizeof(Tensor *));
+	if (!new_params)
+		return ;
+	memcpy(new_params, params, size * sizeof(Tensor *));
+	new_params[size] = malloc(sizeof(Tensor ));
+	memcpy(new_params[size], a, sizeof(Tensor));
+	new_params[size + 1] = NULL;
+	free(params);
+	module->parameters = new_params;
 }
 int main()
 {

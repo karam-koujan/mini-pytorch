@@ -44,6 +44,12 @@ typedef struct Node
 	Tensor **saved_tensors;
 	Tensor **(*calculate_gradient)(struct Node *node,Tensor *grad);
 }	Grad_Node;
+
+typedef struct
+{
+	Tensor **parameters;
+} Module;
+
 Tensor *tensor_rand(int dim,int *shape,...);
 void tensor_set_seed(unsigned int seed);
 float	generate_random();
