@@ -95,4 +95,6 @@ void	tensor_backward(Tensor *a, Tensor *prev_grad);
 Grad_Node	*create_sub_node(Tensor *a, Tensor *b);
 Tensor **tensor_backsub(Grad_Node *node, Tensor *grad);
 void	module_param_add(Module *module,Tensor *a);
+Tensor **tensor_backpairwise_mul(Grad_Node *node, Tensor *grad);
+Grad_Node	*create_pairwise_mul_node(Tensor *a, Tensor *b);
 #endif

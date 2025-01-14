@@ -38,6 +38,25 @@ Grad_Node	*create_mm_node(Tensor *a, Tensor *b)
 	return node;
 }
 
+Grad_Node	*create_pairwise_mul_node(Tensor *a, Tensor *b)
+{
+	Grad_Node *node;
+
+	node = malloc(sizeof(Grad_Node ));
+	Tensor **saved_tensors = malloc(2 * sizeof(Tensor *));
+	if ( !node || !saved_tensors)
+	{
+		free(node);
+		free(saved_tensors);
+		return NULL;
+	}
+	saved_tensors[0] = a;
+	saved_tensors[1] = b;
+	node->saved_tensors = saved_tensors;
+	node->calculate_gradient = tensor_backpairwise_mul;
+	return node;
+}
+
 Grad_Node	*create_add_node(Tensor *a, Tensor *b)
 {
 	Grad_Node *node;
@@ -158,6 +177,34 @@ Tensor **tensor_backmatmul(Grad_Node *node, Tensor *grad)
 	res[1] = grad_b;
 	return res;
 }
+
+Tensor **tensor_backpairwise_mul(Grad_Node *node, Tensor *grad)
+{
+	Tensor *a = node->saved_tensors[0];
+	Tensor *b = node->saved_tensors[1];
+	Tensor **res = malloc(2 * sizeof(Tensor *));
+	if (!res)
+		return NULL;
+	Tensor *grad_a = NULL;
+	Tensor *grad_b = NULL;
+	if (a->requires_grad == 1)
+	{
+			grad_a = grad;
+		tensor_set_require_grad(grad_a,0);
+	}
+	if (b->requires_grad == 1)
+	{
+		grad_b = grad;
+		tensor_set_require_grad(grad_b,0);
+	}
+	printf("heere-----\n");
+	tensor_print(grad_a);
+	tensor_print(grad_b);
+	printf("finished-----\n");
+	res[0] = grad_a;
+	res[1] = grad_b;
+	return res;
+}
 Tensor **tensor_backmm(Grad_Node *node, Tensor *grad)
 {
 	Tensor **res = malloc(2 * sizeof(Tensor *));
@@ -192,6 +239,7 @@ void	tensor_accumulate_grad(Tensor *a, Tensor *grad)
 void	tensor_backward(Tensor *a, Tensor *prev_grad)
 {
 	Grad_Node *node = (Grad_Node *)a->grad_fn;
+	printf("backward pass\n");
 	if (!node)
 		return;
 	if (!prev_grad)

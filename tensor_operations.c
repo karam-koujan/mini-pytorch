@@ -308,7 +308,10 @@ Tensor *tensor_div(Tensor *a, Tensor *b)
 }
 Tensor *tensor_pairwise_mul(Tensor *a, Tensor *b)
 {
-	return tensor_pairwise_operation(a,b,'*');
+	Grad_Node *grad_fn = a->requires_grad || b->requires_grad ? create_pairwise_mul_node(a,b) : NULL;
+	Tensor *res = tensor_pairwise_operation(a,b,'*');
+	res->grad_fn = grad_fn;
+	return res;
 }
 
 Tensor *tensor_reshape(Tensor *a,int num_dim,int *shape)
