@@ -106,10 +106,12 @@ Tensor *foward(Module *module,Tensor *a)
 }
 Tensor *cost(Tensor *pred, Tensor *label)
 {
+	label->is_leaf = 0;
 	Tensor *res = tensor_sub(pred,label);
 	Tensor *se  = tensor_pairwise_mul(res,res);
-	int m_shape[2] = {1,1};
-	Tensor	*m = tensor_zeros(2,m_shape,0);
+	int m_shape[3] = {1,1,1};
+	Tensor	*m = tensor_zeros(3,m_shape,0);
+	tensor_set_require_grad(m,1);
 	int i = 0;
 	while(i < 4)
 	{
@@ -120,9 +122,13 @@ Tensor *cost(Tensor *pred, Tensor *label)
 
 		i++;
 	}
-	int mse_shape[2] = {1,1};
-	Tensor *div = tensor_full(2,mse_shape,1.0 / i,0);
+	int mse_shape[3] = {1,1,1};
+	Tensor *div = tensor_full(3,mse_shape,1.0 / (float)i,0);
+	div->is_leaf = 0;
+	tensor_set_require_grad(div,1);
 	Tensor *mse = tensor_pairwise_mul(m,div);
+	printf("req grad_ %i %i %i %i %i\n",res->is_leaf,se->is_leaf,m->is_leaf,mse->is_leaf,label->is_leaf);
+	tensor_print(div);
 	return (mse); 
 }
 int main()
@@ -148,7 +154,8 @@ int main()
 	tensor_print(prediction);
 	Tensor *cost_fn = cost(prediction, l);
 	tensor_print(prediction);
-	tensor_backward(cost_fn, NULL);
+	Tensor *mse = tensor_full(prediction->num_dims,prediction->shape,((float *)cost_fn->data)[0],0);
+	tensor_backward(prediction, mse);
 
 	// tensor_print(cost_fn);
 	for(int i = 0; module->parameters[i]; i++)
@@ -158,5 +165,4 @@ int main()
 		printf("require grad : %i  is_leaf : %i",module->parameters[i]->requires_grad, module->parameters[i]->is_leaf);
 		tensor_print(module->parameters[i]->grad);
 	}
-	
 }

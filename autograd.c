@@ -197,10 +197,6 @@ Tensor **tensor_backpairwise_mul(Grad_Node *node, Tensor *grad)
 		grad_b = grad;
 		tensor_set_require_grad(grad_b,0);
 	}
-	printf("heere-----\n");
-	tensor_print(grad_a);
-	tensor_print(grad_b);
-	printf("finished-----\n");
 	res[0] = grad_a;
 	res[1] = grad_b;
 	return res;
@@ -239,7 +235,7 @@ void	tensor_accumulate_grad(Tensor *a, Tensor *grad)
 void	tensor_backward(Tensor *a, Tensor *prev_grad)
 {
 	Grad_Node *node = (Grad_Node *)a->grad_fn;
-	printf("backward pass\n");
+
 	if (!node)
 		return;
 	if (!prev_grad)
