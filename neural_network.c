@@ -1,7 +1,7 @@
 #include "tensor.h"
 #include <math.h>
 
-Tensor *Linear(Module *module, Tensor *a, int in_features, int out_features, int use_bias)
+Tensor *Linear(Module *module, int layernum, Tensor *a, int in_features, int out_features, int use_bias)
 {
 	int *weights_shape = (int *)malloc(a->num_dims * sizeof(int));
 	if (!weights_shape)
@@ -10,11 +10,13 @@ Tensor *Linear(Module *module, Tensor *a, int in_features, int out_features, int
 	weights_shape[a->num_dims - 1] = in_features;
 	weights_shape[a->num_dims - 2] = out_features;
 	Tensor *weights = tensor_ones(a->num_dims, weights_shape,0);
-	Tensor *weights_t = tensor_t(weights);
+	printf("tensor_params %i\n", module->parameters == NULL);
+	Tensor *weights_t = module->parameters == NULL ? tensor_t(weights) : module->parameters[layernum];
 	tensor_set_require_grad(weights_t,1);
 	Tensor *result = tensor_matmul(a, weights_t);
 	Tensor *bias = bias ? tensor_rand(result->num_dims, result->shape, 0) : NULL;
-	module_param_add(module, weights_t);
+	if (module->parameters == NULL)
+		module_param_add(module, weights_t);
 	if (!bias)
 	{
 		tensor_set_require_grad(bias,1);
@@ -99,9 +101,9 @@ void	zero_grad(Module *module)
 
 Tensor *foward(Module *module,Tensor *a)
 {
-	Tensor *layer = Linear(module,a, a->shape[a->num_dims - 1], 5, 0);
+	Tensor *layer = Linear(module,0,a, a->shape[a->num_dims - 1], 5, 0);
 	layer = Relu(layer);
-	layer = Linear(module, layer, layer->shape[layer->num_dims - 1],1, 0);
+	layer = Linear(module, 1,layer,layer->shape[layer->num_dims - 1],1, 0);
 	return layer;
 }
 Tensor *cost(Tensor *pred, Tensor *label)
@@ -127,8 +129,6 @@ Tensor *cost(Tensor *pred, Tensor *label)
 	div->is_leaf = 0;
 	tensor_set_require_grad(div,1);
 	Tensor *mse = tensor_pairwise_mul(m,div);
-	printf("req grad_ %i %i %i %i %i\n",res->is_leaf,se->is_leaf,m->is_leaf,mse->is_leaf,label->is_leaf);
-	tensor_print(div);
 	return (mse); 
 }
 int main()
@@ -149,20 +149,21 @@ int main()
 	//tensor_print(l);
 	Tensor *prediction;
 
+	for (int  k = 0; k < 50; k++)
+	{
 	prediction = foward(module, d);
-
-	tensor_print(prediction);
 	Tensor *cost_fn = cost(prediction, l);
-	tensor_print(prediction);
+	tensor_print(cost_fn);
 	Tensor *mse = tensor_full(prediction->num_dims,prediction->shape,((float *)cost_fn->data)[0],0);
 	tensor_backward(prediction, mse);
-
 	// tensor_print(cost_fn);
 	for(int i = 0; module->parameters[i]; i++)
 	{
-		printf("------- parameters ---------");
-		tensor_print(module->parameters[i]);
-		printf("require grad : %i  is_leaf : %i",module->parameters[i]->requires_grad, module->parameters[i]->is_leaf);
-		tensor_print(module->parameters[i]->grad);
+		module->parameters[i] = tensor_sub(module->parameters[i],module->parameters[i]->grad);
+	}
+		zero_grad(module);
+	free(mse);
+	free(cost_fn);
+	free(prediction);
 	}
 }
