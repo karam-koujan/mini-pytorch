@@ -342,6 +342,7 @@ Tensor *tensor_reshape(Tensor *a,int num_dim,int *shape)
 Tensor *tensor_t(Tensor *a)
 {
 	Tensor *res = (Tensor *)malloc(sizeof(Tensor));
+	*res = *a;
 	int dim = a->num_dims;
 	int *shape = (int *)malloc(a->num_dims * sizeof(int));
 	int *strides = (int *)malloc(a->num_dims * sizeof(int));
@@ -355,9 +356,6 @@ Tensor *tensor_t(Tensor *a)
 	shape[dim - 2] = tmp;
 	res->shape = shape;
 	res->strides = strides;
-	res->data = a->data;
-	res->size = a->size;
-	res->num_dims = a->num_dims;
 	return res;
 }
 
@@ -384,10 +382,6 @@ Tensor *tensor_transpose(Tensor *a, int dim0, int dim1)
 
 Tensor *tensor_collapse(Tensor *a, int *original_shape, int new_dim)
 {
-	if (new_dim == a->num_dims && original_shape[0] != 1 )
-	{
-		return NULL;
-	}
 	int dims = a->num_dims;
 	ssize_t batch_size = tensor_size(a,dims - 2);
 	int shape[3] = {batch_size,original_shape[dims - 2],original_shape[dims - 1]};

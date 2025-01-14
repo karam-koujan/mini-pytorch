@@ -86,20 +86,12 @@ Tensor **tensor_backadd(Grad_Node *node, Tensor *grad)
 	Tensor *grad_b = NULL;
 	if (a->requires_grad == 1)
 	{
-		grad_a = tensor_collapse(grad,a->shape,a->num_dims);
-		if (!grad_a)
-		{
 			grad_a = grad;
-		}
 		tensor_set_require_grad(grad_a,0);
 	}
 	if (b->requires_grad == 1)
 	{
-		grad_b = tensor_collapse(grad,b->shape,b->num_dims);
-		if (!grad_b)
-		{
-			grad_b = grad;
-		}
+		grad_b = grad;
 		tensor_set_require_grad(grad_b,0);
 	}
 	res[0] = grad_a;
@@ -155,25 +147,11 @@ Tensor **tensor_backmatmul(Grad_Node *node, Tensor *grad)
 	{
 
 		grad_a = tensor_matmul(grad,b_t);
-		if (!grad_a)
-			return NULL;
-		grad_a = tensor_collapse(grad_a,a->shape,a->num_dims);
-		if (!grad_a)
-		{
-			grad_a = tensor_matmul(grad,b_t);
-		}
 		tensor_set_require_grad(grad_a,0);
 	}
 	if(b->requires_grad)
 	{
 		grad_b = tensor_matmul(a_t,grad);
-		if (!grad_b)
-			return NULL;
-		grad_b =tensor_collapse(grad_b,b->shape,b->num_dims);
-		if (!grad_b)
-		{
-			grad_b = tensor_matmul(a_t,grad);
-		}
 		tensor_set_require_grad(grad_b,0);
 	}
 	res[0] = grad_a;
@@ -208,6 +186,7 @@ Tensor **tensor_backmm(Grad_Node *node, Tensor *grad)
 void	tensor_accumulate_grad(Tensor *a, Tensor *grad)
 {
 	a->grad = tensor_add(a->grad,grad);
+	tensor_print(a);
 }
 
 void	tensor_backward(Tensor *a, Tensor *prev_grad)
@@ -222,6 +201,7 @@ void	tensor_backward(Tensor *a, Tensor *prev_grad)
 		return;
 	Tensor *grad_a = gradients[0];
 	Tensor *grad_b = gradients[1];
+
 	if (node->saved_tensors[0]->is_leaf == 1 && node->saved_tensors[0]->requires_grad == 1)
 	{
 		tensor_accumulate_grad(node->saved_tensors[0],grad_a);

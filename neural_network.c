@@ -12,9 +12,9 @@ Tensor *Linear(Module *module, Tensor *a, int in_features, int out_features, int
 	Tensor *weights = tensor_ones(a->num_dims, weights_shape,0);
 	Tensor *weights_t = tensor_t(weights);
 	tensor_set_require_grad(weights_t,1);
-	module_param_add(module, weights_t);
 	Tensor *result = tensor_matmul(a, weights_t);
 	Tensor *bias = bias ? tensor_rand(result->num_dims, result->shape, 0) : NULL;
+	module_param_add(module, weights_t);
 	if (!bias)
 	{
 		tensor_set_require_grad(bias,1);
@@ -52,33 +52,6 @@ int	arr_len(Tensor	**arr)
 	return i;
 } 
 
-
-Tensor *foward(Module *module,Tensor *a)
-{
-	Tensor *layer = Linear(module,a, a->shape[a->num_dims - 1], 5, 0);
-	layer = Linear(module,layer, layer->shape[layer->num_dims - 1], 5, 0);
-	layer = Linear(module,layer, layer->shape[layer->num_dims - 1], 5, 0);
-
-	return Linear(module,layer, layer->shape[layer->num_dims - 1], 1, 0);
-}
-Tensor *cost(Tensor *pred, Tensor *label)
-{
-	Tensor *res = tensor_sub(pred,label);
-	Tensor *se  = tensor_pairwise_mul(res,res);
-	float	m = 0;
-	int i = 0;
-	while(i < 4)
-	{
-		float *data = se->data;
-		m+= data[i];
-		i++;
-	}
-	printf("%f",m);
-	int mse_shape[2] = {1,1};
-	Tensor *mse = tensor_full(2,mse_shape,m / i,0);
-	return (mse); 
-}
-
 void	module_param_add(Module *module,Tensor *a)
 {
 	if(!module->parameters)
@@ -92,7 +65,7 @@ void	module_param_add(Module *module,Tensor *a)
 			free(module->parameters);
 			return ;
 		}
-		memcpy(module->parameters[0], a, sizeof(Tensor));
+		module->parameters[0] =  a;
 		module->parameters[1] = NULL;
 		return ;
 	}
@@ -123,34 +96,51 @@ void	zero_grad(Module *module)
 		params[i]->grad = zero;
 	}
 }
+
+Tensor *foward(Module *module,Tensor *a)
+{
+	Tensor *layer = Linear(module,a, a->shape[a->num_dims - 1], 5, 0);
+	layer = Relu(layer);
+	return layer;
+}
+Tensor *cost(Tensor *pred, Tensor *label)
+{
+	Tensor *res = tensor_sub(pred,label);
+	Tensor *se  = tensor_pairwise_mul(res,res);
+	float	m = 0;
+	int i = 0;
+	while(i < 4)
+	{
+		float *data = se->data;
+		m+= data[i];
+		i++;
+	}
+	int mse_shape[2] = {1,1};
+	Tensor *mse = tensor_full(2,mse_shape,m / i,0);
+	return (mse); 
+}
 int main()
 {
-	float data[4][2] = {
-	    {0.1, 0.2},
-	    {0.3, 0.4},
-	    {0.5, 0.6},
-	    {0.7, 0.8}
-	};
-	float labels[4] = {0.3, 0.7, 1.1, 1.5};
-	int data_shape[] = {4,2};
-	Tensor *d = tensor_tensor(data,data_shape,2);
-	int label_shape[] = {4,1};
-	Tensor *l = tensor_tensor(labels,label_shape,2);
+	int data_shape[] = {1,4,2};
+	Tensor *d = tensor_rand(3,data_shape,0);
+	int label_shape[] = {1,4,1};
+	//Tensor *l = tensor_tensor(labels,label_shape,3);
 	Module *module = nn();	
-	tensor_print(d);
-	tensor_print(l);
+	// tensor_print(d);
+	//tensor_print(l);
 	Tensor *prediction;
-	for(int epoch = 0; epoch < 50; epoch++)
-	{
-		prediction = foward(module,d);
-	}
-	//tensor_print(prediction);
-	Tensor *cost_fn = cost(prediction, l);
-	tensor_backward(cost_fn, NULL);
+
+	prediction = foward(module, d);
+
+	tensor_print(prediction);
+	//Tensor *cost_fn = cost(prediction, l);
+	tensor_print(prediction);
+	tensor_backward(prediction, NULL);
+
 	// tensor_print(cost_fn);
 	for(int i = 0; module->parameters[i]; i++)
 	{
+		printf("require grad : %i  is_leaf : %i",module->parameters[i]->requires_grad, module->parameters[i]->is_leaf);
 		tensor_print(module->parameters[i]->grad);
 	}
-
 }
