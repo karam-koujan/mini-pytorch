@@ -34,16 +34,16 @@ Tensor *Linear(Module *module, int layernum, Tensor *a, int in_features, int out
 		module_param_add(module, weights_t);
 	}
 	Tensor *result = tensor_matmul(a, weights_t);
-	//Tensor *bias = use_bias ? tensor_rand(result->num_dims, result->shape, 0) : NULL;
-	// if (module->parameters[layernum] == NULL)
-	// 	
-	// if (bias)
-	// {
-	// 	tensor_set_require_grad(bias,1);
-	// 	Tensor *tensor_tmp = result;
-	// 	result = tensor_add(result,bias);
-	// 	free(tensor_tmp);
-	// }
+	Tensor *bias = use_bias ? tensor_rand(result->num_dims, result->shape, 0) : NULL;
+	if (module->parameters[layernum] == NULL)
+		
+	if (bias)
+	{
+		tensor_set_require_grad(bias,1);
+		Tensor *tensor_tmp = result;
+		result = tensor_add(result,bias);
+		free(tensor_tmp);
+	}
 	return result;
 }
 
@@ -163,7 +163,7 @@ float labels[20] = {
 };
 	int data_shape[] = {1,20,2};
 	Tensor *d = tensor_tensor(data,data_shape,3);
-	int label_shape[] = {1,20,1};
+	int label_shape[] = {20,1};
 	Tensor *l = tensor_tensor(labels,label_shape,3);
 	Module *module = nn();	
 	// tensor_print(d);
