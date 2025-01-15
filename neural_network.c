@@ -119,7 +119,7 @@ Tensor *foward(Module *module,Tensor *a)
 	layer = Linear(module, 1,layer,layer->shape[layer->num_dims - 1],1, 0);
 	return layer;
 }
-Tensor *cost(Tensor *pred, Tensor *label)
+Tensor *mse(Tensor *pred, Tensor *label)
 {
 	label->is_leaf = 0;
 	Tensor *res = tensor_sub(pred,label);
@@ -128,7 +128,7 @@ Tensor *cost(Tensor *pred, Tensor *label)
 	Tensor	*m = tensor_zeros(3,m_shape,0);
 	tensor_set_require_grad(m,1);
 	int i = 0;
-	while(i < 4)
+	while(i < pred->shape[pred->num_dims - 2])
 	{
 		float *data = se->data;
 		Tensor *data_t = tensor_full(2,m_shape,data[i],0);
@@ -169,7 +169,7 @@ float labels[20] = {
 	// tensor_print(d);
 	//tensor_print(l);
 	Tensor *prediction;
-	for (int  k = 0; k < 2500; k++)
+	for (int  k = 0; k < 1400; k++)
 	{
 	printf("=========== epoch : %i =================\n",k);
 	prediction = foward(module, d);
@@ -178,11 +178,11 @@ float labels[20] = {
 		printf("before training prediction\n");
 		tensor_print(prediction);
 	}
-	Tensor *cost_fn = cost(prediction, l);
+	Tensor *cost_tensor = mse(prediction, l);
 	printf("cost function \n");
-	tensor_print(cost_fn);
-	Tensor *mse = tensor_full(prediction->num_dims,prediction->shape,((float *)cost_fn->data)[0],0);
-	tensor_backward(prediction, mse);
+	tensor_print(cost_tensor);
+	Tensor *cost = tensor_full(prediction->num_dims,prediction->shape,((float *)cost_tensor->data)[0],0);
+	tensor_backward(prediction, cost);
 	for(int i = 0; module->parameters[i]; i++)
 	{
 	Tensor *lr = tensor_full(module->parameters[i]->num_dims, module->parameters[i]->shape, 0.001, 0);
@@ -190,8 +190,8 @@ float labels[20] = {
 	free(lr);
 	}
 	zero_grad(module);
-	free(mse);
-	free(cost_fn);
+	free(cost);
+	free(cost_tensor);
 	free(prediction);
 	}
 	prediction = foward(module,d);	
