@@ -1,6 +1,17 @@
 #include "tensor.h"
 #include <math.h>
 
+
+int	arr_len(Tensor	**arr)
+{
+	if (arr == NULL)
+		return 0;
+	int i = 0;
+	while (arr[i])
+		i++;
+	return i;
+} 
+
 Tensor *Linear(Module *module, int layernum, Tensor *a, int in_features, int out_features, int use_bias)
 {
 	int *weights_shape = (int *)malloc(a->num_dims * sizeof(int));
@@ -9,22 +20,30 @@ Tensor *Linear(Module *module, int layernum, Tensor *a, int in_features, int out
 	memcpy(weights_shape,a->shape, a->num_dims);
 	weights_shape[a->num_dims - 1] = in_features;
 	weights_shape[a->num_dims - 2] = out_features;
+	int params_len = arr_len(module->parameters);
 	Tensor *weights = tensor_ones(a->num_dims, weights_shape,0);
-	printf("tensor_params %i\n", module->parameters == NULL);
-	Tensor *weights_t = module->parameters == NULL ? tensor_t(weights) : module->parameters[layernum];
-	tensor_set_require_grad(weights_t,1);
-	Tensor *result = tensor_matmul(a, weights_t);
-	Tensor *bias = bias ? tensor_rand(result->num_dims, result->shape, 0) : NULL;
-	if (module->parameters == NULL)
-		module_param_add(module, weights_t);
-	if (!bias)
+	Tensor *weights_t = tensor_t(weights);
+	if (layernum < params_len)
 	{
-		tensor_set_require_grad(bias,1);
-		Tensor *tensor_tmp = result;
-		result = tensor_add(result,bias);
-		free(tensor_tmp);
+		weights_t = module->parameters[layernum];
+		weights_t->is_leaf = 1;
+		tensor_set_require_grad(weights_t,1);
+	}else
+	{
+		tensor_set_require_grad(weights_t,1);
+		module_param_add(module, weights_t);
 	}
-	free(weights_shape);
+	Tensor *result = tensor_matmul(a, weights_t);
+	//Tensor *bias = use_bias ? tensor_rand(result->num_dims, result->shape, 0) : NULL;
+	// if (module->parameters[layernum] == NULL)
+	// 	
+	// if (bias)
+	// {
+	// 	tensor_set_require_grad(bias,1);
+	// 	Tensor *tensor_tmp = result;
+	// 	result = tensor_add(result,bias);
+	// 	free(tensor_tmp);
+	// }
 	return result;
 }
 
@@ -46,13 +65,7 @@ Module *nn()
 	module->parameters = NULL;
 	return module;
 }
-int	arr_len(Tensor	**arr)
-{
-	int i = 0;
-	while (arr[i])
-		i++;
-	return i;
-} 
+
 
 void	module_param_add(Module *module,Tensor *a)
 {
@@ -151,17 +164,20 @@ int main()
 
 	for (int  k = 0; k < 50; k++)
 	{
+	printf("=========== epoch : %i =================\n",k);
 	prediction = foward(module, d);
 	Tensor *cost_fn = cost(prediction, l);
+	printf("cost function \n");
 	tensor_print(cost_fn);
 	Tensor *mse = tensor_full(prediction->num_dims,prediction->shape,((float *)cost_fn->data)[0],0);
 	tensor_backward(prediction, mse);
-	// tensor_print(cost_fn);
 	for(int i = 0; module->parameters[i]; i++)
 	{
-		module->parameters[i] = tensor_sub(module->parameters[i],module->parameters[i]->grad);
+	Tensor *lr = tensor_full(module->parameters[i]->num_dims, module->parameters[i]->shape, 0.01, 0);
+	module->parameters[i] = tensor_sub(module->parameters[i], tensor_pairwise_mul(module->parameters[i]->grad, lr));
+	free(lr);
 	}
-		zero_grad(module);
+	zero_grad(module);
 	free(mse);
 	free(cost_fn);
 	free(prediction);
