@@ -21,7 +21,7 @@ Tensor *Linear(Module *module, int layernum, Tensor *a, int in_features, int out
 	weights_shape[a->num_dims - 1] = in_features;
 	weights_shape[a->num_dims - 2] = out_features;
 	int params_len = arr_len(module->parameters);
-	Tensor *weights = tensor_ones(a->num_dims, weights_shape,0);
+	Tensor *weights = tensor_rand(a->num_dims, weights_shape,0);
 	Tensor *weights_t = tensor_t(weights);
 	if (layernum < params_len)
 	{
@@ -146,26 +146,38 @@ Tensor *cost(Tensor *pred, Tensor *label)
 }
 int main()
 {
-	float data[4][2] = {
-	    {0.1, 0.2},
-	    {0.3, 0.4},
-	    {0.5, 0.6},
-	    {0.7, 0.8}
-	};
-	float labels[4] = {0.3, 0.7, 1.1, 1.5};
-	int data_shape[] = {1,4,2};
+	tensor_set_seed(1337);
+float data[20][2] = {
+    {0.1, 0.2}, {0.3, 0.4}, {0.5, 0.6}, {0.7, 0.8}, {0.2, 0.3},
+    {0.4, 0.6}, {0.6, 0.8}, {0.8, 0.9}, {0.1, 0.4}, {0.3, 0.5},
+    {0.5, 0.7}, {0.7, 0.9}, {0.2, 0.5}, {0.4, 0.7}, {0.6, 0.9},
+    {0.1, 0.3}, {0.3, 0.6}, {0.5, 0.8}, {0.7, 0.7}, {0.9, 0.8}
+};
+
+// Labels follow the pattern (x₁ + 2*x₂)/3 with small variations
+float labels[20] = {
+    0.17, 0.37, 0.57, 0.77, 0.27,
+    0.53, 0.73, 0.87, 0.30, 0.43,
+    0.63, 0.83, 0.40, 0.60, 0.80,
+    0.23, 0.50, 0.70, 0.70, 0.83
+};
+	int data_shape[] = {1,20,2};
 	Tensor *d = tensor_tensor(data,data_shape,3);
-	int label_shape[] = {1,4,1};
+	int label_shape[] = {1,20,1};
 	Tensor *l = tensor_tensor(labels,label_shape,3);
 	Module *module = nn();	
 	// tensor_print(d);
 	//tensor_print(l);
 	Tensor *prediction;
-
-	for (int  k = 0; k < 50; k++)
+	for (int  k = 0; k < 2500; k++)
 	{
 	printf("=========== epoch : %i =================\n",k);
 	prediction = foward(module, d);
+	if (k == 0)
+	{
+		printf("before training prediction\n");
+		tensor_print(prediction);
+	}
 	Tensor *cost_fn = cost(prediction, l);
 	printf("cost function \n");
 	tensor_print(cost_fn);
@@ -173,7 +185,7 @@ int main()
 	tensor_backward(prediction, mse);
 	for(int i = 0; module->parameters[i]; i++)
 	{
-	Tensor *lr = tensor_full(module->parameters[i]->num_dims, module->parameters[i]->shape, 0.01, 0);
+	Tensor *lr = tensor_full(module->parameters[i]->num_dims, module->parameters[i]->shape, 0.001, 0);
 	module->parameters[i] = tensor_sub(module->parameters[i], tensor_pairwise_mul(module->parameters[i]->grad, lr));
 	free(lr);
 	}
@@ -182,4 +194,6 @@ int main()
 	free(cost_fn);
 	free(prediction);
 	}
+	prediction = foward(module,d);	
+	tensor_print(prediction);
 }
