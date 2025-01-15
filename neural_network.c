@@ -124,21 +124,20 @@ Tensor *mse(Tensor *pred, Tensor *label)
 	label->is_leaf = 0;
 	Tensor *res = tensor_sub(pred,label);
 	Tensor *se  = tensor_pairwise_mul(res,res);
-	int m_shape[3] = {1,1,1};
-	Tensor	*m = tensor_zeros(3,m_shape,0);
+	Tensor	*m = tensor_zeros(se->num_dims,se->shape,0);
 	tensor_set_require_grad(m,1);
 	int i = 0;
 	while(i < pred->shape[pred->num_dims - 2])
 	{
 		float *data = se->data;
-		Tensor *data_t = tensor_full(2,m_shape,data[i],0);
+		Tensor *data_t = tensor_full(se->num_dims,se->shape,data[i],0);
 		Tensor *m_c = m;
 		m = tensor_add(m,data_t);
-
+		free(m_c);
 		i++;
 	}
 	int mse_shape[3] = {1,1,1};
-	Tensor *div = tensor_full(3,mse_shape,1.0 / (float)i,0);
+	Tensor *div = tensor_full(se->num_dims,se->shape ,1.0 / (float)i,0);
 	div->is_leaf = 0;
 	tensor_set_require_grad(div,1);
 	Tensor *mse = tensor_pairwise_mul(m,div);
@@ -166,8 +165,7 @@ float labels[20] = {
 	int label_shape[] = {20,1};
 	Tensor *l = tensor_tensor(labels,label_shape,3);
 	Module *module = nn();	
-	// tensor_print(d);
-	//tensor_print(l);
+
 	Tensor *prediction;
 	for (int  k = 0; k < 1400; k++)
 	{
