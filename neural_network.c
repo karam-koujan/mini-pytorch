@@ -182,7 +182,7 @@ float labels[20] = {
 	Tensor *l = tensor_tensor(labels,label_shape,3);
 	Module *module = nn();	
 	Tensor *prediction;
-	for (int  epoch = 0; epoch < 1; epoch++)
+	for (int  epoch = 0; epoch < 1500; epoch++)
 	{
 	printf("=========== epoch : %i =================\n",epoch);
 	prediction = forward(module, d);
