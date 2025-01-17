@@ -112,7 +112,7 @@ void	zero_grad(Module *module)
 	}
 }
 
-Tensor *foward(Module *module,Tensor *a)
+Tensor *forward(Module *module,Tensor *a)
 {
 	Tensor *layer = Linear(module,0,a, a->shape[a->num_dims - 1], 5, 0);
 	layer = Relu(layer);
@@ -124,25 +124,41 @@ Tensor *mse(Tensor *pred, Tensor *label)
 	label->is_leaf = 0;
 	Tensor *res = tensor_sub(pred,label);
 	Tensor *se  = tensor_pairwise_mul(res,res);
-	Tensor	*m = tensor_zeros(se->num_dims,se->shape,0);
+	int  one_d_shape[1] = {1};
+	Tensor	*m = tensor_zeros(1,one_d_shape,0);
 	tensor_set_require_grad(m,1);
 	int i = 0;
 	while(i < pred->shape[pred->num_dims - 2])
 	{
 		float *data = se->data;
-		Tensor *data_t = tensor_full(se->num_dims,se->shape,data[i],0);
+		Tensor *data_t = tensor_full(1,one_d_shape,data[i],0);
 		Tensor *m_c = m;
 		m = tensor_add(m,data_t);
 		free(m_c);
 		i++;
 	}
 	int mse_shape[3] = {1,1,1};
-	Tensor *div = tensor_full(se->num_dims,se->shape ,1.0 / (float)i,0);
+	Tensor *div = tensor_full(1,one_d_shape,1.0 / (float)i,0);
 	div->is_leaf = 0;
 	tensor_set_require_grad(div,1);
 	Tensor *mse = tensor_pairwise_mul(m,div);
 	return (mse); 
 }
+void	optimizer_normal(Module *module)
+{
+	for(int i = 0; module->parameters[i]; i++)
+	{
+		Tensor *lr = tensor_full(module->parameters[i]->num_dims, module->parameters[i]->shape, 0.001, 0);
+		module->parameters[i] = tensor_sub(module->parameters[i], tensor_pairwise_mul(module->parameters[i]->grad, lr));
+		free(lr);
+	}
+}
+void	optimizer(Module *module, char *type)
+{
+	if (strcmp(type, "normal") == 0)
+			optimizer_normal(module);
+}
+
 int main()
 {
 	tensor_set_seed(1337);
@@ -165,33 +181,26 @@ float labels[20] = {
 	int label_shape[] = {20,1};
 	Tensor *l = tensor_tensor(labels,label_shape,3);
 	Module *module = nn();	
-
 	Tensor *prediction;
-	for (int  k = 0; k < 1400; k++)
+	for (int  epoch = 0; epoch < 1; epoch++)
 	{
-	printf("=========== epoch : %i =================\n",k);
-	prediction = foward(module, d);
-	if (k == 0)
+	printf("=========== epoch : %i =================\n",epoch);
+	prediction = forward(module, d);
+	if (epoch == 0)
 	{
 		printf("before training prediction\n");
 		tensor_print(prediction);
 	}
 	Tensor *cost_tensor = mse(prediction, l);
-	printf("cost function \n");
-	tensor_print(cost_tensor);
+	printf("loss :%f\n",((float *)cost_tensor->data)[0]);
 	Tensor *cost = tensor_full(prediction->num_dims,prediction->shape,((float *)cost_tensor->data)[0],0);
 	tensor_backward(prediction, cost);
-	for(int i = 0; module->parameters[i]; i++)
-	{
-	Tensor *lr = tensor_full(module->parameters[i]->num_dims, module->parameters[i]->shape, 0.001, 0);
-	module->parameters[i] = tensor_sub(module->parameters[i], tensor_pairwise_mul(module->parameters[i]->grad, lr));
-	free(lr);
-	}
+	optimizer(module, "normal");
 	zero_grad(module);
 	free(cost);
 	free(cost_tensor);
 	free(prediction);
 	}
-	prediction = foward(module,d);	
+	prediction = forward(module,d);	
 	tensor_print(prediction);
 }
