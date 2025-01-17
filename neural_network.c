@@ -14,10 +14,11 @@ int	arr_len(Tensor	**arr)
 
 Tensor *Linear(Module *module, int layernum, Tensor *a, int in_features, int out_features, int use_bias)
 {
-	int *weights_shape = (int *)malloc(a->num_dims * sizeof(int));
+	int *weights_shape = (int *)malloc(3 * sizeof(int));
 	if (!weights_shape)
 		return NULL;
-	memcpy(weights_shape,a->shape, a->num_dims);
+
+	weights_shape[0] = 1;
 	weights_shape[a->num_dims - 1] = in_features;
 	weights_shape[a->num_dims - 2] = out_features;
 	int params_len = arr_len(module->parameters);
@@ -196,7 +197,8 @@ float labels[20] = {
 	Tensor *cost_tensor = mse(prediction, l);
 	Tensor *cost = tensor_full(prediction->num_dims,prediction->shape,((float *)cost_tensor->data)[0],0);
     float current_cost = ((float *)cost_tensor->data)[0];
-	cost_history_add(&history, current_cost);  // Record the cost
+	if (epoch % 10 == 0)
+		cost_history_add(&history, current_cost);  // Record the cost
 	tensor_backward(prediction, cost);
 	optimizer(module, "normal");
 	zero_grad(module);
