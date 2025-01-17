@@ -44,6 +44,12 @@ typedef struct Node
 	Tensor **saved_tensors;
 	Tensor **(*calculate_gradient)(struct Node *node,Tensor *grad);
 }	Grad_Node;
+
+typedef struct
+{
+	Tensor **parameters;
+} Module;
+
 Tensor *tensor_rand(int dim,int *shape,...);
 void tensor_set_seed(unsigned int seed);
 float	generate_random();
@@ -84,5 +90,12 @@ Tensor *tensor_mm(Tensor *a,Tensor *b);
 Grad_Node	*create_mm_node(Tensor *a, Tensor *b);
 Tensor **tensor_backmm(Grad_Node *node, Tensor *grad);
 Tensor *tensor_collapse(Tensor *a, int *original_shape,int new_dim);
+Tensor *tensor_tensor(void *data, int *shape, int dims);
+void	tensor_backward(Tensor *a, Tensor *prev_grad);
+Grad_Node	*create_sub_node(Tensor *a, Tensor *b);
+Tensor **tensor_backsub(Grad_Node *node, Tensor *grad);
+void	module_param_add(Module *module,Tensor *a);
+Tensor **tensor_backpairwise_mul(Grad_Node *node, Tensor *grad);
+Grad_Node	*create_pairwise_mul_node(Tensor *a, Tensor *b);
 
 #endif

@@ -407,3 +407,37 @@ Tensor *tensor_clone(Tensor *a)
 
     return copy;
 }
+// int calculate1DIndex(int *indices, int *dims, int n) {
+//     int index = 0, multiplier = 1;
+//     for (int i = n - 1; i >= 0; i--) {
+//         index += indices[i] * multiplier;
+//         multiplier *= dims[i];
+//     }
+//     return index;
+// }
+
+
+float	*flattenNDArray(float *input, int *dims, int n, int size) {
+    int totalElements = 1;
+	float *output = malloc(size * sizeof(float));
+	if (!output)
+	{
+		return NULL;
+	}
+    for (int i = 0; i < n; i++) {
+        totalElements *= dims[i];
+    }
+
+    for (int i = 0; i < totalElements; i++) {
+        output[i] = input[i];
+    }
+	return output;
+}
+Tensor *tensor_tensor(void *data, int *shape, int dims)
+{
+	Tensor *res = tensor_ones(dims,shape,0);
+
+    float *output = flattenNDArray((float *)data, res->shape, dims,res->size);
+	res->data = output;
+	return res;
+}

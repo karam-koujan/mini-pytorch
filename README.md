@@ -85,6 +85,14 @@ The following functions allow the creation of tensors for different purposes:
   - **Returns**:
     - `Tensor*`: A new tensor that is a deep copy of `a`, with its own data and gradient metadata.
 
+- **`tensor_tensor`**:  
+  - Creates a new tensor from the provided raw data and shape information. 
+  - **Parameters:**  
+    - `data` (void*): A pointer to the raw input data (e.g., a multi-dimensional array).  
+    - `shape` (int*): An array of integers specifying the dimensions of the tensor.  
+    - `dims` (int): The number of dimensions of the tensor.  
+  - **Returns:**  
+    - `Tensor*`: A newly created tensor with the input data, shape, and metadata properly initialized.
 
 ## Tensor Operations
 
