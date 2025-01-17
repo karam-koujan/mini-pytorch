@@ -18,7 +18,7 @@ int	*create_stride(int num_dims, int *shape)
 {
 	if (!shape)
 		return NULL;
-	int *stride = malloc(num_dims);
+	int *stride = (int *)malloc(num_dims);
 	if (!stride)
 		return NULL;
 	int sum = 1;
@@ -150,32 +150,38 @@ Tensor *tensor_zeros(int dim,int *shape,...)
 	return tensor;
 }
 
+Tensor *tensor_init(int dim, int *shape)
+{
+	Tensor *tensor = (Tensor *)malloc(sizeof(Tensor));
+	if (!tensor)
+		return (perror("tensor allocation failed \n"), NULL);
+	tensor->shape = (int *)malloc(dim * sizeof(int));
+	if (!tensor->shape)
+		return (perror("tensor allocation failed \n"), NULL);
+	memcpy(tensor->shape, shape, dim * sizeof(int));	
+	tensor->strides = create_stride(dim, tensor->shape);
+	if (!tensor->shape || !tensor->strides)
+		return NULL;
+	tensor->num_dims = dim;
+	tensor->is_leaf = 1;
+	tensor->requires_grad = 0;
+	tensor->size = tensor_entries_len(tensor);
+	tensor->grad = NULL;
+	tensor->grad_fn = NULL;
+}
 
 
 Tensor *tensor_ones(int dim,int *shape,...)
 {
 	va_list arg;
-	Tensor *tensor = (Tensor *)malloc(sizeof(Tensor));
-
+	Tensor *tensor = tensor_init(dim, shape);
+	if (!tensor)
+		tensor_clean(tensor);
 	va_start(arg,shape);
-	tensor->shape = (int *)malloc(dim * sizeof(int));
-	if (!tensor->shape) return NULL;
-	memcpy(tensor->shape, shape, dim * sizeof(int));	
-	tensor->strides = create_stride(dim, tensor->shape);
-	if (!tensor->shape || !tensor->strides)
-	{
-		free(tensor->shape);
-		free(tensor->strides);
-		return NULL;
-	}
-	tensor->num_dims = dim;
 	int op = va_arg(arg, int);
 	if (op > 0)
 		add_options(arg,tensor);
 	tensor->data = (float *)create_empty_data(dim,tensor->shape);
-	tensor->is_leaf = 1;
-	tensor->requires_grad = 0;
-	tensor->size = tensor_entries_len(tensor);
 	tensor_fill(tensor,1);
 	va_end(arg);
 	return tensor;

@@ -5,8 +5,8 @@ int tensor_validate_shape(Tensor *a, Tensor *b)
 
 	int a_dim = a->num_dims;
 	int b_dim = b->num_dims;
-	// if (tensor_is_broadcastable(a,b,'m') == -1)
-	// 	return -1;
+	if (tensor_is_broadcastable(a,b,'m') == -1)
+		return -1;
 	if(a->shape[a_dim - 1] != b->shape[b_dim - 2])
 	{
 		fprintf(stderr,"tensor1 and tensor2 shapes cannot be multiplied (%ix%i and %ix%i)\n",a->shape[a_dim - 2],a->shape[a_dim - 1],b->shape[b_dim - 2],b->shape[b_dim - 1]);
@@ -57,8 +57,8 @@ float	tensor_get_num(Tensor *a,...)
 
 Tensor	**tensor_broadcast(Tensor *a, Tensor *b, char type)
 {
-	// if(tensor_is_broadcastable(a,b,type) == -1)
-	// 	return NULL;
+	if(tensor_is_broadcastable(a,b,type) == -1)
+		return NULL;
 	
 	int dims = a->num_dims > b->num_dims ? a->num_dims : b->num_dims;
 
