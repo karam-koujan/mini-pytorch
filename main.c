@@ -8,8 +8,9 @@ void	f()
 
 int main()
 {
-	int shape[3] = {3,4,1};
-	Tensor *a = tensor_empty(3,shape,0);
-	free(a);
+	int shape[4] = {3,4,1,5};
+	Tensor *a = tensor_full(4,shape,0.8,0);
+	tensor_print(a);
+	tensor_clean(a);
 	atexit(f);
 }
