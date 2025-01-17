@@ -1,2 +1,4 @@
 *.out
 a.out.dSYM
+*.ou
+*.csv
