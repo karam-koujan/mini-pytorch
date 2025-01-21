@@ -64,8 +64,8 @@ To build the project, ensure you have the following prerequisites:
 3. Example usage:
    - Include the appropriate header files in your C programs to utilize the tensor and neural network functionalities.
    ```c
-   		#include "tensor.h"
-		
+	#include "tensor.h"
+
    ```
    - Refer to the provided examples in the documentation for guidance.
 
