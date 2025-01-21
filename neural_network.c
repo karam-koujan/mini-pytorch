@@ -148,7 +148,7 @@ void	optimizer_sgd(Module *module)
 		free(lr);
 	}
 }
-void	optimizer(Module *module, char *type)
+void	optimizer_step(Module *module, char *type)
 {
 	if (strcmp(type, "sgd") == 0)
 			optimizer_sgd(module);

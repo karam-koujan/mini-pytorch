@@ -50,7 +50,7 @@ int main()
 	if (epoch % 10 == 0)
 		cost_history_add(&history, current_cost);  // Record the cost
 	tensor_backward(prediction, cost);
-	optimizer(module, "sgd");
+	optimizer_step(module, "sgd");
 	zero_grad(module);
 	free(cost);
 	free(cost_tensor);
