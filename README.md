@@ -5,6 +5,7 @@ This project is a simplified version of PyTorch implemented in C, aiming to repl
 ## Table of Contents
 
 - [Overview](#overview)
+- [Installation](#installation)
 - [Tensor Creation Functions](#tensor-creation-functions)
 - [Tensor Operations](#tensor-operations)
 - [Autograd](#autograd)
@@ -13,6 +14,61 @@ This project is a simplified version of PyTorch implemented in C, aiming to repl
 ## Overview
 
 This project implements a mini version of PyTorch using the C programming language. The primary focus is to handle tensor operations and implement key concepts needed for machine learning, such as automatic differentiation, matrix operations, broadcasting, and tensor manipulation. The goal is to build a system that can be expanded into a fully functional neural network framework.
+
+### Installation
+
+To build the project, ensure you have the following prerequisites:
+
+#### Prerequisites
+- GCC or another C compiler installed on your system.
+- `make` utility installed.
+
+#### Steps to Build
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/karam-koujan/mini-pytorch.git
+   cd mini-pytorch
+   ```
+2. Run the following command to build the static library `mini-pytorch.a`:
+   ```bash
+   make
+   ```
+
+3. After building, the library file `mini-pytorch.a` will be created in the project directory.
+
+4. To clean up the object files while keeping the library:
+   ```bash
+   make clean
+   ```
+
+5. To clean up everything, including the library:
+   ```bash
+   make fclean
+   ```
+
+6. To rebuild the project from scratch:
+   ```bash
+   make re
+   ```
+
+### Usage
+
+1. Include the library `mini-pytorch.a` in your project:
+   - Link the `mini-pytorch.a` static library when compiling your program. For example:
+     ```bash
+     gcc -o your_program your_program.c -L. -lmini-pytorch
+     ```
+
+2. Use the provided headers (e.g., `tensor.h`) to access the library's functionality.
+
+3. Example usage:
+   - Include the appropriate header files in your C programs to utilize the tensor and neural network functionalities.
+   ```c
+   		#include "tensor.h"
+		
+   ```
+   - Refer to the provided examples in the documentation for guidance.
+
 
 ## Tensor Creation Functions
 
