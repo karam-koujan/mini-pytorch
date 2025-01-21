@@ -8,6 +8,7 @@ This project is a simplified version of PyTorch implemented in C, aiming to repl
 - [Tensor Creation Functions](#tensor-creation-functions)
 - [Tensor Operations](#tensor-operations)
 - [Autograd](#autograd)
+- [Neural Network](#neural-network)
 
 ## Overview
 
@@ -191,4 +192,133 @@ Below is an example of computing gradients for a matrix multiplication operation
     tensor_print(b);  // Gradient of b:
     /* [[4.0, 4.0, 4.0], */
     /*  [4.0, 4.0, 4.0]] */
+```
+
+## Neural Network
+
+This section describes the key components of building a neural network using the provided framework.
+
+### Key Functions
+
+- **`Linear`**:
+  - Implements a fully connected (dense) layer.
+  - **Parameters:**
+    - `module` (Module*): The neural network module containing layer parameters.
+    - `layernum` (int): The index of the layer in the module's parameter list.
+    - `a` (Tensor*): The input tensor.
+    - `in_features` (int): Number of input features.
+    - `out_features` (int): Number of output features.
+    - `use_bias` (int): Whether to add a bias term (1 for true, 0 for false).
+  - **Returns**:
+    - `Tensor*`: The result of the linear transformation.
+
+- **`Relu`**:
+  - Applies the ReLU (Rectified Linear Unit) activation function element-wise.
+  - **Parameters:**
+    - `a` (Tensor*): Input tensor.
+  - **Returns**:
+    - `Tensor*`: The tensor with ReLU applied.
+
+- **`mse`**:
+  - Computes the Mean Squared Error loss between predictions and labels.
+  - **Parameters:**
+    - `pred` (Tensor*): Predictions.
+    - `label` (Tensor*): True labels.
+  - **Returns**:
+    - `Tensor*`: The computed MSE loss.
+
+- **`zero_grad`**:
+  - Resets the gradient buffers of all trainable parameters to zero.
+  - **Parameters:**
+    - `module` (Module*): The neural network module.
+  - **Returns**:
+    - `void`.
+
+- **`optimizer_step`**:
+  - Updates the parameters of the module using the specified optimizer type (e.g., SGD).
+  - **Parameters:**
+    - `module` (Module*): The neural network module.
+    - `type` (char*): The optimizer type (e.g., \"sgd\").
+  - **Returns**:
+    - `void`.
+
+### Example: Neural Network Implementation
+
+Below is an example implementation of a neural network training process:
+
+```c
+Tensor *forward(Module *module, Tensor *a) {
+    Tensor *layer = Linear(module, 0, a, a->shape[a->num_dims - 1], 5, 0);
+    layer = Relu(layer);
+    layer = Linear(module, 1, layer, layer->shape[layer->num_dims - 1], 1, 0);
+    return layer;
+}
+
+int main() {
+    tensor_set_seed(1337);
+    CostHistory history;
+    cost_history_init(&history);
+
+    float data[20][2] = {
+        {0.1, 0.2}, {0.3, 0.4}, {0.5, 0.6}, {0.7, 0.8}, {0.2, 0.3},
+        {0.4, 0.6}, {0.6, 0.8}, {0.8, 0.9}, {0.1, 0.4}, {0.3, 0.5},
+        {0.5, 0.7}, {0.7, 0.9}, {0.2, 0.5}, {0.4, 0.7}, {0.6, 0.9},
+        {0.1, 0.3}, {0.3, 0.6}, {0.5, 0.8}, {0.7, 0.7}, {0.9, 0.8}
+    };
+
+    float labels[20] = {
+        0.17, 0.37, 0.57, 0.77, 0.27,
+        0.53, 0.73, 0.87, 0.30, 0.43,
+        0.63, 0.83, 0.40, 0.60, 0.80,
+        0.23, 0.50, 0.70, 0.70, 0.83
+    };
+
+    int data_shape[] = {1, 20, 2};
+    Tensor *d = tensor_tensor(data, data_shape, 3);
+    int label_shape[] = {20, 1};
+    Tensor *l = tensor_tensor(labels, label_shape, 3);
+    Module *module = nn();
+    Tensor *prediction;
+
+    for (int epoch = 0; epoch < 2000; epoch++) {
+        printf(\"=========== epoch : %i =================\\n\", epoch);
+        prediction = forward(module, d);
+        if (epoch == 0) {
+            printf(\"before training prediction\\n\");
+            tensor_print(prediction);
+        }
+
+        Tensor *cost_tensor = mse(prediction, l);
+        Tensor *cost = tensor_full(prediction->num_dims, prediction->shape, ((float *)cost_tensor->data)[0], 0);
+        float current_cost = ((float *)cost_tensor->data)[0];
+        if (epoch % 10 == 0) cost_history_add(&history, current_cost);
+
+        tensor_backward(prediction, cost);
+        optimizer_step(module, \"sgd\");
+        zero_grad(module);
+        free(cost);
+        free(cost_tensor);
+        free(prediction);
+    }
+
+    prediction = forward(module, d);
+    tensor_print(prediction);
+    plot_cost_ascii(&history);
+}
+```
+Output
+The program outputs the final predictions and a plot of the cost function over epochs:
+```bash
+Tensor of shape (1, 20, 1):
+[[0.174256], [0.373380], [0.572504], ..., [0.821363]]
+
+Cost Function Over Epochs
+0.3333 ┐
+|                                                           
+|*                                                         
+| **                                                       
+|    ****************************************************** 
+------------------------------------------------------------
+0.0003 ┴────────────────────────────────────────────────── 200 epochs
+        0           50          100         150         200         
 ```
