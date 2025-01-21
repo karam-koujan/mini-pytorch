@@ -306,7 +306,6 @@ int main() {
     plot_cost_ascii(&history);
 }
 ```
-Output
 The program outputs the final predictions and a plot of the cost function over epochs:
 ```bash
 Tensor of shape (1, 20, 1):
