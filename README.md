@@ -20,7 +20,7 @@ This project implements a mini version of PyTorch using the C programming langua
 To build the project, ensure you have the following prerequisites:
 
 #### Prerequisites
-- GCC or another C compiler installed on your system.
+- CLANG compiler installed on your system.
 - `make` utility installed.
 
 #### Steps to Build
@@ -56,7 +56,7 @@ To build the project, ensure you have the following prerequisites:
 1. Include the library `mini-pytorch.a` in your project:
    - Link the `mini-pytorch.a` static library when compiling your program. For example:
      ```bash
-     gcc -o your_program your_program.c -L. -lmini-pytorch
+     cc -o your_program your_program.c -L. -lmini-pytorch
      ```
 
 2. Use the provided headers (e.g., `tensor.h`) to access the library's functionality.
