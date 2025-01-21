@@ -99,4 +99,11 @@ Tensor **tensor_backpairwise_mul(Grad_Node *node, Tensor *grad);
 Grad_Node	*create_pairwise_mul_node(Tensor *a, Tensor *b);
 void	tensor_clean(Tensor *a);
 Tensor *tensor_init(int dim, int *shape);
+void	optimizer(Module *module, char *type);
+Tensor *mse(Tensor *pred, Tensor *label);
+void	zero_grad(Module *module);
+void	module_param_add(Module *module,Tensor *a);
+Tensor *Relu(Tensor *a);
+Module *nn();
+Tensor *Linear(Module *module, int layernum, Tensor *a, int in_features, int out_features, int use_bias);
 #endif
