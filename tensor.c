@@ -198,6 +198,11 @@ Tensor *tensor_fill(const int64_t *shape, int64_t ndim, Dtype type, Device devic
     return tensor;
 }
 
+Tensor *tensor_from_arr(void *arr, const int64_t *shape, int64_t ndim, Dtype type, Device device, void *val);
+{
+    
+}
+
 void tensor_infos(Tensor *tensor)
 {
     print_shape(tensor);
