@@ -1,8 +1,8 @@
 Name = mini_pytorch
 CC = cc
 CFLAGS = -g -Wall -Wextra -Werror
-OBJ = tensor.o
-HEADERS = tensor.h
+OBJ = tensor.o ./lib/print.o
+HEADERS = ./headers/*
 
 all : $(Name)
 

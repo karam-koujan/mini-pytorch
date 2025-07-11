@@ -1,9 +1,5 @@
-#include "tensor.h"
-
-void    error_msg(char *msg)
-{
-    printf("\033[31mError: %s\033[0m\n", msg);
-}
+#include "headers/tensor.h"
+#include "headers/print.h"
 
 int sizeof_type(Dtype type)
 {
@@ -90,6 +86,8 @@ Tensor *tensor_zeros(const int64_t *shape, int64_t ndim, Dtype type, Device devi
     tensor->data = create_zero_data(type, tensor->size);
     tensor->device = device;
     tensor->num_dims = ndim;
+    tensor->is_leaf = 1;
+    tensor->grad_fn = NULL;
     if (!tensor->shape || !tensor->strides)
     {
         error_msg("tensor creation failed!");
@@ -100,63 +98,22 @@ Tensor *tensor_zeros(const int64_t *shape, int64_t ndim, Dtype type, Device devi
     return (tensor);
 }
 
-void print_tensor_nbr(void *data, int index, Dtype type)
+void tensor_infos(Tensor *tensor)
 {
-    if (type == FLOAT32)
-       printf("%2.f", ((float *)data)[index]);
-    else if (type == DOUBLE)
-        printf("%2.f", ((double *)data)[index]);
-    else if (type == INT32)
-        printf("%i", ((int *)data)[index]);
-    else if (type == INT64)
-        printf("%lli", ((int64_t *)data)[index]);
-}
-
-void print_tensor_recursive(void *data, int64_t *shape, int64_t *strides, int num_dims, int index, int depth, Dtype type) {
-    if (depth == num_dims) {
-        print_tensor_nbr(data, index ,type);
-    } else {
-        for (int i = 0; i < shape[depth]; i++) {
-            if (depth < num_dims - 1) {
-                printf("[");
-            }
-            print_tensor_recursive(data, shape, strides, num_dims, index + i * strides[depth], depth + 1, type);
-
-            if (depth < num_dims - 1) {
-                printf("]\n");
-            }
-
-            if (i < shape[depth] - 1) {
-                printf(",");
-            }
-        }
-    }
-}
-void tensor_print(Tensor *tensor) 
-{
-	if (!tensor)
-		return ;
-    if (tensor->num_dims <= 0) {
-        printf("Error: Tensor must have at least 1 dimension.\n");
-        return;
-    }
-
-    printf("Tensor of shape (");
-    for (int i = 0; i < tensor->num_dims; i++) {
-        printf("%lld", tensor->shape[i]);
-        if (i < tensor->num_dims - 1) {
-            printf(",");
-        }
-    }
-    printf("):\n");
-
-    print_tensor_recursive(tensor->data, tensor->shape, tensor->strides, tensor->num_dims, 0, 0, tensor->dtype);
-    printf("\n");
+    print_shape(tensor);
+    print_strides(tensor);
+    printf("size : %i\n", tensor->size);
+    printf("requires_grad : %i\n", tensor->requires_grad);
+    printf("dims: %i\n", tensor->num_dims);
+    printf("is_leaf %i\n", tensor->is_leaf);
+    print_device(tensor->device);
+    print_type(tensor->dtype);
 }
 
 int main()
 {
     const int64_t shape[] = {3, 13 , 13};
     Tensor *t = tensor_zeros(shape, 3, DOUBLE, CPU);
-    tensor_print(t);
+    // tensor_print(t);
+    tensor_infos(t);
 }
