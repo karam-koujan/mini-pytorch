@@ -22,7 +22,7 @@ int64_t *create_shape(const int64_t *shape, int64_t ndim)
     int64_t *new_shape = (int64_t *)malloc(ndim  * sizeof(int64_t));
     if (!new_shape)
         return (error_msg("shape creation failed!"), NULL);
-    memcpy(new_shape, shape, sizeof(int64_t));
+    memcpy(new_shape, shape, sizeof(int64_t) * ndim);
     return (new_shape);
 }
 
@@ -89,6 +89,7 @@ Tensor *tensor_zeros(const int64_t *shape, int64_t ndim, Dtype type, Device devi
     tensor->size = calculate_size(shape, ndim);
     tensor->data = create_zero_data(type, tensor->size);
     tensor->device = device;
+    tensor->num_dims = ndim;
     if (!tensor->shape || !tensor->strides)
     {
         error_msg("tensor creation failed!");
@@ -96,12 +97,11 @@ Tensor *tensor_zeros(const int64_t *shape, int64_t ndim, Dtype type, Device devi
         free(tensor->shape);
         free(tensor->strides);
     }
-    return (NULL);
+    return (tensor);
 }
 
 void print_tensor_nbr(void *data, int index, Dtype type)
 {
-    printf("hee\n");
     if (type == FLOAT32)
        printf("%2.f", ((float *)data)[index]);
     else if (type == DOUBLE)
@@ -127,7 +127,7 @@ void print_tensor_recursive(void *data, int64_t *shape, int64_t *strides, int nu
             }
 
             if (i < shape[depth] - 1) {
-                printf(", ");
+                printf(",");
             }
         }
     }
@@ -145,7 +145,7 @@ void tensor_print(Tensor *tensor)
     for (int i = 0; i < tensor->num_dims; i++) {
         printf("%lld", tensor->shape[i]);
         if (i < tensor->num_dims - 1) {
-            printf(", ");
+            printf(",");
         }
     }
     printf("):\n");
@@ -156,8 +156,7 @@ void tensor_print(Tensor *tensor)
 
 int main()
 {
-    const int64_t shape[] = {2, 3 , 1};
-    Tensor *t = tensor_zeros(shape, 3, FLOAT32, CPU);
+    const int64_t shape[] = {3, 13 , 13};
+    Tensor *t = tensor_zeros(shape, 3, DOUBLE, CPU);
     tensor_print(t);
-    printf("hello");
 }

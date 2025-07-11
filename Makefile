@@ -1,6 +1,6 @@
 Name = mini_pytorch
 CC = cc
-CFLAGS = -Wall -Wextra -Werror
+CFLAGS = -g -Wall -Wextra -Werror
 OBJ = tensor.o
 HEADERS = tensor.h
 
