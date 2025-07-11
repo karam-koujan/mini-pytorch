@@ -8,6 +8,9 @@
 #include <string.h>
 #include <errno.h>
 
+#ifndef int64_t
+#define int64_t long long
+#endif
 typedef enum e_type
 {
 	FLOAT32,
