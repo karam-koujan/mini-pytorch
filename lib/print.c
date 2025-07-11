@@ -14,13 +14,14 @@ void print_tensor_nbr(void *data, int index, Dtype type)
 
 void print_tensor_recursive(void *data, int64_t *shape, int64_t *strides, int num_dims, int index, int depth, Dtype type) {
     if (depth == num_dims) {
-        print_tensor_nbr(data, index ,type);
+        print_tensor_nbr(data, index, type);
     } else {
         for (int i = 0; i < shape[depth]; i++) {
             if (depth < num_dims - 1) {
                 printf("[");
             }
-            print_tensor_recursive(data, shape, strides, num_dims, index + i * strides[depth], depth + 1, type);
+            int element_stride = strides[depth] / sizeof_type(type);
+            print_tensor_recursive(data, shape, strides, num_dims, index + i * element_stride, depth + 1, type);
 
             if (depth < num_dims - 1) {
                 printf("]\n");

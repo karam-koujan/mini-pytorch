@@ -33,8 +33,7 @@ int64_t *create_stride(const int64_t *shape, int64_t ndim, Dtype type)
     strides[ndim - 1] = size;
     for (int i = ndim - 2 ; i >= 0; i--)
     {
-        strides[i] = size * shape[i];
-        size = strides[i];
+        strides[i] = strides[i + 1] * shape[i + 1];
     }
     return (strides);
 }
@@ -71,6 +70,50 @@ void    *create_zero_data(Dtype type, int size)
     return (data);
 }
 
+void    *create_val_data(Dtype type, int size, void *val)
+{
+    int val_size = sizeof_type(type);
+    if (val_size == -1)
+        return (NULL);
+    void *data = malloc(size * val_size);
+    if (!data)
+        return (error_msg("data creation failed!!"), NULL);
+    for (int i = 0; i < size; i++)
+    {
+        if (type == FLOAT32)
+            ((float *)data)[i] = *(float*)(val);
+        else if (type == DOUBLE)
+            ((double *)data)[i] = *(double*)(val);
+        else if (type == INT32)
+            ((int *)data)[i] = *(int*)(val);
+        else if (type == INT64)
+            ((int64_t *)data)[i] = *(int64_t*)(val);
+    }
+    return (data);
+}
+
+void    *create_one_data(Dtype type, int size)
+{
+    int val_size = sizeof_type(type);
+    if (val_size == -1)
+        return (NULL);
+    void *data = malloc(size * val_size);
+    if (!data)
+        return (error_msg("data creation failed!!"), NULL);
+    for (int i = 0; i < size; i++)
+    {
+        if (type == FLOAT32)
+            ((float *)data)[i] = 1.0F;
+        else if (type == DOUBLE)
+            ((double *)data)[i] = 1.0;
+        else if (type == INT32)
+            ((int *)data)[i] = 1;
+        else if (type == INT64)
+            ((int64_t *)data)[i] = 1;
+    }
+    return (data);
+}
+
 Tensor *tensor_zeros(const int64_t *shape, int64_t ndim, Dtype type, Device device)
 {
     if (shape == NULL)
@@ -88,6 +131,7 @@ Tensor *tensor_zeros(const int64_t *shape, int64_t ndim, Dtype type, Device devi
     tensor->num_dims = ndim;
     tensor->is_leaf = 1;
     tensor->grad_fn = NULL;
+    tensor->dtype = type;
     if (!tensor->shape || !tensor->strides)
     {
         error_msg("tensor creation failed!");
@@ -96,6 +140,62 @@ Tensor *tensor_zeros(const int64_t *shape, int64_t ndim, Dtype type, Device devi
         free(tensor->strides);
     }
     return (tensor);
+}
+
+Tensor *tensor_ones(const int64_t *shape, int64_t ndim, Dtype type, Device device)
+{
+    if (shape == NULL)
+        return (error_msg("invalid shape"), NULL);
+    if (ndim <= 0)
+        return (error_msg("invalid ndim"), NULL);
+    Tensor *tensor = (Tensor *)malloc(sizeof(Tensor));
+    if (!tensor)
+        return (error_msg("tensor creation failed!"), NULL);
+    tensor->shape = create_shape(shape, ndim);
+    tensor->strides = create_stride(shape, ndim, type);
+    tensor->size = calculate_size(shape, ndim);
+    tensor->data = create_one_data(type, tensor->size);
+    tensor->device = device;
+    tensor->num_dims = ndim;
+    tensor->is_leaf = 1;
+    tensor->grad_fn = NULL;
+    tensor->dtype = type;
+    if (!tensor->shape || !tensor->strides)
+    {
+        error_msg("tensor creation failed!");
+        free(tensor);
+        free(tensor->shape);
+        free(tensor->strides);
+    }
+    return (tensor);
+}
+
+Tensor *tensor_fill(const int64_t *shape, int64_t ndim, Dtype type, Device device, void *val)
+{
+    if (shape == NULL)
+        return (error_msg("invalid shape"), NULL);
+    if (ndim <= 0)
+        return (error_msg("invalid ndim"), NULL);
+    Tensor *tensor = (Tensor *)malloc(sizeof(Tensor));
+    if (!tensor)
+        return (error_msg("tensor creation failed!"), NULL);
+    tensor->shape = create_shape(shape, ndim);
+    tensor->strides = create_stride(shape, ndim, type);
+    tensor->size = calculate_size(shape, ndim);
+    tensor->data = create_val_data(type, tensor->size, val);
+    tensor->device = device;
+    tensor->num_dims = ndim;
+    tensor->is_leaf = 1;
+    tensor->grad_fn = NULL;
+    tensor->dtype = type;
+    if (!tensor->shape || !tensor->strides)
+    {
+        error_msg("tensor creation failed!");
+        free(tensor);
+        free(tensor->shape);
+        free(tensor->strides);
+    }
+    return tensor;
 }
 
 void tensor_infos(Tensor *tensor)
@@ -112,8 +212,9 @@ void tensor_infos(Tensor *tensor)
 
 int main()
 {
-    const int64_t shape[] = {3, 13 , 13};
-    Tensor *t = tensor_zeros(shape, 3, DOUBLE, CPU);
-    // tensor_print(t);
+    const int64_t shape[] = {3, 2, 1};
+    double val = 4;
+    Tensor *t = tensor_fill(shape, 3, DOUBLE, CPU, &val);
+    tensor_print(t);
     tensor_infos(t);
 }

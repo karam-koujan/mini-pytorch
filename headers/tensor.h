@@ -53,4 +53,6 @@ typedef struct
 	Tensor **parameters;
 } Module;
 
+int sizeof_type(Dtype type);
+
 #endif
