@@ -53,23 +53,23 @@ typedef struct
 	Tensor **parameters;
 } Module;
 
-int sizeof_type(Dtype type);
+int 	sizeof_type(Dtype type);
 int64_t calculate_size(const int64_t *shape, int64_t ndim);
-void tensor_set_seed(unsigned int seed);
+void 	tensor_set_seed(unsigned int seed);
 float	generate_random();
 int64_t *create_shape(const int64_t *shape, int64_t ndim);
 int64_t *create_stride(const int64_t *shape, int64_t ndim, Dtype type);
 void    *create_zero_data(Dtype type, int size);
 void    *create_val_data(Dtype type, int size, void *val);
 void    *create_one_data(Dtype type, int size);
-void *copy_arr_data(void *arr, Dtype type, int64_t size);
+void 	*copy_arr_data(void *arr, Dtype type, int64_t size);
 void    *create_rand_data(Dtype type, int size);
 Tensor *tensor_zeros(const int64_t *shape, int64_t ndim, Dtype type, Device device);
 Tensor *tensor_ones(const int64_t *shape, int64_t ndim, Dtype type, Device device);
 Tensor *tensor_full(const int64_t *shape, int64_t ndim, Dtype type, Device device, void *val);
 Tensor *tensor_from_arr(void *arr, const int64_t *shape, int64_t ndim, Dtype type, Device device);
 Tensor *tensor_rand(const int64_t *shape, int64_t ndim, Dtype type, Device device);
-void tensor_infos(Tensor *tensor);
-
-
+void 	tensor_infos(Tensor *tensor);
+int 	is_tensor_broadcastable(Tensor *a, Tensor *b);
+Tensor	*tensor_scalar(void *nb, Dtype type, Device device);
 #endif

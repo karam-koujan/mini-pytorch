@@ -57,3 +57,4 @@ int64_t *create_stride(const int64_t *shape, int64_t ndim, Dtype type)
     }
     return (strides);
 }
+
