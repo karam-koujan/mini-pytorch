@@ -47,6 +47,16 @@ int tensor_broadcast(Tensor *a, Tensor *b)
             shape_b[i] = a->shape[i];
             stride_b[i] = 0;
         }
+        else if (a->num_dims > b->num_dims)
+        {
+            shape_a[i] = a->shape[i];
+            shape_b[i] = b->shape[j];
+        }
+        else
+        {
+                shape_a[j] = a->shape[i];
+                shape_b[j] = b->shape[j];
+        }
         k--;
         j--;
         i--; 
