@@ -74,4 +74,5 @@ void 	tensor_infos(Tensor *tensor);
 int 	is_tensor_broadcastable(Tensor *a, Tensor *b);
 Tensor	*tensor_scalar(void *nb, Dtype type, Device device);
 int		tensor_broadcast(Tensor *a, Tensor *b);
+void    tensor_free(Tensor *a);
 #endif

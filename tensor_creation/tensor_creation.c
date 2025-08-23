@@ -22,9 +22,9 @@ Tensor *tensor_zeros(const int64_t *shape, int64_t ndim, Dtype type, Device devi
 	if (!tensor->shape || !tensor->strides)
 	{
 		error_msg("tensor creation failed!");
-		free(tensor);
 		free(tensor->shape);
 		free(tensor->strides);
+		free(tensor);
 	}
 	return (tensor);
 }
@@ -50,10 +50,10 @@ Tensor *tensor_ones(const int64_t *shape, int64_t ndim, Dtype type, Device devic
 	if (!tensor->shape || !tensor->strides || !tensor->data)
 	{
 		error_msg("tensor creation failed!");
-		free(tensor);
 		free(tensor->shape);
 		free(tensor->strides);
 		free(tensor->data);
+		free(tensor);
 	}
 	return (tensor);
 }
@@ -79,10 +79,10 @@ Tensor *tensor_full(const int64_t *shape, int64_t ndim, Dtype type, Device devic
 	if (!tensor->shape || !tensor->strides || !tensor->data)
 	{
 		error_msg("tensor creation failed!");
-		free(tensor);
 		free(tensor->shape);
 		free(tensor->strides);
 		free(tensor->data);
+		free(tensor);
 	}
 	return tensor;
 }
@@ -108,10 +108,10 @@ Tensor *tensor_from_arr(void *arr, const int64_t *shape, int64_t ndim, Dtype typ
 	if (!tensor->shape || !tensor->strides || !tensor->data)
 	{
 		error_msg("tensor creation failed!");
-		free(tensor);
 		free(tensor->shape);
 		free(tensor->strides);
 		free(tensor->data);
+		free(tensor);
 	}
 	return tensor;
 }
@@ -137,10 +137,10 @@ Tensor *tensor_rand(const int64_t *shape, int64_t ndim, Dtype type, Device devic
 	if (!tensor->shape || !tensor->strides || !tensor->data)
 	{
 		error_msg("tensor creation failed!");
-		free(tensor);
 		free(tensor->shape);
 		free(tensor->strides);
 		free(tensor->data);
+		free(tensor);
 	}
 	return tensor;
 }

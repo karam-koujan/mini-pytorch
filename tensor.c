@@ -2,6 +2,13 @@
 #include "headers/print.h"
 
 // what is the difference between (7) and (1, 7)
+
+void    f()
+{
+    system("leaks mini_pytorch");
+}
+
+
 int main()
 {
    const int64_t shape_a[] = {3, 1};
@@ -13,12 +20,16 @@ int main()
     // int64_t d = 5;
     // Tensor *a = tensor_scalar(&d, type, device);
     Tensor *b = tensor_ones(shape_b, 2, type, device); 
-    tensor_print(a);
-    tensor_print(b);
-    printf("tensor_broadcast return val %i\n", tensor_broadcast(a, b));
-    tensor_print(a);
-    tensor_print(b);
+    // tensor_print(a);
+    // tensor_print(b);
+    // // printf("tensor_broadcast return val %i\n", tensor_broadcast(a, b));
+    // tensor_print(a);
+    // tensor_print(b);
     printf("tensor infos ========================\n");
-    tensor_infos(a);
-    tensor_infos(b);
+    // tensor_infos(a);
+    // tensor_infos(b);
+    tensor_free(a);
+    tensor_free(b);
+    atexit(f);
+    
 }
