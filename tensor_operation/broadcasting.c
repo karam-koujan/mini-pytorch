@@ -39,22 +39,22 @@ int tensor_broadcast(Tensor *a, Tensor *b)
     {
         if (a->shape[i] != b->shape[j] && a->shape[i] == 1)
         {
-            shape_a[i] = b->shape[j];
-            stride_a[i] = 0;
+            shape_a[j] = b->shape[j];
+            stride_a[j] = 0;
         }
         else if (a->shape[i] != b->shape[j] && b->shape[j] == 1)
         {
-            shape_b[j] = a->shape[i];
-            stride_b[j] = 0;
+            shape_b[i] = a->shape[i];
+            stride_b[i] = 0;
         }
         k--;
         j--;
         i--; 
     }
     if (i >= 0)
-        memcpy(shape_b, shape_a, (i + 1) * sizeof(int));
+        memcpy(shape_b, shape_a, (i + 1) * sizeof(int64_t));
     else if (j >= 0)
-        memcpy(shape_a, shape_b, (j + 1) * sizeof(int));
+        memcpy(shape_a, shape_b, (j + 1) * sizeof(int64_t));
     for (int sa = 0; sa <= i; sa++)
         stride_b[sa] = 0;
     for (int sb = 0; sb <= j; sb++)
@@ -68,5 +68,7 @@ int tensor_broadcast(Tensor *a, Tensor *b)
     b->shape = shape_b;
     a->strides = stride_a;
     b->strides = stride_b;
+    a->num_dims = ndim;
+    b->num_dims = ndim; 
     return (0);
 }
