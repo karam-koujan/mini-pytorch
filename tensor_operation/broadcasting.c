@@ -51,11 +51,15 @@ int tensor_broadcast(Tensor *a, Tensor *b)
         {
             shape_a[i] = a->shape[i];
             shape_b[i] = b->shape[j];
+            stride_a[i] = a->strides[i];
+            stride_b[i] = b->strides[j];
         }
         else
         {
                 shape_a[j] = a->shape[i];
                 shape_b[j] = b->shape[j];
+                stride_a[j] = a->strides[i];
+                stride_b[j] = b->strides[j];
         }
         k--;
         j--;
