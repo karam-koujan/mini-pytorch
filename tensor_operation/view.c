@@ -39,7 +39,7 @@ static int is_view_allowed(const int64_t *new_view, int64_t new_ndim)
             return (error_msg("the new view can't be bellow -1"),0);
     }
     if (count > 1)
-        return (error_msg("you should only specifiy 1 -1 to infer shape"), 0);
+        return (error_msg("you should only specifiy one -1 to infer shape"), 0);
     return (1);
 }
 
@@ -50,14 +50,14 @@ static int64_t *infer_shape_from_view(Tensor *a, const int64_t *view, int64_t ne
         return (error_msg("malloc failed!! in shape creation"), NULL);
     int64_t view_ele = 1;
     int64_t infered_shape = -1;
-    for (int i = 0; i < a->num_dims; i++)
+    for (int i = 0; i < new_ndim; i++)
     {
         if (view[i] != -1)
             view_ele*=view[i];
         else
             infered_shape = a->size;
     }
-    if (a->size % view_ele != 0 || a->size != view_ele || infered_shape != a->size)
+    if (a->size != view_ele && infered_shape != a->size)
     {
      error_msg("The new tensor should have the same size as the input tensor!");
      free(new_shape);
