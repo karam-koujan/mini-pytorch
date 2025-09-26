@@ -28,18 +28,15 @@ int is_contigious(Tensor *a)
     return (1);
 }
 
-static int is_view_allowed(Tensor *a, const int64_t *new_view, int64_t new_ndim)
+static int is_view_allowed(const int64_t *new_view, int64_t new_ndim)
 {
-    int new_size = calculate_size(new_view, new_ndim);
-    int count = 0;
-    if (new_size != a->size)
-        return (error_msg("The new tensor should have the same size as the input tensor!"),0);
+    int count = 0;  
     for (int i = 0; i < new_ndim; i++)
     {
         if (new_view[i] == -1)
             count++;
         if (new_view[i] < -1)
-            return ("the new view can't be bellow -1",0);
+            return (error_msg("the new view can't be bellow -1"),0);
     }
     if (count > 1)
         return (error_msg("you should only specifiy 1 -1 to infer shape"), 0);
@@ -58,6 +55,12 @@ static int64_t *infer_shape_from_view(Tensor *a, const int64_t *view, int64_t ne
         if (view[i] != -1)
             view_ele*=view[i];
     }
+    if (a->size % view_ele != 0 || a->size != view_ele)
+    {
+     error_msg("The new tensor should have the same size as the input tensor!");
+     free(new_shape);
+     return (NULL);
+    }
     infered_shape = a->size / view_ele;
     for (int i = 0; i < new_ndim; i++)
     {
@@ -73,7 +76,7 @@ Tensor  *tensor_view(Tensor *a, const int64_t *view, int64_t new_ndim)
 {
     if (!is_contigious(a))
         return (error_msg("The tensor is not contigious, use contigous or tensor_reshape"), NULL);
-    if (!is_view_allowed(a, view, new_ndim))
+    if (!is_view_allowed(view, new_ndim))
         return (NULL);
     int64_t *new_shape = infer_shape_from_view(a, view, new_ndim);
     if (!new_shape)
