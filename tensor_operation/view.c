@@ -28,7 +28,7 @@ int is_contigious(Tensor *a)
     return (1);
 }
 
-static int is_view_allowed(const int64_t *new_view, int64_t new_ndim)
+int is_view_allowed(const int64_t *new_view, int64_t new_ndim)
 {
     int count = 0;  
     for (int i = 0; i < new_ndim; i++)
@@ -43,7 +43,7 @@ static int is_view_allowed(const int64_t *new_view, int64_t new_ndim)
     return (1);
 }
 
-static int64_t *infer_shape_from_view(Tensor *a, const int64_t *view, int64_t new_ndim)
+int64_t *infer_shape_from_view(Tensor *a, const int64_t *view, int64_t new_ndim)
 {
     int64_t *new_shape = malloc(new_ndim * sizeof(int64_t));
     if (!new_shape)

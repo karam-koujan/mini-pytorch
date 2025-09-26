@@ -76,4 +76,6 @@ Tensor	*tensor_scalar(void *nb, Dtype type, Device device);
 int		tensor_broadcast(Tensor *a, Tensor *b);
 void    tensor_free(Tensor *a);
 Tensor  *tensor_view(Tensor *a, const int64_t *view, int64_t new_ndim);
+int		is_view_allowed(const int64_t *new_view, int64_t new_ndim);
+int64_t *infer_shape_from_view(Tensor *a, const int64_t *view, int64_t new_ndim);
 #endif

@@ -3,10 +3,10 @@
 
 // what is the difference between (7) and (1, 7)
 
-void    f()
-{
-    system("leaks mini_pytorch");
-}
+// void    f()
+// {
+//     system("leaks mini_pytorch");
+// }
 
 
 int main()
@@ -22,7 +22,7 @@ int main()
     tensor_infos(b);    
     // printf("tensor infos ========================\n");
     // tensor_infos(a);
-    // tensor_free(a);
-    // tensor_free(b);
+    tensor_free(a);
+    tensor_free(b);
     // atexit(f);
 }
