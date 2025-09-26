@@ -15,6 +15,19 @@
 5. copy the input tensor and add the new stride and shaped
 */
 
+int is_contigious(Tensor *a)
+{
+    int size = sizeof_type(a->dtype);
+    int expected_stride = size;
+    for(int i = a->num_dims - 1; i >= 0 ; i--)
+    {
+        if (expected_stride != a->strides[i])
+            return (0);
+        expected_stride *= a->shape[i];
+    }
+    return (1);
+}
+
 static int is_view_allowed(Tensor *a, const int64_t *new_view, int64_t new_ndim)
 {
     int new_size = calculate_size(new_view, new_ndim);
@@ -45,8 +58,9 @@ static const int64_t *infer_shape_from_view(Tensor *a, const int64_t *view, int6
 
 Tensor  *tensor_view(Tensor *a, const int64_t *view, int64_t new_ndim)
 {
+    if (!is_contigious(a))
+        return (error_msg("The tensor is not contigious, use contigous or tensor_reshape"), NULL);
     if (!is_view_allowed(a, view, new_ndim))
         return (NULL);
     const   int64_t *new_shape = infer_shape_from_view(a, view, new_ndim);
-    
 }
