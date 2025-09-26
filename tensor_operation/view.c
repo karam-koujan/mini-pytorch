@@ -38,22 +38,35 @@ static int is_view_allowed(Tensor *a, const int64_t *new_view, int64_t new_ndim)
     {
         if (new_view[i] == -1)
             count++;
+        if (new_view[i] < -1)
+            return ("the new view can't be bellow -1",0);
     }
     if (count > 1)
         return (error_msg("you should only specifiy 1 -1 to infer shape"), 0);
     return (1);
 }
 
-static const int64_t *infer_shape_from_view(Tensor *a, const int64_t *view, int64_t new_ndim)
+static int64_t *infer_shape_from_view(Tensor *a, const int64_t *view, int64_t new_ndim)
 {
-    const   int64_t *new_shape = malloc(new_ndim * sizeof(int64_t));
+    int64_t *new_shape = malloc(new_ndim * sizeof(int64_t));
     if (!new_shape)
         return (error_msg("malloc failed!! in shape creation"), NULL);
+    int64_t view_ele = 1;
+    int64_t infered_shape = -1;
+    for (int i = 0; i < new_ndim; i++)
+    {
+        if (view[i] != -1)
+            view_ele*=view[i];
+    }
+    infered_shape = a->size / view_ele;
     for (int i = 0; i < new_ndim; i++)
     {
         if (view[i] == -1)
-            new_shape[i] = size / 
+            new_shape[i] = infered_shape;
+        else
+            new_shape[i] = view[i];
     }
+    return (new_shape);
 }
 
 Tensor  *tensor_view(Tensor *a, const int64_t *view, int64_t new_ndim)
@@ -62,5 +75,18 @@ Tensor  *tensor_view(Tensor *a, const int64_t *view, int64_t new_ndim)
         return (error_msg("The tensor is not contigious, use contigous or tensor_reshape"), NULL);
     if (!is_view_allowed(a, view, new_ndim))
         return (NULL);
-    const   int64_t *new_shape = infer_shape_from_view(a, view, new_ndim);
+    int64_t *new_shape = infer_shape_from_view(a, view, new_ndim);
+    if (!new_shape)
+        return (NULL);
+    int64_t *new_stride = create_stride(new_shape, new_ndim, a->dtype);
+    if (!new_stride)
+        return (NULL);
+    Tensor *result = malloc(sizeof(Tensor));
+    if (!result)
+        return (NULL);
+    memcpy(result, a, sizeof(Tensor));
+    result->num_dims = new_ndim;
+    result->shape = new_shape;
+    result->strides = new_stride;
+    return (result);
 }
