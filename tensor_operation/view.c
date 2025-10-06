@@ -64,6 +64,12 @@ int64_t *infer_shape_from_view(Tensor *a, const int64_t *view, int64_t new_ndim)
      return (NULL);
     }
     infered_shape = a->size / view_ele;
+    if (infered_shape * view_ele != a->size)
+    {
+        error_msg("The new tensor should have the same size as the input tensor!");
+        free(new_shape);
+        return (NULL);      
+    }
     for (int i = 0; i < new_ndim; i++)
     {
         if (view[i] == -1)

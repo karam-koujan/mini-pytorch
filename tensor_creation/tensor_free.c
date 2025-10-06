@@ -6,6 +6,7 @@ void    tensor_free(Tensor *a)
     if (!a)
         return ;
     free(a->data);
+    a->data = NULL;
     free(a->shape);
     free(a->grad);
     free(a->strides);
