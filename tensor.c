@@ -17,7 +17,7 @@ int main()
     const int64_t view[] = {6,-1};
     Tensor *a = tensor_ones(shape_a, 3, type, device);
     // tensor_print(a);
-    Tensor *b = tensor_view(a, view, 2);
+    Tensor *b = tensor_reshape(a, view, 2);
     tensor_print(b);
     tensor_infos(b);    
     // printf("tensor infos ========================\n");

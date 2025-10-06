@@ -1,8 +1,19 @@
-#include "headers/tensor.h"
-#include "headers/print.h"
+#include "../headers/tensor.h"
+#include "../headers/print.h"
 
+void    fill_data(void *data, int offset, Dtype dtype, void *value)
+{
+    if (dtype == FLOAT32)
+        ((float *)data)[offset] = *((float *)value);
+    else if (dtype == DOUBLE)
+        ((double *)data)[offset] = *((double *)value);
+    else if (dtype == INT32)
+        ((int *)data)[offset] = *((int *)value);
+    else if (dtype == INT64)
+        ((int64_t *)data)[offset] = *((int64_t *)value); 
+}
 
-void    *copy_data(Tensor *a)
+void    *copy_contigious_data(Tensor *a)
 {
     int val_size = sizeof_type(a->dtype);
     if (val_size == -1)
@@ -10,17 +21,22 @@ void    *copy_data(Tensor *a)
     void *data = malloc(a->size * val_size);
     if (!data)
         return (error_msg("data creation failed!!"), NULL);
+    int coord = 0;
+    int tmp = 0;
+    int offset;
     for (int i = 0; i < a->size; i++)
     {
-        if (a->dtype == FLOAT32)
-            ((float *)data)[i] = 0.0F;
-        else if (a->dtype == DOUBLE)
-            ((double *)data)[i] = 0.0;
-        else if (a->dtype == INT32)
-            ((int *)data)[i] = 0;
-        else if (a->dtype == INT64)
-            ((int64_t *)data)[i] = 0L;
+        tmp = i;
+        offset = 0;
+        for (int j = a->num_dims - 1; j >= 0; j--)
+        {
+            coord = tmp % a->shape[j];
+            tmp /= a->shape[j];
+            offset += coord * a->strides[j];    
+        }
+        fill_data(data, offset, a->dtype, &a->data[i]);
     }
+    return (data);
 }
 
 Tensor  *tensor_reshape(Tensor *a, const int64_t *view, int64_t new_ndim)
@@ -42,7 +58,7 @@ Tensor  *tensor_reshape(Tensor *a, const int64_t *view, int64_t new_ndim)
     result->strides = new_stride;
     if (!is_contigious(a))
     {
-        result->data = copy_data(result);
+        result->data = copy_contigious_data(result);
     }
     return (result);
 }

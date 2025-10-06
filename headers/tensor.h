@@ -78,4 +78,6 @@ void    tensor_free(Tensor *a);
 Tensor  *tensor_view(Tensor *a, const int64_t *view, int64_t new_ndim);
 int		is_view_allowed(const int64_t *new_view, int64_t new_ndim);
 int64_t *infer_shape_from_view(Tensor *a, const int64_t *view, int64_t new_ndim);
+Tensor  *tensor_reshape(Tensor *a, const int64_t *view, int64_t new_ndim);
+int is_contigious(Tensor *a);
 #endif
