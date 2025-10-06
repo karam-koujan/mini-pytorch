@@ -90,7 +90,8 @@ void    *create_rand_data(Dtype type, int size)
     for (int i = 0; i < size; i++)
     {
         if (type == FLOAT32)
-            ((float *)data)[i] = generate_random();
+
+            ((float *)data)[i] = (float)generate_random();
         else if (type == DOUBLE)
             ((double *)data)[i] = (double)generate_random();
         else if (type == INT32)

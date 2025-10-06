@@ -7,16 +7,17 @@
 // {
 //     system("leaks mini_pytorch");
 // }
-
+#include "time.h"
 
 int main()
 {
     const int64_t shape_a[] = {3, 5, 2};
-    Dtype type = INT32;
+    Dtype type = FLOAT32;
     Device device = CPU;
     const int64_t view[] = {-1,15};
-    Tensor *a = tensor_ones(shape_a, 3, type, device);
-    // tensor_print(a);
+    tensor_set_seed(time(NULL));
+    Tensor *a = tensor_rand(shape_a, 3, type, device);
+    tensor_print(a);
     Tensor *b = tensor_reshape(a, view, 2);
     tensor_print(b);
     tensor_infos(b);    

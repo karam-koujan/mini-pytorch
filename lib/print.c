@@ -3,9 +3,9 @@
 void print_tensor_nbr(void *data, int index, Dtype type)
 {
     if (type == FLOAT32)
-       printf("%2.f", ((float *)data)[index]);
+       printf("%.2f", ((float *)data)[index]);
     else if (type == DOUBLE)
-        printf("%2.f", ((double *)data)[index]);
+        printf("%.2f", ((double *)data)[index]);
     else if (type == INT32)
         printf("%i", ((int *)data)[index]);
     else if (type == INT64)

@@ -30,7 +30,9 @@ void tensor_set_seed(unsigned int seed)
 
 float	generate_random()
 {
-	return (float)rand() / (float)RAND_MAX;	
+     float r = (float)rand() / (float)RAND_MAX;
+    
+	return r;	
 }
 
 int64_t *create_shape(const int64_t *shape, int64_t ndim)
