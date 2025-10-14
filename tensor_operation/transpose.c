@@ -3,6 +3,20 @@
 
 
 
+Tensor *tensor_copy(Tensor *a)
+{
+    if (a == NULL)
+    {
+        error_msg("you entred an empty tensor");
+        return (NULL);
+    }
+    Tensor *r = malloc(sizeof(Tensor));
+    if (!r)
+        return (NULL);
+    memcpy(r, a, sizeof(r));
+    return (r);
+}
+
 
 Tensor *tensor_transpose(Tensor *a, int64_t dim0, int64_t dim1)
 {
@@ -21,6 +35,14 @@ Tensor *tensor_transpose(Tensor *a, int64_t dim0, int64_t dim1)
         error_msg("you entered a dim > tensor dims");
         return (NULL);       
     }
-    tensor_copy();
-
+    Tensor *r = tensor_copy(a);
+    if (!r)
+        return (NULL);
+    int64_t tmp = r->shape[dim0];
+    r->shape[dim0] = r->shape[dim1];
+    r->shape[dim1] = tmp;
+    tmp = r->strides[dim0];
+    r->strides[dim0] = r->strides[dim1];
+    r->strides[dim1] = tmp;
+    return (r);
 }
