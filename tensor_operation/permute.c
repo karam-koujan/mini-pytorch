@@ -32,8 +32,8 @@ Tensor *tensor_permute(Tensor *a, int64_t *dims, int64_t num_dims)
         return (free(new_shape), free(new_stride), NULL);
     for (int64_t i = 0 ; i < num_dims; i++)
     {
-        new_shape[dims[i]] = a->shape[dims[i]];
-        new_stride[dims[i]] = a->strides[dims[i]];
+        new_shape[i] = a->shape[dims[i]];
+        new_stride[i] = a->strides[dims[i]];
     }
     free(a->shape);
     a->shape = new_shape;

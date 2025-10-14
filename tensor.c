@@ -17,7 +17,9 @@ int main()
     tensor_set_seed(time(NULL));
     Tensor *a = tensor_rand(shape_a, 3, type, device);
     tensor_print(a);
-    Tensor *b = tensor_t(a);
+    int64_t view[] = {2,2,2};
+
+    Tensor *b = tensor_permute(a, view, 3);
     tensor_print(b);
     tensor_infos(b);    
     // printf("tensor infos ========================\n");
