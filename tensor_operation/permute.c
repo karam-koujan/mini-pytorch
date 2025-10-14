@@ -26,10 +26,19 @@ Tensor *tensor_permute(Tensor *a, int64_t *dims, int64_t num_dims)
             return (NULL);
         }
     }
-    int64_t *new_shape = malloc(sizeof(int64_t) * num_dims);
-    int64_t *new_stride = malloc(sizeof(int64_t) * num_dims);
+    int64_t *new_shape = calloc(num_dims, sizeof(int64_t));
+    int64_t *new_stride = calloc(num_dims, sizeof(int64_t));
     if (!new_shape || !new_stride)
         return (free(new_shape), free(new_stride), NULL);
+    for (int64_t i = 0 ; i < num_dims; i++)
+    {
+        if (new_shape[dims[i]] == 1)
+        {
+            error_msg("there is duplicates in dims");
+            return (free(new_shape), free(new_stride), NULL);
+        }
+        new_shape[dims[i]] = 1;
+    }
     for (int64_t i = 0 ; i < num_dims; i++)
     {
         new_shape[i] = a->shape[dims[i]];
