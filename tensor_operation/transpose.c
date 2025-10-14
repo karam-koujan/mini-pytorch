@@ -13,7 +13,7 @@ Tensor *tensor_copy(Tensor *a)
     Tensor *r = malloc(sizeof(Tensor));
     if (!r)
         return (NULL);
-    memcpy(r, a, sizeof(r));
+    memcpy(r, a, sizeof(Tensor));
     return (r);
 }
 

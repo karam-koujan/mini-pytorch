@@ -14,11 +14,10 @@ int main()
     const int64_t shape_a[] = {3, 5, 2};
     Dtype type = FLOAT32;
     Device device = CPU;
-    const int64_t view[] = {-1,15};
     tensor_set_seed(time(NULL));
     Tensor *a = tensor_rand(shape_a, 3, type, device);
     tensor_print(a);
-    Tensor *b = tensor_reshape(a, view, 2);
+    Tensor *b = tensor_transpose(a, 2, 1);
     tensor_print(b);
     tensor_infos(b);    
     // printf("tensor infos ========================\n");
