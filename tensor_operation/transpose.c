@@ -46,3 +46,20 @@ Tensor *tensor_transpose(Tensor *a, int64_t dim0, int64_t dim1)
     r->strides[dim1] = tmp;
     return (r);
 }
+
+Tensor *tensor_t(Tensor *a)
+{
+    if (a == NULL)
+    {
+        error_msg("you entred an empty tensor");
+        return (NULL);
+    }
+    if (a->num_dims > 2)
+    {
+        error_msg("tensor is > 2 use tensor_transpose instead!!");
+        return (NULL);
+    }
+    if (a->num_dims == 1)
+        return (tensor_copy(a));
+    return (tensor_transpose(a, 0, 1));
+}

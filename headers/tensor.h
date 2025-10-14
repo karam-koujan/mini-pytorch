@@ -82,4 +82,5 @@ Tensor  *tensor_reshape(Tensor *a, const int64_t *view, int64_t new_ndim);
 int is_contigious(Tensor *a);
 Tensor *tensor_copy(Tensor *a);
 Tensor *tensor_transpose(Tensor *a, int64_t dim0, int64_t dim1);
+Tensor *tensor_t(Tensor *a);
 #endif
