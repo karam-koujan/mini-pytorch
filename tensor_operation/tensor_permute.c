@@ -23,8 +23,21 @@ Tensor *tensor_permute(Tensor *a, int64_t *dims, int64_t num_dims)
         if (dims[i] > num_dims - 1)
         {
             error_msg("you entered a dim > tensor dims");
-            return (NULL);  
+            return (NULL);
         }
-
     }
+    int64_t *new_shape = malloc(sizeof(int64_t) * num_dims);
+    int64_t *new_stride = malloc(sizeof(int64_t) * num_dims);
+    if (!new_shape || !new_stride)
+        return (free(new_shape), free(new_stride), NULL);
+    for (int64_t i = 0 ; i < num_dims; i++)
+    {
+        new_shape[dims[i]] = a->shape[dims[i]];
+        new_stride[dims[i]] = a->strides[dims[i]];
+    }
+    free(a->shape);
+    a->shape = new_shape;
+    free(a->strides);
+    a->strides = new_stride;
+    return (a);
 }

@@ -83,4 +83,5 @@ int is_contigious(Tensor *a);
 Tensor *tensor_copy(Tensor *a);
 Tensor *tensor_transpose(Tensor *a, int64_t dim0, int64_t dim1);
 Tensor *tensor_t(Tensor *a);
+Tensor *tensor_permute(Tensor *a, int64_t *dims, int64_t num_dims);
 #endif
