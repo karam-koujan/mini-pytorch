@@ -32,10 +32,10 @@ int tensor_broadcast(Tensor *a, Tensor *b)
     int64_t *stride_b = (int64_t *)malloc(ndim * sizeof(int64_t));
     if (!shape_a || !shape_b || !stride_a || !stride_b)
         return (error_msg("error in creating shape in tensor_broadcast"), 1);
-    memcpy(stride_a, a->strides, ndim * sizeof(int64_t));
-    memcpy(stride_b, b->strides, ndim * sizeof(int64_t));
-    memcpy(shape_a, a->shape, ndim * sizeof(int64_t));
-    memcpy(shape_b, b->shape, ndim * sizeof(int64_t));
+    memmove(stride_a, a->strides, ndim * sizeof(int64_t));
+    memmove(stride_b, b->strides, ndim * sizeof(int64_t));
+    memmove(shape_a, a->shape, ndim * sizeof(int64_t));
+    memmove(shape_b, b->shape, ndim * sizeof(int64_t));
     while (k >= 0)
     {
         if (a->shape[i] != b->shape[j] && a->shape[i] == 1)
@@ -72,12 +72,12 @@ int tensor_broadcast(Tensor *a, Tensor *b)
     if (i >= 0)
     {
         b->is_broadcasted = 1;
-        memcpy(shape_b, shape_a, (ndim - ri) * sizeof(int64_t));
+        memmove(shape_b, shape_a, (ri + 1) * sizeof(int64_t));
     }
     else if (j >= 0)
     {
         a->is_broadcasted = 1;
-        memcpy(shape_a, shape_b, (ndim - ri) * sizeof(int64_t));
+        memmove(shape_a, shape_b, (ri + 1) * sizeof(int64_t));
     }
     for (int sa = 0; sa <= i; sa++)
         stride_b[sa] = 0;
