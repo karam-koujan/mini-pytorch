@@ -17,6 +17,11 @@ int is_tensor_broadcastable(Tensor *a, Tensor *b)
     return (1);
 }
 
+int shape_cmp(Tensor *a, Tensor *b)
+{
+
+}
+
 int tensor_broadcast(Tensor *a, Tensor *b)
 {
     if (!is_tensor_broadcastable(a, b))
@@ -73,16 +78,26 @@ int tensor_broadcast(Tensor *a, Tensor *b)
         stride_b[sa] = 0;
     for (int sb = 0; sb <= j; sb++)
         stride_a[sb] = 0;
-
-    free(a->shape);
-    free(b->shape);
-    free(a->strides);
-    free(b->strides);
+    if (shape_cmp(shape_a, a->shape))
+    {
+        a->is_broadcasted = 1;
+        a->prebroadcast_shape = a->shape;
+        a->prebroadcast_stride = a->strides;
+        a->prebroadcast_dims = a->num_dims;
+    }
+    if (shape_cmp(shape_b, b->shape))
+    {
+        b->is_broadcasted = 1;
+        b->prebroadcast_shape = b->shape;
+        b->prebroadcast_stride = b->strides;
+        b->prebroadcast_dims = b->num_dims;
+    }
     a->shape = shape_a;
-    b->shape = shape_b;
     a->strides = stride_a;
+    b->shape = shape_b;
     b->strides = stride_b;
     a->num_dims = ndim;
-    b->num_dims = ndim; 
+    b->num_dims = ndim;
+
     return (0);
 }

@@ -38,6 +38,9 @@ typedef	struct
 	int	requires_grad;
 	int num_dims;
 	int	is_broadcasted;
+	int64_t *prebroadcast_shape;
+	int64_t *prebroadcast_stride;
+	int	prebroadcast_dims;
 	int	is_leaf;
 	void *grad_fn;
 } Tensor;
