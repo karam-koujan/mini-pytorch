@@ -28,7 +28,6 @@ int tensor_broadcast(Tensor *a, Tensor *b)
     int64_t *stride_b = (int64_t *)malloc(ndim * sizeof(int64_t));
     if (!shape_a || !shape_b || !stride_a || !stride_b)
         return (error_msg("error in creating shape in tensor_broadcast"), 1);
-    // filling dims with one
     int i = ndim - 1;
     int j = a->num_dims - 1;
     int k = b->num_dims - 1; 
@@ -37,7 +36,7 @@ int tensor_broadcast(Tensor *a, Tensor *b)
         shape_a[i] = j >= 0 ? a->shape[j] : 1;
         shape_b[i] = k >=0  ? b->shape[k] : 1;
         stride_a[i] = j >= 0 ? a->strides[j] : 0;
-        stride_b[i] = k >= 0  ? b->shape[k] : 0;
+        stride_b[i] = k >= 0  ? b->strides[k] : 0;
         i--;
         j--;
         k--;
@@ -51,7 +50,7 @@ int tensor_broadcast(Tensor *a, Tensor *b)
             stride_a[i] = 0;
             a->is_broadcasted = 1;
         }
-        else if (a->shape[i] != b->shape[j] && b->shape[j] == 1)
+        else if (shape_a[i] != shape_b[i] && shape_b[i] == 1)
         {
             shape_b[i] = shape_a[i];
             stride_b[i] = 0;
