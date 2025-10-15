@@ -22,67 +22,43 @@ int tensor_broadcast(Tensor *a, Tensor *b)
     if (!is_tensor_broadcastable(a, b))
         return (1);
     int ndim = b->num_dims > a->num_dims ? b->num_dims : a->num_dims;
-    int i = a->num_dims - 1;
-    int j = b->num_dims - 1;
-    int k = i > j ? j : i;
-    int ri = ndim - 1;
     int64_t *shape_a = (int64_t *)malloc(ndim * sizeof(int64_t));
     int64_t *shape_b = (int64_t *)malloc(ndim * sizeof(int64_t));
     int64_t *stride_a = (int64_t *)malloc(ndim * sizeof(int64_t));
     int64_t *stride_b = (int64_t *)malloc(ndim * sizeof(int64_t));
     if (!shape_a || !shape_b || !stride_a || !stride_b)
         return (error_msg("error in creating shape in tensor_broadcast"), 1);
-    memmove(stride_a, a->strides, ndim * sizeof(int64_t));
-    memmove(stride_b, b->strides, ndim * sizeof(int64_t));
-    memmove(shape_a, a->shape, ndim * sizeof(int64_t));
-    memmove(shape_b, b->shape, ndim * sizeof(int64_t));
-    while (k >= 0)
+    // filling dims with one
+    int i = ndim - 1;
+    int j = a->num_dims - 1;
+    int k = b->num_dims - 1; 
+    while (i >= 0)
     {
-        if (a->shape[i] != b->shape[j] && a->shape[i] == 1)
+        shape_a[i] = j >= 0 ? a->shape[j] : 1;
+        shape_b[i] = k >=0  ? b->shape[k] : 1;
+        stride_a[i] = j >= 0 ? a->strides[j] : 0;
+        stride_b[i] = k >= 0  ? b->shape[k] : 0;
+        i--;
+        j--;
+        k--;
+    }
+    i = ndim - 1;
+    while (i >= 0)
+    {
+        if (shape_a[i] != shape_b[i] && shape_a[i] == 1)
         {
-            shape_a[ri] = b->shape[j];
-            stride_a[ri] = 0;
+            shape_a[i] = shape_b[i];
+            stride_a[i] = 0;
             a->is_broadcasted = 1;
         }
         else if (a->shape[i] != b->shape[j] && b->shape[j] == 1)
         {
-            shape_b[ri] = a->shape[i];
-            stride_b[ri] = 0;
+            shape_b[i] = shape_a[i];
+            stride_b[i] = 0;
             b->is_broadcasted = 1;
         }
-        else if (a->num_dims > b->num_dims)
-        {
-            shape_a[ri] = a->shape[i];
-            shape_b[ri] = b->shape[j];
-            stride_a[ri] = a->strides[i];
-            stride_b[ri] = b->strides[j];
-        }
-        else
-        {
-                shape_a[ri] = a->shape[i];
-                shape_b[ri] = b->shape[j];
-                stride_a[ri] = a->strides[i];
-                stride_b[ri] = b->strides[j];
-        }
-        k--;
-        j--;
         i--;
-        ri--;
     }
-    if (i >= 0)
-    {
-        b->is_broadcasted = 1;
-        memmove(shape_b, shape_a, (ri + 1) * sizeof(int64_t));
-    }
-    else if (j >= 0)
-    {
-        a->is_broadcasted = 1;
-        memmove(shape_a, shape_b, (ri + 1) * sizeof(int64_t));
-    }
-    for (int sa = 0; sa <= i; sa++)
-        stride_b[sa] = 0;
-    for (int sb = 0; sb <= j; sb++)
-        stride_a[sb] = 0;
     if (a->is_broadcasted)
     {
         a->prebroadcast_shape = a->shape;
