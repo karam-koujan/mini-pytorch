@@ -10,5 +10,10 @@ void    tensor_free(Tensor *a)
     free(a->shape);
     free(a->grad);
     free(a->strides);
+    if (a->is_broadcasted)
+    {
+        free(a->prebroadcast_shape);
+        free(a->prebroadcast_stride);
+    }
     free(a);
 }
