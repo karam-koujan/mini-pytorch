@@ -11,28 +11,18 @@
 
 int main()
 {
-    const int64_t shape_a[] = {3,1,5};
-    const int64_t shape_b[] = {2,5};
+    const int64_t shape_a[] = {3,2,1,1,5};
+    const int64_t shape_b[] = {3,1,1,1,5};
     Dtype type = FLOAT32;
     Device device = CPU;
     tensor_set_seed(time(NULL));
-    Tensor *a = tensor_zeros(shape_a, 3, type, device);
-    // tensor_print(a);
-    Tensor *b = tensor_zeros(shape_b, 2, type, device);
-    // tensor_print(b);
+    Tensor *a = tensor_zeros(shape_a, 5, type, device);
+    Tensor *b = tensor_zeros(shape_b, 5, type, device);
     printf("\n\n\n\n\n");
     tensor_broadcast(a,b);
-    // tensor_print(a);
-    tensor_print(a);
-    tensor_print(b);
-    // tensor_infos(b);
-    // printf("\n\n\n\n\n");
-    // tensor_infos(a);
-
-    // printf("tensor infos ========================\n");
-    // tensor_infos(a);
-    // // tensor_permute(a, view, 3);
-    // tensor_free(b);
-    // tensor_free(b);
-    // atexit(f);
+    tensor_infos(a);
+    printf("\n\n\n\n\n");
+    tensor_infos(b);
+    tensor_free(a);
+    tensor_free(b);
 }
