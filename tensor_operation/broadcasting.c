@@ -17,11 +17,6 @@ int is_tensor_broadcastable(Tensor *a, Tensor *b)
     return (1);
 }
 
-int shape_cmp(int64_t shape_a, int64_t shape_b)
-{
-    
-}
-
 int tensor_broadcast(Tensor *a, Tensor *b)
 {
     if (!is_tensor_broadcastable(a, b))
@@ -86,37 +81,38 @@ int tensor_broadcast(Tensor *a, Tensor *b)
         stride_b[sa] = 0;
     for (int sb = 0; sb <= j; sb++)
         stride_a[sb] = 0;
-    if (a->is_broadcasted)
-    {
-        a->prebroadcast_shape = a->shape;
-        a->prebroadcast_stride = a->strides;
-        a->prebroadcast_dims = a->num_dims;
-    }
-    if (b->is_broadcasted)
-    {
-        b->prebroadcast_shape = b->shape;
-        b->prebroadcast_stride = b->strides;
-        b->prebroadcast_dims = b->num_dims;
-    }
-    if (a->is_broadcasted)
-    {
-        a->shape = shape_a;
-        a->strides = stride_a;
-        a->num_dims = ndim;
-    }else
-    {
-        free(shape_a);
-        free(stride_a);
-    }
-    if (b->is_broadcasted)
-    {
-        b->shape = shape_b;
-        b->strides = stride_b;
-        b->num_dims = ndim;
-    }else
-    {
-        free(shape_b);
-        free(stride_b);
-    }
+//     if (a->is_broadcasted)
+//     {
+//         a->prebroadcast_shape = a->shape;
+//         a->prebroadcast_stride = a->strides;
+//         a->prebroadcast_dims = a->num_dims;
+//         a->shape = shape_a;
+//         a->strides = stride_a;
+//         a->num_dims = ndim;
+//     }else
+//     {
+//         free(shape_a);
+//         free(stride_a);
+//     }
+//     if (b->is_broadcasted)
+//     {
+//         b->prebroadcast_shape = b->shape;
+//         b->prebroadcast_stride = b->strides;
+//         b->prebroadcast_dims = b->num_dims;
+//         b->shape = shape_b;
+//         b->strides = stride_b;
+//         b->num_dims = ndim;
+//     }
+// else
+//     {
+//         free(shape_b);
+//         free(stride_b);
+//     }
+    a->shape = shape_a;
+    a->strides = stride_a;
+    a->num_dims = ndim;
+    b->shape = shape_b;
+    b->strides = stride_b;
+    b->num_dims = ndim;
     return (0);
 }
