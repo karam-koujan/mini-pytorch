@@ -166,14 +166,21 @@ void tensor_infos(Tensor *tensor)
 {
 	if (!tensor)
 		return (error_msg("The tensor is NULL"));
-	print_shape(tensor);
-	print_strides(tensor);
+	print_shape(tensor->shape, tensor->num_dims);
+	print_strides(tensor->strides, tensor->num_dims);
 	printf("size : %i\n", tensor->size);
 	printf("requires_grad : %i\n", tensor->requires_grad);
 	printf("dims: %i\n", tensor->num_dims);
 	printf("is_leaf %i\n", tensor->is_leaf);
 	print_device(tensor->device);
 	print_type(tensor->dtype);
+	if (tensor->is_broadcasted)
+	{
+		printf("broadcasted tensor metadata :\n");
+		print_shape(tensor->prebroadcast_shape, tensor->prebroadcast_dims);
+		print_strides(tensor->prebroadcast_stride, tensor->prebroadcast_dims);
+
+	}
 }
 
 Tensor	*tensor_scalar(void *nb, Dtype type, Device device)

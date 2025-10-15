@@ -34,12 +34,12 @@ void print_tensor_recursive(void *data, int64_t *shape, int64_t *strides, int nu
     }
 }
 
-void print_shape(Tensor *tensor)
+void print_shape(int64_t *shape, int dims)
 {
     printf("Tensor of shape (");
-    for (int i = 0; i < tensor->num_dims; i++) {
-        printf("%lld", tensor->shape[i]);
-        if (i < tensor->num_dims - 1) {
+    for (int i = 0; i < dims; i++) {
+        printf("%lld", shape[i]);
+        if (i < dims - 1) {
             printf(",");
         }
     }
@@ -66,12 +66,12 @@ void print_device(Device type)
         printf("device: gpu\n");
 }
 
-void print_strides(Tensor *tensor)
+void print_strides(int64_t *strides, int dims)
 {
     printf("Tensor of strides (");
-    for (int i = 0; i < tensor->num_dims; i++) {
-        printf("%lld", tensor->strides[i]);
-        if (i < tensor->num_dims - 1) {
+    for (int i = 0; i < dims; i++) {
+        printf("%lld", strides[i]);
+        if (i < dims - 1) {
             printf(",");
         }
     }
