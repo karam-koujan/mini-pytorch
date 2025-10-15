@@ -86,7 +86,7 @@ void tensor_print(Tensor *tensor)
         printf("Error: Tensor must have at least 1 dimension.\n");
         return;
     }
-    print_shape(tensor);
+    print_shape(tensor->shape, tensor->num_dims);
     print_tensor_recursive(tensor->data, tensor->shape, tensor->strides, tensor->num_dims, 0, 0, tensor->dtype);
     printf("\n");
 }

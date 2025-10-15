@@ -18,8 +18,9 @@ int main()
     tensor_set_seed(time(NULL));
     Tensor *a = tensor_zeros(shape_a, 3, type, device);
     tensor_print(a);
-    Tensor *b = tensor_zeros(shape_b, 2, type, device)
-    // tensor_print(b);
+    Tensor *b = tensor_zeros(shape_b, 2, type, device);
+    tensor_broadcast(a,b);
+    tensor_print(b);
     // tensor_infos(b);    
     // printf("tensor infos ========================\n");
     // tensor_infos(a);
