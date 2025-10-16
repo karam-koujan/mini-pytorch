@@ -16,10 +16,10 @@ int main()
     // Dtype type = FLOAT32;
     Device device = CPU;
     // tensor_set_seed(time(NULL));
-    int val_a = 1;
-    int val_b = 2;
+    int val_a = 2;
+    float val_b = 2;
     Tensor *a = tensor_full(shape_a, 2, INT32, device, &val_a);
-    Tensor *b = tensor_full(shape_b, 2, INT32, device, &val_b);
+    Tensor *b = tensor_full(shape_b, 2, FLOAT32, device, &val_b);
     tensor_print(a);
     tensor_print(b);
     printf("\n\n\n\n\n");
