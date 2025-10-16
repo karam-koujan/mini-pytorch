@@ -35,20 +35,21 @@ void   *promote_data(Tensor *a, Dtype dtype)
         return (NULL);
     for(int i = 0; i < a->size; i++)
     {
-        switch(dtype)
+        double val = 0.0;
+        switch (a->dtype)
         {
-            case DOUBLE:
-                ((double *)data)[i] = ((double *)data)[i] + 0.0;
-                break;
-            case FLOAT32:
-                ((float *)data)[i] = ((float *)data)[i] + 0.0F;
-                break;
-            case INT64:
-                ((int64_t *)data)[i] = ((int64_t *)data)[i] + 0L;
-                break;
-            case INT32:
-                ((int *)data)[i] = ((int *)data)[i] + 0;
-                break;          
+            case DOUBLE:  val = ((double *)a->data)[i]; break;
+            case FLOAT32: val = ((float *)a->data)[i]; break;
+            case INT64:   val = (double)((int64_t *)a->data)[i]; break;
+            case INT32:   val = (double)((int *)a->data)[i]; break;
+        }
+
+        switch (dtype)
+        {
+            case DOUBLE:  ((double *)data)[i] = val; break;
+            case FLOAT32: ((float *)data)[i] = (float)val; break;
+            case INT64:   ((int64_t *)data)[i] = (int64_t)val; break;
+            case INT32:   ((int *)data)[i] = (int)val; break;
         }
     }
     return (data);
