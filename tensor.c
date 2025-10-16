@@ -11,18 +11,19 @@
 
 int main()
 {
-    const int64_t shape_a[] = {3,2,1,1,5};
-    const int64_t shape_b[] = {3,1,1,1,5};
-    Dtype type = FLOAT32;
+    const int64_t shape_a[] = {3,2};
+    const int64_t shape_b[] = {3,2};
+    // Dtype type = FLOAT32;
     Device device = CPU;
-    tensor_set_seed(time(NULL));
-    Tensor *a = tensor_zeros(shape_a, 5, type, device);
-    Tensor *b = tensor_zeros(shape_b, 5, type, device);
+    // tensor_set_seed(time(NULL));
+    int val_a = 1;
+    int val_b = 2;
+    Tensor *a = tensor_full(shape_a, 2, INT32, device, &val_a);
+    Tensor *b = tensor_full(shape_b, 2, INT32, device, &val_b);
+    tensor_print(a);
+    tensor_print(b);
     printf("\n\n\n\n\n");
-    tensor_broadcast(a,b);
-    tensor_infos(a);
-    printf("\n\n\n\n\n");
-    tensor_infos(b);
-    tensor_free(a);
-    tensor_free(b);
+    Tensor *r = tensor_add(a,b);
+    tensor_print(r);
+    tensor_infos(r);
 }

@@ -2,11 +2,33 @@
 #include "../headers/print.h"
 
 
-Dtype promote_dtype(Dtype a, Dtype b)
+
+void   change_dtype(Tensor *a, Dtype dtype)
 {
-    if (a > b)
-        return a;
-    return b;
+    void *data = a->data;
+    for (int i = 0; i < a->size; i++)
+    {
+        if (dtype == FLOAT32)
+            ((float *)data)[i] = ((float *)data)[i];
+        else if (dtype == DOUBLE)
+            ((double *)data)[i] = ((double *)data)[i];
+        else if (dtype == INT32)
+            ((int *)data)[i] = ((int *)data)[i];
+        else if (dtype == INT64)
+            ((int64_t *)data)[i] = ((int64_t *)data)[i];
+    }
+}
+
+
+Dtype promote_dtype(Tensor *a, Tensor *b)
+{
+    if (a->dtype > b->dtype)
+    {
+        change_dtype(b, a->dtype);
+        return a->dtype;
+    }
+    change_dtype(a, b->dtype);
+    return b->dtype;
 }
 
 void    pairwise_add(Tensor *a, Tensor *b, Tensor *r)
@@ -40,18 +62,18 @@ Tensor *tensor_add(Tensor*a, Tensor *b)
 
    // if they have not the same datatype promote datatype
    Dtype dtype = a->dtype;
-    if (a->dtype != a->dtype)
+    if (a->dtype != b->dtype)
     {
-        dtype = promote_dtype(a->dtype, b->dtype);
+        dtype = promote_dtype(a, b);
     }
-    Tensor *r = tensor_full(a->shape, a->num_dims, dtype, a->device, 0);
+    int val = 0;
+    void *val_ptr = &val;
+    Tensor *r = tensor_full(a->shape, a->num_dims, dtype, a->device, val_ptr);
     if (!r)
         return (NULL);
 
     pairwise_op(a, b, r, '+');
-    // create a tensor_full with the newshape
-
-   // preform the operation, I think I should create a  shared helper function that do pairwise  operations
+    return (r);
 }
 
 
