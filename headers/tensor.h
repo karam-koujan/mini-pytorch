@@ -13,10 +13,10 @@
 #endif
 typedef enum e_type
 {
-	FLOAT32,
-	DOUBLE,
 	INT32,
-	INT64
+	INT64,
+	FLOAT32,
+	DOUBLE
 } Dtype;
 
 typedef enum e_device
