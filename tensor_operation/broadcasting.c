@@ -87,3 +87,19 @@ int tensor_broadcast(Tensor *a, Tensor *b)
     }
     return (0);
 }
+
+
+void tensor_unbroadcast(Tensor *a)
+{
+    if (!a->is_broadcasted)
+        return ;
+    free(a->shape);
+    free(a->strides);
+    a->shape = a->prebroadcast_shape;
+    a->strides = a->prebroadcast_stride;
+    a->num_dims = a->prebroadcast_dims;
+    a->is_broadcasted = 0;
+    a->prebroadcast_shape = NULL;
+    a->prebroadcast_stride = NULL;
+    a->prebroadcast_dims = -1;
+}

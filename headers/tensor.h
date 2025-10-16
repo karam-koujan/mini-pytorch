@@ -92,4 +92,5 @@ void    pairwise_op(Tensor *a, Tensor *b, Tensor *r, char op);
 void    pairwise_add(void *a, void *b, Tensor *r);
 Dtype 	promote_dtype(Dtype a, Dtype b);
 void   *promote_data(Tensor *a, Dtype dtype);
+void tensor_unbroadcast(Tensor *a);
 #endif

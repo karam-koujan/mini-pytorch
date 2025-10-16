@@ -85,8 +85,6 @@ Tensor *tensor_add(Tensor*a, Tensor *b)
 {
     if (tensor_broadcast(a,b))
         return (NULL);
-
-   // if they have not the same datatype promote datatype
    Dtype dtype = a->dtype;
     void *data_a;
     void *data_b;
@@ -101,16 +99,16 @@ Tensor *tensor_add(Tensor*a, Tensor *b)
         if (!data_b)
             return (free(data_a), NULL);
     }
-    printf("Promoted tensors : \n");
-    tensor_print(a);
-    tensor_print(b);
     int val = 0;
     void *val_ptr = &val;
     Tensor *r = tensor_full(a->shape, a->num_dims, dtype, a->device, val_ptr);
     if (!r)
         return (NULL);
-
     pairwise_op(data_a, data_b, r, '+');
+    free(data_a);
+    free(data_b);
+    tensor_unbroadcast(a);
+    tensor_unbroadcast(b);
     return (r);
 }
 
