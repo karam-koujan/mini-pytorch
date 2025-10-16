@@ -89,6 +89,7 @@ Tensor *tensor_t(Tensor *a);
 Tensor *tensor_permute(Tensor *a, int64_t *dims, int64_t num_dims);
 Tensor *tensor_add(Tensor*a, Tensor *b);
 void    pairwise_op(Tensor *a, Tensor *b, Tensor *r, char op);
-void    pairwise_add(Tensor *a, Tensor *b, Tensor *r);
-Dtype 	promote_dtype(Tensor *a, Tensor *b);
+void    pairwise_add(void *a, void *b, Tensor *r);
+Dtype 	promote_dtype(Dtype a, Dtype b);
+void   *promote_data(Tensor *a, Dtype dtype);
 #endif

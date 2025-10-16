@@ -10,11 +10,10 @@ Dtype promote_dtype(Dtype a, Dtype b)
         return FLOAT32;
     if (a == INT64 || b == INT64)
         return INT64;
-    if (a == INT32 || b == INT32)
-        return INT32;
+    return INT32;
 }
 
-float   *promote_data(Tensor *a, Dtype dtype)
+void   *promote_data(Tensor *a, Dtype dtype)
 {
     void *data;
     switch(dtype)
@@ -57,19 +56,19 @@ float   *promote_data(Tensor *a, Dtype dtype)
 
 
 
-void    pairwise_add(Tensor *a, Tensor *b, Tensor *r)
+void    pairwise_add(void *a, void *b, Tensor *r)
 {
-    for (int i = 0; i < a->size; i++)
+    for (int i = 0; i < r->size; i++)
     {
         if (r->dtype == FLOAT32)
 
-            ((float *)r->data)[i] = ((float *)a->data)[i] + ((float *)b->data)[i];
+            ((float *)r->data)[i] = ((float *)a)[i] + ((float *)b)[i];
         else if (r->dtype == DOUBLE)
-            ((double *)r->data)[i] = ((double *)a->data)[i] + ((double *)b->data)[i];
+            ((double *)r->data)[i] = ((double *)a)[i] + ((double *)b)[i];
         else if (r->dtype == INT32)
-            ((int *)r->data)[i] = ((int *)a->data)[i] + ((int *)b->data)[i];
+            ((int *)r->data)[i] = ((int *)a)[i] + ((int *)b)[i];
         else if (r->dtype == INT64)
-            ((int64_t *)r->data)[i] = ((int64_t *)a->data)[i] + ((int64_t *)b->data)[i];
+            ((int64_t *)r->data)[i] = ((int64_t *)a)[i] + ((int64_t *)b)[i];
     }
 }
 
@@ -88,9 +87,18 @@ Tensor *tensor_add(Tensor*a, Tensor *b)
 
    // if they have not the same datatype promote datatype
    Dtype dtype = a->dtype;
+    void *data_a;
+    void *data_b;
+
     if (a->dtype != b->dtype)
     {
-        dtype = promote_dtype(a, b);
+        dtype = promote_dtype(a->dtype, b->dtype);
+        data_a = promote_data(a, dtype);
+        if (!data_a)
+            return (NULL);
+        data_b = promote_data(b, dtype);
+        if (!data_b)
+            return (free(data_a), NULL);
     }
     printf("Promoted tensors : \n");
     tensor_print(a);
@@ -101,7 +109,7 @@ Tensor *tensor_add(Tensor*a, Tensor *b)
     if (!r)
         return (NULL);
 
-    pairwise_op(a, b, r, '+');
+    pairwise_op(data_a, data_b, r, '+');
     return (r);
 }
 
