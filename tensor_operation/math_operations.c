@@ -139,16 +139,13 @@ Tensor *tensor_add(Tensor*a, Tensor *b)
     void *data_a;
     void *data_b;
 
-    if (a->dtype != b->dtype)
-    {
-        dtype = promote_dtype(a->dtype, b->dtype);
-        data_a = promote_data(a, dtype);
-        if (!data_a)
-            return (NULL);
-        data_b = promote_data(b, dtype);
-        if (!data_b)
-            return (free(data_a), NULL);
-    }
+    dtype = promote_dtype(a->dtype, b->dtype);
+    data_a = promote_data(a, dtype);
+    if (!data_a)
+        return (NULL);
+    data_b = promote_data(b, dtype);
+    if (!data_b)
+        return (free(data_a), NULL);
     int val = 0;
     void *val_ptr = &val;
     Tensor *r = tensor_full(a->shape, a->num_dims, dtype, a->device, val_ptr);
@@ -170,17 +167,13 @@ Tensor *tensor_sub(Tensor*a, Tensor *b)
     Dtype dtype = a->dtype;
     void *data_a;
     void *data_b;
-
-    if (a->dtype != b->dtype)
-    {
-        dtype = promote_dtype(a->dtype, b->dtype);
-        data_a = promote_data(a, dtype);
-        if (!data_a)
-            return (NULL);
-        data_b = promote_data(b, dtype);
-        if (!data_b)
-            return (free(data_a), NULL);
-    }
+    dtype = promote_dtype(a->dtype, b->dtype);
+    data_a = promote_data(a, dtype);
+    if (!data_a)
+        return (NULL);
+    data_b = promote_data(b, dtype);
+    if (!data_b)
+        return (free(data_a), NULL);
     int val = 0;
     void *val_ptr = &val;
     Tensor *r = tensor_full(a->shape, a->num_dims, dtype, a->device, val_ptr);
@@ -230,16 +223,14 @@ Tensor *tensor_mul(Tensor*a, Tensor *b)
     void *data_a;
     void *data_b;
 
-    if (a->dtype != b->dtype)
-    {
-        dtype = promote_dtype(a->dtype, b->dtype);
-        data_a = promote_data(a, dtype);
-        if (!data_a)
-            return (NULL);
-        data_b = promote_data(b, dtype);
-        if (!data_b)
-            return (free(data_a), NULL);
-    }
+    dtype = promote_dtype(a->dtype, b->dtype);
+    data_a = promote_data(a, dtype);
+    if (!data_a)
+        return (NULL);
+    data_b = promote_data(b, dtype);
+    if (!data_b)
+        return (free(data_a), NULL);
+    
     int val = 0;
     void *val_ptr = &val;
     Tensor *r = tensor_full(a->shape, a->num_dims, dtype, a->device, val_ptr);
