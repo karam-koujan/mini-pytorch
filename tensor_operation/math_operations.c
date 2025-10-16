@@ -103,6 +103,22 @@ void    pairwise_div(void *a, void *b, Tensor *r)
     }
 }
 
+void    pairwise_mul(void *a, void *b, Tensor *r)
+{
+    for (int i = 0; i < r->size; i++)
+    {
+        if (r->dtype == FLOAT32)
+
+            ((float *)r->data)[i] = ((float *)a)[i] * ((float *)b)[i];
+        else if (r->dtype == DOUBLE)
+            ((double *)r->data)[i] = ((double *)a)[i] * ((double *)b)[i];
+        else if (r->dtype == INT32)
+            ((int *)r->data)[i] = ((int *)a)[i] * ((int *)b)[i];
+        else if (r->dtype == INT64)
+            ((int64_t *)r->data)[i] = ((int64_t *)a)[i] * ((int64_t *)b)[i];
+    }
+}
+
 void    pairwise_op(Tensor *a, Tensor *b, Tensor *r, char op)
 {
     if (op == '+')
@@ -111,6 +127,8 @@ void    pairwise_op(Tensor *a, Tensor *b, Tensor *r, char op)
         pairwise_sub(a, b, r);
     else if (op == '/')
         pairwise_div(a, b, r);
+    else if (op == '*')
+        pairwise_mul(a,b, r);
 }
 
 Tensor *tensor_add(Tensor*a, Tensor *b)
@@ -204,6 +222,36 @@ Tensor *tensor_div(Tensor*a, Tensor *b)
     return (r);
 }
 
+Tensor *tensor_mul(Tensor*a, Tensor *b)
+{
+    if (tensor_broadcast(a,b))
+        return (NULL);
+    Dtype dtype = a->dtype;
+    void *data_a;
+    void *data_b;
+
+    if (a->dtype != b->dtype)
+    {
+        dtype = promote_dtype(a->dtype, b->dtype);
+        data_a = promote_data(a, dtype);
+        if (!data_a)
+            return (NULL);
+        data_b = promote_data(b, dtype);
+        if (!data_b)
+            return (free(data_a), NULL);
+    }
+    int val = 0;
+    void *val_ptr = &val;
+    Tensor *r = tensor_full(a->shape, a->num_dims, dtype, a->device, val_ptr);
+    if (!r)
+        return (NULL);
+    pairwise_op(data_a, data_b, r, '*');
+    free(data_a);
+    free(data_b);
+    tensor_unbroadcast(a);
+    tensor_unbroadcast(b);
+    return (r);
+}
+
 Tensor *tensor_matmul(Tensor*a, Tensor *b);
-Tensor *tensor_mul(Tensor*a, Tensor *b);
 Tensor *tensor_mm(Tensor*a, Tensor *b);
