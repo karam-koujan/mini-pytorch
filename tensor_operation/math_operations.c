@@ -282,52 +282,55 @@ Tensor *tensor_matmul(Tensor*a, Tensor *b)
     b_r = tensor_reshape(b_r, b_r_shape, 3);
     if (!b_r)
         return (tensor_free(a_r), tensor_free(b_r), NULL);
-    Tensor *result = tensor_deep_copy(a_r);
+    int64_t batch_size = a_r->shape[0];
+    const int64_t result_shape[] = {batch_size, a_rows, b_cols};
+    double d = 0;
+    Tensor *result = tensor_full(result_shape, 3, a->dtype, a->device, &d);
     if (!result)
         return (tensor_free(a_r), tensor_free(b_r), NULL);
-    printf("reshaped tensors in matmul:\n");
-    tensor_print(a_r);
-    tensor_print(b_r);
-    printf("\n\n\n");
+    // tensor_print(a_r);
+    // tensor_print(b_r);
+    // printf("\n\n\n");
     // do the calculation
     if (a_r->shape[0] != b_r->shape[0])
         error_msg("something is not working well in reshape");
     float_matmul(a_r, b_r, result);
 
-    Tensor *final_result = tensor_deep_copy(a_r);
-    if (!final_result)
-        return (tensor_free(a_r), tensor_free(b_r), tensor_free(result), NULL);
-    final_result->shape[a->num_dims - 1] = b_cols;
-    final_result->shape[a->num_dims - 2] = a_rows;
-
-    return final_result;
+    return result;
     // then handle the first 3 specicifc cases
 }
 
-void    float_matmul(Tensor *a_r, Tensor *b_r, Tensor *result)
+void float_matmul(Tensor *a_r, Tensor *b_r, Tensor *result)
 {
-   int64_t batch_size = a_r->shape[0];
-   float    acc;
+    int64_t batch_size = a_r->shape[0];
+    float acc;
     for (int64_t b_idx = 0; b_idx < batch_size; b_idx++)
     {
-        for (int64_t b_cols = 0; b_cols < b_r->shape[1]; b_cols++)
+        for (int64_t a_rows = 0; a_rows < a_r->shape[1]; a_rows++)
         {
-            for (int64_t a_rows= 0; a_rows < a_r->shape[2]; a_rows++)
+            for (int64_t b_cols = 0; b_cols < b_r->shape[2]; b_cols++)
             {
-                acc = 0;
-                for(int64_t a_cols= 0; a_cols < a_r->shape[1]; a_cols++)
+                acc = 0.0f;
+                for (int64_t a_cols = 0; a_cols < a_r->shape[2]; a_cols++)
                 {
-                   int64_t a_idx =  b_idx * a_r->strides[0] + a_cols * a_r->strides[1] + a_rows * a_r->strides[2];
-                   int64_t bt_idx =  b_idx * b_r->strides[0] + b_cols * b_r->strides[1] + a_cols * b_r->strides[2];
-                  
-                   acc += ((float *)a_r->data)[a_idx] * ((float *)b_r->data)[bt_idx];
+                    int64_t a_idx = b_idx * (a_r->strides[0] / sizeof_type(a_r->dtype))
+                                  + a_rows * (a_r->strides[1] / sizeof_type(a_r->dtype))
+                                  + a_cols * (a_r->strides[2] / sizeof_type(a_r->dtype));
+
+                    int64_t bt_idx = b_idx *  (b_r->strides[0] / sizeof_type(a_r->dtype))
+                                   + a_cols * (b_r->strides[1] / sizeof_type(a_r->dtype))
+                                   + b_cols * (b_r->strides[2] / sizeof_type(a_r->dtype));
+
+                    acc += ((float *)a_r->data)[a_idx] * ((float *)b_r->data)[bt_idx];
                 }
-                int64_t r_idx = b_idx * result->strides[0] + a_rows * result->strides[1] + b_cols * result->strides[2];
+
+                int64_t r_idx = b_idx *  (result->strides[0] / sizeof_type(result->dtype))
+                              + a_rows * (result->strides[1] / sizeof_type(result->dtype))
+                              + b_cols * (result->strides[2] / sizeof_type(result->dtype));
                 ((float *)result->data)[r_idx] = acc;
             }
         }
     }
 }
-
 
 Tensor *tensor_mm(Tensor*a, Tensor *b);
