@@ -266,21 +266,19 @@ Tensor *tensor_matmul(Tensor*a, Tensor *b)
     Tensor *b_r = tensor_deep_copy(b);
      if (!b_r)
         return (tensor_free(a_r), NULL);
-    if (!tensor_broadcast(a_r, b_r))
-        return (error_msg("in matmul operation"), tensor_free(a_r), tensor_free(b_r),NULL);
-    int64_t *result_shape = a_r->shape;
-    int64_t result_dim = a_r->num_dims;
+    // if (!tensor_broadcast(a_r, b_r))
+    //     return (error_msg("in matmul operation"), tensor_free(a_r), tensor_free(b_r),NULL);
     // reshape the tensors so it have (batch, n, m)
-    int64_t a_cols = a->num_dims - 2;
-    int64_t a_rows = a->num_dims - 1;
-    int64_t b_cols = b->num_dims - 2;
-    int64_t b_rows = b->num_dims - 1;
+    int64_t a_cols = a->shape[a->num_dims - 1];
+    int64_t a_rows = a->shape[a->num_dims - 2];
+    int64_t b_cols = b->shape[b->num_dims - 1];
+    int64_t b_rows = b->shape[b->num_dims - 2];
   
-    const int64_t a_r_shape[] = {-1, a_cols, a_rows};
+    const int64_t a_r_shape[] = {-1, a_rows, a_cols};
     a_r = tensor_reshape(a_r ,a_r_shape, 3);
     if (!a_r)
         return (tensor_free(a_r), tensor_free(b_r), NULL);
-    const int64_t b_r_shape[] = {-1, b_cols, b_rows};
+    const int64_t b_r_shape[] = {-1, b_rows, b_cols};
     b_r = tensor_reshape(b_r, b_r_shape, 3);
     if (!b_r)
         return (tensor_free(a_r), tensor_free(b_r), NULL);
@@ -296,9 +294,13 @@ Tensor *tensor_matmul(Tensor*a, Tensor *b)
         error_msg("something is not working well in reshape");
     float_matmul(a_r, b_r, result);
 
-    result = tensor_reshape(result, result_shape, result_dim);
-    // here there is a leak I left intentionally here I will solve it later.
-    return result;
+    Tensor *final_result = tensor_deep_copy(a_r);
+    if (!final_result)
+        return (tensor_free(a_r), tensor_free(b_r), tensor_free(result), NULL);
+    final_result->shape[a->num_dims - 1] = b_cols;
+    final_result->shape[a->num_dims - 2] = a_rows;
+
+    return final_result;
     // then handle the first 3 specicifc cases
 }
 
