@@ -97,4 +97,5 @@ Tensor *tensor_sub(Tensor*a, Tensor *b);
 Tensor *tensor_add(Tensor*a, Tensor *b);
 Tensor *tensor_mul(Tensor*a, Tensor *b);
 Tensor *tensor_deep_copy(Tensor *a);
+Tensor *tensor_matmul(Tensor*a, Tensor *b);
 #endif

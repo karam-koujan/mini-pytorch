@@ -252,6 +252,7 @@ int is_shape_allowed(Tensor*a, Tensor *b)
         return 1;
     return (0);
 }
+void    float_matmul(Tensor *a_r, Tensor *b_r, Tensor *result);
 
 Tensor *tensor_matmul(Tensor*a, Tensor *b)
 {
@@ -267,22 +268,25 @@ Tensor *tensor_matmul(Tensor*a, Tensor *b)
         return (tensor_free(a_r), NULL);
     if (!tensor_broadcast(a_r, b_r))
         return (error_msg("in matmul operation"), tensor_free(a_r), tensor_free(b_r),NULL);
-
+    int64_t *result_shape = a_r->shape;
+    int64_t result_dim = a_r->num_dims;
     // reshape the tensors so it have (batch, n, m)
     int64_t a_cols = a->num_dims - 2;
     int64_t a_rows = a->num_dims - 1;
     int64_t b_cols = b->num_dims - 2;
     int64_t b_rows = b->num_dims - 1;
+  
+    const int64_t a_r_shape[] = {-1, a_cols, a_rows};
+    a_r = tensor_reshape(a_r ,a_r_shape, 3);
+    if (!a_r)
+        return (tensor_free(a_r), tensor_free(b_r), NULL);
+    const int64_t b_r_shape[] = {-1, b_cols, b_rows};
+    b_r = tensor_reshape(b_r, b_r_shape, 3);
+    if (!b_r)
+        return (tensor_free(a_r), tensor_free(b_r), NULL);
     Tensor *result = tensor_deep_copy(a_r);
     if (!result)
         return (tensor_free(a_r), tensor_free(b_r), NULL);
-
-    a_r = tensor_reshape(-1, a_cols, a_rows);
-    if (!a_r)
-        return (tensor_free(a_r), tensor_free(b_r), tensor_free(result), NULL);
-    b_r = tensor_reshape(-1, b_cols, b_rows);
-    if (!b_r)
-        return (tensor_free(a_r), tensor_free(b_r), tensor_free(result), NULL);
     printf("reshaped tensors in matmul:\n");
     tensor_print(a_r);
     tensor_print(b_r);
@@ -290,11 +294,15 @@ Tensor *tensor_matmul(Tensor*a, Tensor *b)
     // do the calculation
     if (a_r->shape[0] != b_r->shape[0])
         error_msg("something is not working well in reshape");
+    float_matmul(a_r, b_r, result);
 
+    result = tensor_reshape(result, result_shape, result_dim);
+    // here there is a leak I left intentionally here I will solve it later.
+    return result;
     // then handle the first 3 specicifc cases
 }
 
-float   *float_matmul(Tensor *a_r, Tensor *b_r, Tensor *result)
+void    float_matmul(Tensor *a_r, Tensor *b_r, Tensor *result)
 {
    int64_t batch_size = a_r->shape[0];
    float    acc;
@@ -313,6 +321,7 @@ float   *float_matmul(Tensor *a_r, Tensor *b_r, Tensor *result)
                    acc += ((float *)a_r->data)[a_idx] * ((float *)b_r->data)[bt_idx];
                 }
                 int64_t r_idx = b_idx * result->strides[0] + a_rows * result->strides[1] + b_cols * result->strides[2];
+                ((float *)result->data)[r_idx] = acc;
             }
         }
     }
