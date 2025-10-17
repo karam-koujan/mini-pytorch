@@ -71,14 +71,37 @@ Tensor *tensor_deep_copy(Tensor *a)
     if (!r)
         return (NULL);
     memcpy(r, a, sizeof(Tensor));
-    void *data = malloc(a->size * sizeof(a->dtype));
+    void *data = malloc(a->size * sizeof_type(a->dtype));
     if (!data)
     {
         r->data = NULL;
+        r->shape = NULL;
+        r->strides = NULL;
         return (tensor_free(r), NULL);
     }
-    memcpy(data, a->data, a->size * sizeof(a->dtype));
+    int64_t *shape = malloc(a->num_dims * sizeof(int64_t));
+    if (!shape)
+    {
+        r->data = NULL;
+        r->shape = NULL;
+        r->strides = NULL;
+        return (tensor_free(r), NULL);
+    }
+    int64_t *strides = malloc(a->num_dims * sizeof(int64_t));
+    if (!strides)
+    {
+        r->data = NULL;
+        r->shape = NULL;
+        r->strides = NULL;
+        return (tensor_free(r), NULL);
+    }
+    memcpy(data, a->data, a->size * sizeof_type(a->dtype));
+    memcpy(shape, a->shape, a->num_dims * sizeof(int64_t));
+    memcpy(strides, a->strides, a->num_dims * sizeof(int64_t));
+
     r->data = data;
+    r->strides = strides;
+    r->shape = shape;
     return (r);
 }
 
