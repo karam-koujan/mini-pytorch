@@ -297,19 +297,25 @@ Tensor *tensor_matmul(Tensor*a, Tensor *b)
 float   *float_matmul(Tensor *a_r, Tensor *b_r, Tensor *result)
 {
    int64_t batch_size = a_r->shape[0];
+   float    acc;
     for (int64_t b_idx = 0; b_idx < batch_size; b_idx++)
     {
         for (int64_t b_cols = 0; b_cols < b_r->shape[1]; b_cols++)
         {
             for (int64_t a_rows= 0; a_rows < a_r->shape[2]; a_rows++)
             {
+                acc = 0;
                 for(int64_t a_cols= 0; a_cols < a_r->shape[1]; a_cols++)
                 {
-                    result->data[i] = b_idx * a_r->strides[0] + a_cols * a_r->strides[1] + a_rows * a_r->strides[2] *  b_idx * b_r->strides[0] + b_rows * b_r->strides[1] + a_cols * b_r->strides[2] 
+                   int64_t a_idx =  b_idx * a_r->strides[0] + a_cols * a_r->strides[1] + a_rows * a_r->strides[2];
+                   int64_t bt_idx =  b_idx * b_r->strides[0] + b_cols * b_r->strides[1] + a_cols * b_r->strides[2];
+                  
+                   acc += ((float *)a_r->data)[a_idx] * ((float *)b_r->data)[bt_idx];
                 }
+                int64_t r_idx = b_idx * result->strides[0] + a_rows * result->strides[1] + b_cols * result->strides[2];
             }
         }
-    } 
+    }
 }
 
 
