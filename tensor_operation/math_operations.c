@@ -246,8 +246,8 @@ Tensor *tensor_mul(Tensor*a, Tensor *b)
 
 int is_shape_allowed(Tensor*a, Tensor *b)
 {
-    int i = a->size - 1;
-    int j = b->size - 2 <= 0 ? 0 : b->size - 2;
+    int i = a->num_dims - 1;
+    int j = b->num_dims - 2 <= 0 ? 0 : b->num_dims - 2;
     if (a->shape[i] == b->shape[j])
         return 1;
     return (0);
@@ -256,12 +256,23 @@ int is_shape_allowed(Tensor*a, Tensor *b)
 Tensor *tensor_matmul(Tensor*a, Tensor *b)
 {
     // check if the matrix dim is correct
-    if (is_shape_allowed(a,b))
+    if (!is_shape_allowed(a,b))
         return (error_msg("the shapes are not compatible for matmul operation"), NULL);
     // check if the tensors are broadcastable
+    if (!tensor_broadcast(a, b))
+        return (error_msg("in matmul operation"),NULL);
 
     // reshape the tensors so it have (batch, n, m)
-
+    int a_cols = a->num_dims - 2;
+    int a_rows = a->num_dims - 1;
+    int b_cols = b->num_dims - 2;
+    int b_rows = b->num_dims - 1;
+    Tensor *a_r = tensor_copy(a);
+    if (!a_r)
+        return (NULL);
+    Tensor *b_r = tensor_copy(b);
+     if (!b_r)
+        return (tensor_free,NULL);
     // do the calculation 
 
     // then handle the first 3 specicifc cases

@@ -60,3 +60,25 @@ int64_t *create_stride(const int64_t *shape, int64_t ndim, Dtype type)
     return (strides);
 }
 
+Tensor *tensor_deep_copy(Tensor *a)
+{
+    if (a == NULL)
+    {
+        error_msg("you entred an empty tensor");
+        return (NULL);
+    }
+    Tensor *r = malloc(sizeof(Tensor));
+    if (!r)
+        return (NULL);
+    memcpy(r, a, sizeof(Tensor));
+    void *data = malloc(a->size * sizeof(a->dtype));
+    if (!data)
+    {
+        r->data = NULL;
+        return (tensor_free(r), NULL);
+    }
+    memcpy(data, a->data, a->size * sizeof(a->dtype));
+    r->data = data;
+    return (r);
+}
+
