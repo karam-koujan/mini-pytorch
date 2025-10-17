@@ -254,21 +254,29 @@ int is_shape_allowed(Tensor*a, Tensor *b)
 }
 void    float_matmul(Tensor *a_r, Tensor *b_r, Tensor *result);
 
+
+
+
+/*
+Tasks: 
+    - we should handle broadcasting for matrix mutltiplication
+    - we should handle multitype
+    - we should handle tensor_reshaping for result
+    - we have to free all the leaks.
+*/
+
+
 Tensor *tensor_matmul(Tensor*a, Tensor *b)
 {
-    // check if the matrix dim is correct
     if (!is_shape_allowed(a,b))
         return (error_msg("the shapes are not compatible for matmul operation"), NULL);
-    // check if the tensors are broadcastable
     Tensor *a_r = tensor_deep_copy(a);
     if (!a_r)
         return (NULL);
     Tensor *b_r = tensor_deep_copy(b);
      if (!b_r)
         return (tensor_free(a_r), NULL);
-    // if (!tensor_broadcast(a_r, b_r))
-    //     return (error_msg("in matmul operation"), tensor_free(a_r), tensor_free(b_r),NULL);
-    // reshape the tensors so it have (batch, n, m)
+
     int64_t a_cols = a->shape[a->num_dims - 1];
     int64_t a_rows = a->shape[a->num_dims - 2];
     int64_t b_cols = b->shape[b->num_dims - 1];
@@ -288,10 +296,6 @@ Tensor *tensor_matmul(Tensor*a, Tensor *b)
     Tensor *result = tensor_full(result_shape, 3, a->dtype, a->device, &d);
     if (!result)
         return (tensor_free(a_r), tensor_free(b_r), NULL);
-    // tensor_print(a_r);
-    // tensor_print(b_r);
-    // printf("\n\n\n");
-    // do the calculation
     if (a_r->shape[0] != b_r->shape[0])
         error_msg("something is not working well in reshape");
     float_matmul(a_r, b_r, result);
@@ -303,7 +307,8 @@ Tensor *tensor_matmul(Tensor*a, Tensor *b)
 void float_matmul(Tensor *a_r, Tensor *b_r, Tensor *result)
 {
     int64_t batch_size = a_r->shape[0];
-    float acc;
+    double f = 0;
+    void *acc  = &f;
     for (int64_t b_idx = 0; b_idx < batch_size; b_idx++)
     {
         for (int64_t a_rows = 0; a_rows < a_r->shape[1]; a_rows++)
@@ -320,8 +325,12 @@ void float_matmul(Tensor *a_r, Tensor *b_r, Tensor *result)
                     int64_t bt_idx = b_idx *  (b_r->strides[0] / sizeof_type(a_r->dtype))
                                    + a_cols * (b_r->strides[1] / sizeof_type(a_r->dtype))
                                    + b_cols * (b_r->strides[2] / sizeof_type(a_r->dtype));
+                    switch(a_r->dtype)
+                    {
+                        case FLOAT32:
+                            *((float *)acc) += ((float *)a_r->data)[a_idx] * ((float *)b_r->data)[bt_idx];
 
-                    acc += ((float *)a_r->data)[a_idx] * ((float *)b_r->data)[bt_idx];
+                    }
                 }
 
                 int64_t r_idx = b_idx *  (result->strides[0] / sizeof_type(result->dtype))
