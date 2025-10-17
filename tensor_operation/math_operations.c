@@ -273,16 +273,43 @@ Tensor *tensor_matmul(Tensor*a, Tensor *b)
     int64_t a_rows = a->num_dims - 1;
     int64_t b_cols = b->num_dims - 2;
     int64_t b_rows = b->num_dims - 1;
+    Tensor *result = tensor_deep_copy(a_r);
+    if (!result)
+        return (tensor_free(a_r), tensor_free(b_r), NULL);
+
     a_r = tensor_reshape(-1, a_cols, a_rows);
     if (!a_r)
-        return (tensor_free(a_r), tensor_free(b_r), NULL);
+        return (tensor_free(a_r), tensor_free(b_r), tensor_free(result), NULL);
     b_r = tensor_reshape(-1, b_cols, b_rows);
     if (!b_r)
-        return (tensor_free(a_r), tensor_free(b_r), NULL);
-
+        return (tensor_free(a_r), tensor_free(b_r), tensor_free(result), NULL);
+    printf("reshaped tensors in matmul:\n");
+    tensor_print(a_r);
+    tensor_print(b_r);
+    printf("\n\n\n");
     // do the calculation
+    if (a_r->shape[0] != b_r->shape[0])
+        error_msg("something is not working well in reshape");
 
     // then handle the first 3 specicifc cases
+}
+
+float   *float_matmul(Tensor *a_r, Tensor *b_r, Tensor *result)
+{
+   int64_t batch_size = a_r->shape[0];
+    for (int64_t b_idx = 0; b_idx < batch_size; b_idx++)
+    {
+        for (int64_t b_cols = 0; b_cols < b_r->shape[1]; b_cols++)
+        {
+            for (int64_t a_rows= 0; a_rows < a_r->shape[2]; a_rows++)
+            {
+                for(int64_t a_cols= 0; a_cols < a_r->shape[1]; a_cols++)
+                {
+                    result->data[i] = b_idx * a_r->strides[0] + a_cols * a_r->strides[1] + a_rows * a_r->strides[2] *  b_idx * b_r->strides[0] + b_rows * b_r->strides[1] + a_cols * b_r->strides[2] 
+                }
+            }
+        }
+    } 
 }
 
 
