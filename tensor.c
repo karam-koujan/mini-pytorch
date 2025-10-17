@@ -19,7 +19,8 @@ int main()
     Tensor *a = tensor_full(shape_a, 3, DOUBLE, device, &val_a);
     Tensor *b = tensor_deep_copy(a);
     tensor_print(a);
-    tensor_print(a);
+    // tensor_print(a);
     tensor_free(a);
     tensor_print(b);
+    tensor_free(b);
 }
