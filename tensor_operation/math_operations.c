@@ -259,8 +259,8 @@ void    float_matmul(Tensor *a_r, Tensor *b_r, Tensor *result);
 
 /*
 Tasks: 
-    - we should handle broadcasting for matrix mutltiplication
     - we should handle multitype
+    - we should handle broadcasting for matrix mutltiplication
     - we should handle tensor_reshaping for result
     - we have to free all the leaks.
 */
@@ -315,7 +315,7 @@ void float_matmul(Tensor *a_r, Tensor *b_r, Tensor *result)
         {
             for (int64_t b_cols = 0; b_cols < b_r->shape[2]; b_cols++)
             {
-                acc = 0.0f;
+                *(double *)acc = 0.0f;
                 for (int64_t a_cols = 0; a_cols < a_r->shape[2]; a_cols++)
                 {
                     int64_t a_idx = b_idx * (a_r->strides[0] / sizeof_type(a_r->dtype))
@@ -327,16 +327,23 @@ void float_matmul(Tensor *a_r, Tensor *b_r, Tensor *result)
                                    + b_cols * (b_r->strides[2] / sizeof_type(a_r->dtype));
                     switch(a_r->dtype)
                     {
-                        case FLOAT32:
-                            *((float *)acc) += ((float *)a_r->data)[a_idx] * ((float *)b_r->data)[bt_idx];
-
+                        case FLOAT32: *((float *)acc) += ((float *)a_r->data)[a_idx] * ((float *)b_r->data)[bt_idx];break;
+                        case DOUBLE: *((double *)acc) += ((double *)a_r->data)[a_idx] * ((double *)b_r->data)[bt_idx];break;
+                        case INT32: *((int *)acc) += ((int *)a_r->data)[a_idx] * ((int *)b_r->data)[bt_idx];break;
+                        case INT64: *((int64_t *)acc) += ((int64_t *)a_r->data)[a_idx] * ((int64_t *)b_r->data)[bt_idx];break;
                     }
                 }
 
                 int64_t r_idx = b_idx *  (result->strides[0] / sizeof_type(result->dtype))
                               + a_rows * (result->strides[1] / sizeof_type(result->dtype))
                               + b_cols * (result->strides[2] / sizeof_type(result->dtype));
-                ((float *)result->data)[r_idx] = acc;
+                switch(result->dtype)
+                {
+                    case FLOAT32: ((float *)result->data)[r_idx] = *(float *)acc;
+                    case DOUBLE: ((double *)result->data)[r_idx] = *(double *)acc;
+                    case INT32: ((int *)result->data)[r_idx] = *(int *)acc;
+                    case INT64: ((int64_t *)result->data)[r_idx] = *(int64_t *)acc;
+                }
             }
         }
     }
