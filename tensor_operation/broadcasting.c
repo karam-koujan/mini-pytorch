@@ -204,12 +204,22 @@ int tensor_contigous_broadcast(Tensor *a)
     void *data = calloc(size, sizeof_type(a->dtype));
     if (!data)
         return (1);
-    for (int64_t i = 0; i < size; i++)
+    int64_t b_t = size / a->size;
+    printf("size :%d", a->size);
+    for (int64_t i = 0; i < b_t ; i++)
     {
         for(int j = 0; j < a->size; j++)
         {
-            fill_data(data, (int)i, a->dtype, &a->data[j]); 
+            int idx = i * a->size + j;
+            fill_data(data, idx, a->dtype, &a->data[j]); 
         }
     }
+    free(a->data);
+    free(a->strides);
+    a->size = size;
+    a->strides = new_stride;
+    a->data = data;
+    printf("I am here tesitning tenso contigious \n");
+    tensor_print(a);
     return (0);
 }
