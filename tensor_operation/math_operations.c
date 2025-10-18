@@ -339,10 +339,10 @@ void float_matmul(Tensor *a_r, Tensor *b_r, Tensor *result)
                               + b_cols * (result->strides[2] / sizeof_type(result->dtype));
                 switch(result->dtype)
                 {
-                    case FLOAT32: ((float *)result->data)[r_idx] = *(float *)acc;
-                    case DOUBLE: ((double *)result->data)[r_idx] = *(double *)acc;
-                    case INT32: ((int *)result->data)[r_idx] = *(int *)acc;
-                    case INT64: ((int64_t *)result->data)[r_idx] = *(int64_t *)acc;
+                    case FLOAT32: ((float *)result->data)[r_idx] = *(float *)acc;break;
+                    case DOUBLE: ((double *)result->data)[r_idx] = *(double *)acc;break;
+                    case INT32: ((int *)result->data)[r_idx] = *(int *)acc;break;
+                    case INT64: ((int64_t *)result->data)[r_idx] = *(int64_t *)acc; break;
                 }
             }
         }

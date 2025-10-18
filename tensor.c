@@ -14,16 +14,17 @@ int main()
     const int64_t shape_a[] = {1,3,2};
     const int64_t shape_b[] = {1,2,3};
 
-    // Dtype type = FLOAT32;
+    Dtype type = INT64;
     Device device = CPU;
     // tensor_set_seed(time(NULL));
-    float val_a = 3;
-    float val_b = 2;
-    Tensor *a = tensor_full(shape_a, 3, FLOAT32, device, &val_a);
-    Tensor *b = tensor_full(shape_b, 3, FLOAT32, device, &val_b);
+    int64_t val_a = 3;
+    int64_t val_b = 2;
+    Tensor *a = tensor_full(shape_a, 3, type, device, &val_a);
+    Tensor *b = tensor_full(shape_b, 3, type, device, &val_b);
     tensor_print(a);
     // tensor_print(a);
     tensor_print(b);
     Tensor *result = tensor_matmul(a, b);
     tensor_print(result);
+    tensor_infos(result);
 }
