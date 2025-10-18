@@ -259,12 +259,23 @@ void    float_matmul(Tensor *a_r, Tensor *b_r, Tensor *result);
 
 /*
 Tasks: 
-    - we should handle multitype
     - we should handle broadcasting for matrix mutltiplication
     - we should handle tensor_reshaping for result
     - we have to free all the leaks.
 */
 
+
+int64_t tensor_batchsize(int64_t *shape, int64_t dim)
+{
+    int64_t s = 1;
+    int p = 0;
+    for(int64_t i = 0 ; i < dim - 2; i++)
+    {
+        p = 1;
+        s*= shape[i];
+    }
+    return p == 0 ? 0 : s;
+}
 
 Tensor *tensor_matmul(Tensor*a, Tensor *b)
 {
@@ -276,21 +287,30 @@ Tensor *tensor_matmul(Tensor*a, Tensor *b)
     Tensor *b_r = tensor_deep_copy(b);
      if (!b_r)
         return (tensor_free(a_r), NULL);
-
+    if ((a_r->num_dims >= 3 || b_r->num_dims >= 3))
+    {
+        if (tensor_matmul_broadcast(a_r,b_r))
+            return (tensor_free(a_r), tensor_free(b_r), NULL);
+        
+    }
     int64_t a_cols = a->shape[a->num_dims - 1];
     int64_t a_rows = a->shape[a->num_dims - 2];
     int64_t b_cols = b->shape[b->num_dims - 1];
     int64_t b_rows = b->shape[b->num_dims - 2];
-  
-    const int64_t a_r_shape[] = {-1, a_rows, a_cols};
+    int64_t *final_shape = calloc(a_r->num_dims, sizeof(int64_t));
+    int final_dim = a_r->num_dims;
+    if (!final_shape)
+        return (tensor_free(a_r), tensor_free(b_r), NULL);
+    memcpy(final_shape, a_r->shape, sizeof(int64_t) * a_r->num_dims);
+    int64_t batch_size =  tensor_batchsize(a_r->shape, a_r->num_dims);
+    const int64_t a_r_shape[] = {batch_size, a_rows, a_cols};
     a_r = tensor_reshape(a_r ,a_r_shape, 3);
     if (!a_r)
         return (tensor_free(a_r), tensor_free(b_r), NULL);
-    const int64_t b_r_shape[] = {-1, b_rows, b_cols};
+    const int64_t b_r_shape[] = {batch_size, b_rows, b_cols};
     b_r = tensor_reshape(b_r, b_r_shape, 3);
     if (!b_r)
         return (tensor_free(a_r), tensor_free(b_r), NULL);
-    int64_t batch_size = a_r->shape[0];
     const int64_t result_shape[] = {batch_size, a_rows, b_cols};
     double d = 0;
     Tensor *result = tensor_full(result_shape, 3, a->dtype, a->device, &d);
@@ -299,7 +319,10 @@ Tensor *tensor_matmul(Tensor*a, Tensor *b)
     if (a_r->shape[0] != b_r->shape[0])
         error_msg("something is not working well in reshape");
     float_matmul(a_r, b_r, result);
+    final_shape[final_dim - 1] = b_cols;
+    final_shape[final_dim - 2] = a_rows;
 
+    result = tensor_reshape(result, final_shape, final_dim);
     return result;
     // then handle the first 3 specicifc cases
 }

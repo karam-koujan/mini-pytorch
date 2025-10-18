@@ -74,7 +74,6 @@ Tensor *tensor_full(const int64_t *shape, int64_t ndim, Dtype type, Device devic
 Tensor *tensor_from_arr(void *arr, const int64_t *shape, int64_t ndim, Dtype type, Device device);
 Tensor *tensor_rand(const int64_t *shape, int64_t ndim, Dtype type, Device device);
 void 	tensor_infos(Tensor *tensor);
-int 	is_tensor_broadcastable(Tensor *a, Tensor *b);
 Tensor	*tensor_scalar(void *nb, Dtype type, Device device);
 int		tensor_broadcast(Tensor *a, Tensor *b);
 void    tensor_free(Tensor *a);
@@ -98,4 +97,6 @@ Tensor *tensor_add(Tensor*a, Tensor *b);
 Tensor *tensor_mul(Tensor*a, Tensor *b);
 Tensor *tensor_deep_copy(Tensor *a);
 Tensor *tensor_matmul(Tensor*a, Tensor *b);
+int tensor_matmul_broadcast(Tensor *a, Tensor *b);
+int is_tensor_broadcastable(Tensor *a, Tensor *b, int mat_p);
 #endif
