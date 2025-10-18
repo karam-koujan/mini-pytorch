@@ -13,18 +13,18 @@ void    fill_data(void *data, int offset, Dtype dtype, void *value)
         ((int64_t *)data)[offset] = *((int64_t *)value); 
 }
 
-void    *copy_contigious_data(Tensor *a)
+void    *copy_contigious_data(Tensor *a, int size)
 {
     int val_size = sizeof_type(a->dtype);
     if (val_size == -1)
         return (NULL);
-    void *data = malloc(a->size * val_size);
+    void *data = malloc(size * val_size);
     if (!data)
         return (error_msg("data creation failed!!"), NULL);
     int coord = 0;
     int tmp = 0;
     int offset;
-    for (int i = 0; i < a->size; i++)
+    for (int i = 0; i < size; i++)
     {
         tmp = i;
         offset = 0;
@@ -38,6 +38,7 @@ void    *copy_contigious_data(Tensor *a)
     }
     return (data);
 }
+
 
 Tensor  *tensor_reshape(Tensor *a, const int64_t *view, int64_t new_ndim)
 {
@@ -58,7 +59,7 @@ Tensor  *tensor_reshape(Tensor *a, const int64_t *view, int64_t new_ndim)
     result->strides = new_stride;
     if (!is_contigious(a))
     {
-        result->data = copy_contigious_data(result);
+            result->data = copy_contigious_data(result, result->size);
     }
     return (result);
 }

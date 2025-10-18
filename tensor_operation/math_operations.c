@@ -293,6 +293,8 @@ Tensor *tensor_matmul(Tensor*a, Tensor *b)
             return (tensor_free(a_r), tensor_free(b_r), NULL);
         
     }
+    tensor_contigous_broadcast(b_r);
+
     int64_t a_cols = a->shape[a->num_dims - 1];
     int64_t a_rows = a->shape[a->num_dims - 2];
     int64_t b_cols = b->shape[b->num_dims - 1];
@@ -309,6 +311,8 @@ Tensor *tensor_matmul(Tensor*a, Tensor *b)
         return (tensor_free(a_r), tensor_free(b_r), NULL);
     const int64_t b_r_shape[] = {batch_size, b_rows, b_cols};
     b_r = tensor_reshape(b_r, b_r_shape, 3);
+    printf("here is the b_r\n");
+    tensor_print(b_r);
     if (!b_r)
         return (tensor_free(a_r), tensor_free(b_r), NULL);
     const int64_t result_shape[] = {batch_size, a_rows, b_cols};

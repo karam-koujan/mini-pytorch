@@ -99,4 +99,8 @@ Tensor *tensor_deep_copy(Tensor *a);
 Tensor *tensor_matmul(Tensor*a, Tensor *b);
 int tensor_matmul_broadcast(Tensor *a, Tensor *b);
 int is_tensor_broadcastable(Tensor *a, Tensor *b, int mat_p);
+int64_t tensor_batchsize(int64_t *shape, int64_t dim);
+void    fill_data(void *data, int offset, Dtype dtype, void *value);
+void    *copy_contigious_data(Tensor *a, int size);
+int tensor_contigous_broadcast(Tensor *a);
 #endif

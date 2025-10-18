@@ -177,3 +177,39 @@ int tensor_matmul_broadcast(Tensor *a, Tensor *b)
     }
     return (0);
 }
+
+
+int64_t tensor_size(Tensor *a)
+{
+    int64_t s = 1;
+    int p = 0;
+    for(int64_t i = 0 ; i < a->num_dims ; i++)
+    {
+        p = 1;
+        s*= a->shape[i];
+    }
+    return p == 0 ? 0 : s;
+}
+
+
+int tensor_contigous_broadcast(Tensor *a)
+{
+    if (!a->is_broadcasted)
+        return (error_msg("this tensor is not broadcasted"),1);
+    int64_t *new_stride = create_stride(a->shape, a->num_dims, a->dtype);
+    if (!new_stride)
+        return (1);
+
+    int64_t size = tensor_size(a);
+    void *data = calloc(size, sizeof_type(a->dtype));
+    if (!data)
+        return (1);
+    for (int64_t i = 0; i < size; i++)
+    {
+        for(int j = 0; j < a->size; j++)
+        {
+            fill_data(data, (int)i, a->dtype, &a->data[j]); 
+        }
+    }
+    return (0);
+}
