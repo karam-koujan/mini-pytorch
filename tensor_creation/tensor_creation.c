@@ -3,28 +3,10 @@
 
 Tensor *tensor_zeros(const int64_t *shape, int64_t ndim, Dtype type, Device device)
 {
-	if (shape == NULL)
-		return (error_msg("invalid shape"), NULL);
-	if (ndim <= 0)
-		return (error_msg("invalid ndim"), NULL);
-	Tensor *tensor = (Tensor *)malloc(sizeof(Tensor));
+	Tensor *tensor = tensor_constructor(shape, ndim, type, device);
 	if (!tensor)
-		return (error_msg("tensor creation failed!"), NULL);
-	tensor->shape = create_shape(shape, ndim);
-	tensor->strides = create_stride(shape, ndim, type);
-	tensor->size = calculate_size(shape, ndim);
+		return (NULL);
 	tensor->data = create_zero_data(type, tensor->size);
-	tensor->device = device;
-	tensor->num_dims = ndim;
-	tensor->is_leaf = 1;
-	tensor->grad_fn = NULL;
-	tensor->dtype = type;
-	tensor->prebroadcast_dims = -1;
-	tensor->prebroadcast_shape = NULL;
-	tensor->prebroadcast_stride = NULL;
-	tensor->is_broadcasted = 0;
-	tensor->grad = NULL;
-	tensor->requires_grad = 0;
 	if (!tensor->shape || !tensor->strides)
 	{
 		error_msg("tensor creation failed!");
@@ -37,28 +19,10 @@ Tensor *tensor_zeros(const int64_t *shape, int64_t ndim, Dtype type, Device devi
 
 Tensor *tensor_ones(const int64_t *shape, int64_t ndim, Dtype type, Device device)
 {
-	if (shape == NULL)
-		return (error_msg("invalid shape"), NULL);
-	if (ndim <= 0)
-		return (error_msg("invalid ndim"), NULL);
-	Tensor *tensor = (Tensor *)malloc(sizeof(Tensor));
+	Tensor *tensor = tensor_constructor(shape, ndim, type, device);
 	if (!tensor)
-		return (error_msg("tensor creation failed!"), NULL);
-	tensor->shape = create_shape(shape, ndim);
-	tensor->strides = create_stride(shape, ndim, type);
-	tensor->size = calculate_size(shape, ndim);
+		return (NULL);
 	tensor->data = create_one_data(type, tensor->size);
-	tensor->device = device;
-	tensor->num_dims = ndim;
-	tensor->is_leaf = 1;
-	tensor->grad_fn = NULL;
-	tensor->dtype = type;
-	tensor->prebroadcast_dims = -1;
-	tensor->prebroadcast_shape = NULL;
-	tensor->prebroadcast_stride = NULL;
-	tensor->is_broadcasted = 0;
-	tensor->grad = NULL;
-	tensor->requires_grad = 0;
 	if (!tensor->shape || !tensor->strides || !tensor->data)
 	{
 		error_msg("tensor creation failed!");
@@ -72,28 +36,10 @@ Tensor *tensor_ones(const int64_t *shape, int64_t ndim, Dtype type, Device devic
 
 Tensor *tensor_full(const int64_t *shape, int64_t ndim, Dtype type, Device device, void *val)
 {
-	if (shape == NULL)
-		return (error_msg("invalid shape"), NULL);
-	if (ndim <= 0)
-		return (error_msg("invalid ndim"), NULL);
-	Tensor *tensor = (Tensor *)malloc(sizeof(Tensor));
+	Tensor *tensor = tensor_constructor(shape, ndim, type, device);
 	if (!tensor)
-		return (error_msg("tensor creation failed!"), NULL);
-	tensor->shape = create_shape(shape, ndim);
-	tensor->strides = create_stride(shape, ndim, type);
-	tensor->size = calculate_size(shape, ndim);
+		return (NULL);
 	tensor->data = create_val_data(type, tensor->size, val);
-	tensor->device = device;
-	tensor->num_dims = ndim;
-	tensor->is_leaf = 1;
-	tensor->grad_fn = NULL;
-	tensor->dtype = type;
-	tensor->prebroadcast_dims = -1;
-	tensor->prebroadcast_shape = NULL;
-	tensor->prebroadcast_stride = NULL;
-	tensor->is_broadcasted = 0;
-	tensor->grad = NULL;
-	tensor->requires_grad = 0;
 	if (!tensor->shape || !tensor->strides || !tensor->data)
 	{
 		error_msg("tensor creation failed!");
@@ -107,24 +53,11 @@ Tensor *tensor_full(const int64_t *shape, int64_t ndim, Dtype type, Device devic
 
 Tensor *tensor_from_arr(void *arr, const int64_t *shape, int64_t ndim, Dtype type, Device device)
 {
-	if (shape == NULL)
-		return (error_msg("invalid shape"), NULL);
-	if (ndim <= 0)
-		return (error_msg("invalid ndim"), NULL);
-	Tensor *tensor = (Tensor *)malloc(sizeof(Tensor));
+	Tensor *tensor = tensor_constructor(shape, ndim, type, device);
 	if (!tensor)
-		return (error_msg("tensor creation failed!"), NULL);
-	tensor->shape = create_shape(shape, ndim);
-	tensor->strides = create_stride(shape, ndim, type);
-	tensor->size = calculate_size(shape, ndim);
+		return (NULL);
 	tensor->data = copy_arr_data(arr, type, tensor->size);
-	tensor->device = device;
-	tensor->num_dims = ndim;
-	tensor->is_leaf = 1;
-	tensor->grad_fn = NULL;
-	tensor->dtype = type;
-	tensor->grad = NULL;
-	tensor->requires_grad = 0;
+
 	if (!tensor->shape || !tensor->strides || !tensor->data)
 	{
 		error_msg("tensor creation failed!");
@@ -138,28 +71,10 @@ Tensor *tensor_from_arr(void *arr, const int64_t *shape, int64_t ndim, Dtype typ
 
 Tensor *tensor_rand(const int64_t *shape, int64_t ndim, Dtype type, Device device)
 {
-	if (shape == NULL)
-		return (error_msg("invalid shape"), NULL);
-	if (ndim <= 0)
-		return (error_msg("invalid ndim"), NULL);
-	Tensor *tensor = (Tensor *)malloc(sizeof(Tensor));
+	Tensor *tensor = tensor_constructor(shape, ndim, type, device);
 	if (!tensor)
-		return (error_msg("tensor creation failed!"), NULL);
-	tensor->shape = create_shape(shape, ndim);
-	tensor->strides = create_stride(shape, ndim, type);
-	tensor->size = calculate_size(shape, ndim);
+		return (NULL);
 	tensor->data = create_rand_data(type, tensor->size);
-	tensor->device = device;
-	tensor->num_dims = ndim;
-	tensor->is_leaf = 1;
-	tensor->grad_fn = NULL;
-	tensor->dtype = type;
-	tensor->prebroadcast_dims = -1;
-	tensor->prebroadcast_shape = NULL;
-	tensor->prebroadcast_stride = NULL;
-	tensor->is_broadcasted = 0;
-	tensor->grad = NULL;
-	tensor->requires_grad = 0;
 	if (!tensor->shape || !tensor->strides || !tensor->data)
 	{
 		error_msg("tensor creation failed!");

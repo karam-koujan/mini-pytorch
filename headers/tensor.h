@@ -106,4 +106,5 @@ void    *copy_contigious_data(Tensor *a, int size);
 int tensor_contigous_broadcast(Tensor *a);
 void matmul_calculation(Tensor *a_r, Tensor *b_r, Tensor *result);
 void    tensor_free_after_reshape(Tensor *a);
+Tensor *tensor_constructor(const int64_t *shape, int ndim, Dtype type, Device device);
 #endif

@@ -105,3 +105,28 @@ Tensor *tensor_deep_copy(Tensor *a)
     return (r);
 }
 
+Tensor *tensor_constructor(const int64_t *shape, int ndim, Dtype type, Device device)
+{
+	if (shape == NULL)
+		return (error_msg("invalid shape"), NULL);
+	if (ndim <= 0)
+		return (error_msg("invalid ndim"), NULL);
+	Tensor *tensor = (Tensor *)malloc(sizeof(Tensor));
+	if (!tensor)
+		return (error_msg("tensor creation failed!"), NULL);
+	tensor->shape = create_shape(shape, ndim);
+	tensor->strides = create_stride(shape, ndim, type);
+	tensor->size = calculate_size(shape, ndim);
+	tensor->device = device;
+	tensor->num_dims = ndim;
+	tensor->is_leaf = 1;
+	tensor->grad_fn = NULL;
+	tensor->dtype = type;
+	tensor->prebroadcast_dims = -1;
+	tensor->prebroadcast_shape = NULL;
+	tensor->prebroadcast_stride = NULL;
+	tensor->is_broadcasted = 0;
+	tensor->grad = NULL;
+	tensor->requires_grad = 0;
+    return tensor;
+}
