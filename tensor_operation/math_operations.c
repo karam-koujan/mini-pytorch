@@ -297,14 +297,19 @@ Tensor *tensor_matmul(Tensor*a, Tensor *b)
      if (!b_r)
         return (tensor_free(a_r), NULL);
     if (a_r->num_dims == 2 && b_r->num_dims == 2)
-      return (tensor_free(a_r), tensor_free(b_r), tensor_mm(a, b));
-    if (tensor_matmul_broadcast(a_r,b_r))
-        return (tensor_free(a_r), tensor_free(b_r), NULL);
-    if (a_r->is_broadcasted)
-        tensor_contigous_broadcast(a_r);
-    if (b_r->is_broadcasted)
     {
-        tensor_contigous_broadcast(b_r);
+      return (tensor_free(a_r), tensor_free(b_r), tensor_mm(a, b));
+    }
+    if (a->num_dims >= 3 || b->num_dims >= 3)
+    {
+        if (tensor_matmul_broadcast(a_r,b_r))
+            return (tensor_free(a_r), tensor_free(b_r), NULL);
+        if (a_r->is_broadcasted)
+            tensor_contigous_broadcast(a_r);
+        if (b_r->is_broadcasted)
+        {
+            tensor_contigous_broadcast(b_r);
+        }
     }
 	Grad_Node *grad_fn = a->requires_grad || b->requires_grad ? create_matmul_node(a_r,b_r) : NULL;
     int64_t a_cols = a->shape[a->num_dims - 1];

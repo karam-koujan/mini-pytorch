@@ -17,11 +17,13 @@ int main()
     int64_t va = 1, vb = 5;
     Tensor *a = tensor_full(shape_a, 2, INT64, CPU, &va);
     Tensor *b = tensor_full(shape_b, 2, INT64, CPU, &vb);
-    Tensor *r = tensor_matmul(a,b);
     tensor_set_require_grad(a, 1);
     tensor_set_require_grad(b,1);
+    Tensor *r = tensor_matmul(a,b);
     tensor_backward(r, NULL);
     tensor_print(r);  // expect [15,15]
+    printf("here is grad\n");
+    tensor_print(b->grad);
     tensor_free(a);
     tensor_free(b);
     tensor_free(r);

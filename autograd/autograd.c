@@ -4,6 +4,21 @@
 
 void tensor_set_require_grad(Tensor *a, int requires_grad)
 {
+	if (requires_grad == 1)
+	{
+		int64_t *shape = malloc(a->num_dims * sizeof(int));
+		memcpy(shape, a->shape, a->num_dims * sizeof(int64_t));
+		a->grad = tensor_zeros(shape, a->num_dims, a->dtype, a->device);
+		if (!a->grad)
+			return (free(shape), error_msg("a grad is failed in creation"));
+		a->requires_grad = 1;
+	}
+	if (requires_grad == 0)
+	{
+		free(a->grad);
+		a->grad = NULL;
+		a->requires_grad = 0;
+	}
     a->requires_grad = requires_grad;
 }
 
