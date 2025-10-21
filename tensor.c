@@ -12,14 +12,14 @@
 int main()
 {
 // (3) × (3×2) → (2)
-    const int64_t shape_a[] = {1,1,2};
-    const int64_t shape_b[] = {1,2,3};
+    const int64_t shape_a[] = {1,2};
+    const int64_t shape_b[] = {2,3};
     int64_t va = 1, vb = 5;
-    Tensor *a = tensor_full(shape_a, 3, INT64, CPU, &va);
-    Tensor *b = tensor_full(shape_b, 3, INT64, CPU, &vb);
+    Tensor *a = tensor_full(shape_a, 2, INT64, CPU, &va);
+    Tensor *b = tensor_full(shape_b, 2, INT64, CPU, &vb);
     tensor_set_require_grad(a, 1);
     tensor_set_require_grad(b,1);
-    Tensor *r = tensor_matmul(a,b);
+    Tensor *r = tensor_mm(a,b);
     tensor_backward(r, NULL);
     tensor_print(r);
     printf("here is grad\n");
