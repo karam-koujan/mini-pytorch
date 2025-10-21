@@ -113,4 +113,29 @@ Grad_Node	*create_pairwise_mul_node(Tensor *a, Tensor *b);
 Grad_Node	*create_add_node(Tensor *a, Tensor *b);
 Grad_Node	*create_sub_node(Tensor *a, Tensor *b);
 void	tensor_backward(Tensor *a, Tensor *prev_grad);
+void tensor_set_require_grad(Tensor *a, int requires_grad);
+// autograd flags
+void tensor_set_require_grad(Tensor *a, int requires_grad);
+
+// broadcasting collapse helper
+Tensor *tensor_collapse(Tensor *a, Tensor *b);
+
+// grad node creators
+Grad_Node *create_matmul_node(Tensor *a, Tensor *b);
+Grad_Node *create_mm_node(Tensor *a, Tensor *b);
+Grad_Node *create_pairwise_mul_node(Tensor *a, Tensor *b);
+Grad_Node *create_add_node(Tensor *a, Tensor *b);
+Grad_Node *create_sub_node(Tensor *a, Tensor *b);
+
+// backward functions
+Tensor **tensor_backadd(Grad_Node *node, Tensor *grad);
+Tensor **tensor_backsub(Grad_Node *node, Tensor *grad);
+Tensor **tensor_backmatmul(Grad_Node *node, Tensor *grad);
+Tensor **tensor_backpairwise_mul(Grad_Node *node, Tensor *grad);
+Tensor **tensor_backmm(Grad_Node *node, Tensor *grad);
+
+// grad accumulation + traversal
+void tensor_accumulate_grad(Tensor *a, Tensor *grad);
+void tensor_backward(Tensor *a, Tensor *prev_grad);
+
 #endif

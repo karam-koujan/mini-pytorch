@@ -1,4 +1,20 @@
 #include "../headers/tensor.h"
+#include "../headers/print.h"
+
+
+void tensor_set_require_grad(Tensor *a, int requires_grad)
+{
+    a->requires_grad = requires_grad;
+}
+
+Tensor *tensor_collapse(Tensor *a, Tensor *b)
+{
+	(void )b;
+    if (!a->is_broadcasted)
+        return (a);
+    return NULL;
+}
+
 
 Grad_Node	*create_matmul_node(Tensor *a, Tensor *b)
 {
@@ -129,7 +145,7 @@ Tensor **tensor_backsub(Grad_Node *node, Tensor *grad)
 	Tensor *grad_b = NULL;
 	if (a->requires_grad == 1)
 	{
-		grad_a = tensor_collapse(grad,a->shape,a->num_dims);
+		grad_a = tensor_collapse(grad,a);
 		if (!grad_a)
 		{
 			grad_a = grad;
@@ -138,11 +154,12 @@ Tensor **tensor_backsub(Grad_Node *node, Tensor *grad)
 	}
 	if (b->requires_grad == 1)
 	{
-		grad_b = tensor_collapse(grad,b->shape,b->num_dims);
+		grad_b = tensor_collapse(grad,b);
 		if (!grad_b)
 		{
-			Tensor *neg = tensor_full(grad->num_dims, grad->shape,-1.0,0);
-			grad_b = tensor_pairwise_mul(neg,grad);
+			double val = -1.0;
+			Tensor *neg = tensor_full(grad->shape, grad->num_dims, grad->dtype, grad->device, &val);
+			grad_b = tensor_mul(neg,grad);
 		}
 		tensor_set_require_grad(grad_b,0);
 	}
@@ -238,7 +255,11 @@ void	tensor_backward(Tensor *a, Tensor *prev_grad)
 	if (!node)
 		return;
 	if (!prev_grad)
-		prev_grad = tensor_ones(a->num_dims,a->shape,0);
+    {
+		prev_grad = tensor_ones(a->shape,a->num_dims,a->dtype, a->device);
+        if (!prev_grad)
+            return ;
+    }
 	Tensor **gradients = node->calculate_gradient(node,prev_grad);
 	if (!gradients)
 		return;

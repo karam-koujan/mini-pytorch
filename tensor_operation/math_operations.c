@@ -134,7 +134,9 @@ void    pairwise_op(Tensor *a, Tensor *b, Tensor *r, char op)
 Tensor *tensor_add(Tensor*a, Tensor *b)
 {
     if (tensor_broadcast(a,b))
+    {
         return (NULL);
+    }
     Dtype dtype = a->dtype;
     void *data_a;
     void *data_b;
@@ -142,16 +144,21 @@ Tensor *tensor_add(Tensor*a, Tensor *b)
     dtype = promote_dtype(a->dtype, b->dtype);
     data_a = promote_data(a, dtype);
     if (!data_a)
+    {
         return (NULL);
+    }
     data_b = promote_data(b, dtype);
     if (!data_b)
+    {
         return (free(data_a), NULL);
+    }
 	Grad_Node *grad_fn = a->requires_grad || b->requires_grad ? create_add_node(a,b) : NULL;
     int val = 0;
     void *val_ptr = &val;
     Tensor *r = tensor_full(a->shape, a->num_dims, dtype, a->device, val_ptr);
     if (!r)
         return (NULL);
+
     pairwise_op(data_a, data_b, r, '+'); 
     r->grad_fn = grad_fn;
     r->is_leaf = 0;
@@ -212,7 +219,9 @@ Tensor *tensor_div(Tensor*a, Tensor *b)
     void *val_ptr = &val;
     Tensor *r = tensor_full(a->shape, a->num_dims, dtype, a->device, val_ptr);
     if (!r)
+    {
         return (NULL);
+    }
 	Grad_Node *grad_fn = a->requires_grad || b->requires_grad ? create_pairwise_mul_node(a,b) : NULL;
     pairwise_op(data_a, data_b, r, '/');
     r->grad_fn = grad_fn;
@@ -294,7 +303,9 @@ Tensor *tensor_matmul(Tensor*a, Tensor *b)
     if (a_r->is_broadcasted)
         tensor_contigous_broadcast(a_r);
     if (b_r->is_broadcasted)
+    {
         tensor_contigous_broadcast(b_r);
+    }
 	Grad_Node *grad_fn = a->requires_grad || b->requires_grad ? create_matmul_node(a_r,b_r) : NULL;
     int64_t a_cols = a->shape[a->num_dims - 1];
     int64_t a_rows = a->shape[a->num_dims - 2];
