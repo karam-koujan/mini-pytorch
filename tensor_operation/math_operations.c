@@ -283,6 +283,8 @@ Tensor *tensor_matmul(Tensor*a, Tensor *b)
     Tensor *b_r = tensor_deep_copy(b);
      if (!b_r)
         return (tensor_free(a_r), NULL);
+    if (a_r->num_dims <= 2 && b_r->num_dims <= 2)
+      return (tensor_free(a_r), tensor_free(b_r), tensor_mm(a, b));
     if ((a_r->num_dims >= 3 || b_r->num_dims >= 3))
     {
         if (tensor_matmul_broadcast(a_r,b_r))
@@ -372,4 +374,55 @@ void matmul_calculation(Tensor *a_r, Tensor *b_r, Tensor *result)
     }
 }
 
-Tensor *tensor_mm(Tensor*a, Tensor *b);
+void mm_calculation(Tensor *a_r, Tensor *b_r, Tensor *result)
+{
+    double f = 0;
+    void *acc  = &f;
+    for (int64_t a_rows = 0; a_rows < a_r->shape[0]; a_rows++)
+    {
+        for (int64_t b_cols = 0; b_cols < b_r->shape[1]; b_cols++)
+        {
+            *(double *)acc = 0.0f;
+            for (int64_t a_cols = 0; a_cols < a_r->shape[1]; a_cols++)
+            {
+                int64_t a_idx = a_rows * (a_r->strides[0] / sizeof_type(a_r->dtype))
+                              + a_cols * (a_r->strides[1] / sizeof_type(a_r->dtype));
+                int64_t bt_idx = a_cols * (b_r->strides[0] / sizeof_type(a_r->dtype))
+                               + b_cols * (b_r->strides[1] / sizeof_type(a_r->dtype));
+                switch(a_r->dtype)
+                {
+                    case FLOAT32: *((float *)acc) += ((float *)a_r->data)[a_idx] * ((float *)b_r->data)[bt_idx];break;
+                    case DOUBLE: *((double *)acc) += ((double *)a_r->data)[a_idx] * ((double *)b_r->data)[bt_idx];break;
+                    case INT32: *((int *)acc) += ((int *)a_r->data)[a_idx] * ((int *)b_r->data)[bt_idx];break;
+                    case INT64: *((int64_t *)acc) += ((int64_t *)a_r->data)[a_idx] * ((int64_t *)b_r->data)[bt_idx];break;
+                }
+            }
+            int64_t r_idx = a_rows * (result->strides[0] / sizeof_type(result->dtype))
+                          + b_cols * (result->strides[1] / sizeof_type(result->dtype));
+            switch(result->dtype)
+            {
+                case FLOAT32: ((float *)result->data)[r_idx] = *(float *)acc;break;
+                case DOUBLE: ((double *)result->data)[r_idx] = *(double *)acc;break;
+                case INT32: ((int *)result->data)[r_idx] = *(int *)acc;break;
+                case INT64: ((int64_t *)result->data)[r_idx] = *(int64_t *)acc; break;
+            }
+        }
+    }
+}
+
+Tensor *tensor_mm(Tensor*a, Tensor *b)
+{
+    if (a->num_dims > 2 || a->num_dims > 2)
+        return (error_msg("please enter 2d matrix or use tensor_matmul"), NULL);
+    if (!is_shape_allowed(a,b))
+        return (error_msg("the shapes are not compatible for mm operation"), NULL);
+    int64_t a_rows = a->shape[a->num_dims - 2];
+    int64_t b_cols = b->shape[b->num_dims - 1];
+    int64_t result_shape[] = {a_rows, b_cols};
+    Tensor *result = tensor_zeros(result_shape, 2, a->dtype, a->device);
+    if  (!result)
+        return (NULL);
+    mm_calculation(a, b, result);
+    tensor_print(b);
+    return (result);
+}

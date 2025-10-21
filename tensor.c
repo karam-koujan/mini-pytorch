@@ -19,5 +19,7 @@ int main()
     Tensor *b = tensor_full(shape_b, 2, INT64, CPU, &vb); // All 2s
     Tensor *r = tensor_matmul(a,b);
     tensor_print(r);  // Expect every element = 3 * 2 = 6
-
+    tensor_free(a);
+    tensor_free(b);
+    tensor_free(r);
 }
