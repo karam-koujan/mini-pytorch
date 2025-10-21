@@ -253,14 +253,6 @@ int is_shape_allowed(Tensor*a, Tensor *b)
     return (0);
 }
 
-/*
-Tasks: 
-    - we should handle broadcasting for matrix mutltiplication
-    - we should handle tensor_reshaping for result
-    - we have to free all the leaks.
-*/
-
-
 int64_t tensor_batchsize(int64_t *shape, int64_t dim)
 {
     int64_t s = 1;
@@ -306,16 +298,16 @@ Tensor *tensor_matmul(Tensor*a, Tensor *b)
     const int64_t a_r_shape[] = {-1, a_rows, a_cols};
     Tensor *a_f = tensor_reshape(a_r ,a_r_shape, 3);
     if (!a_f)
-        return (tensor_free(a_r), tensor_free(b_r), NULL);
+        return (tensor_free(a_r), tensor_free(b_r), free(final_shape),NULL);
     const int64_t b_r_shape[] = {-1, b_rows, b_cols};
     Tensor *b_f = tensor_reshape(b_r, b_r_shape, 3);
     if (!b_f)
-        return (tensor_free(a_r), tensor_free(b_r), tensor_free(a_f),NULL);
+        return (tensor_free(a_r), tensor_free(b_r), tensor_free(a_f), free(final_shape),NULL);
     int64_t batch_size =  tensor_batchsize(a_r->shape, a_r->num_dims);
     const int64_t result_shape[] = {batch_size, a_rows, b_cols};
     Tensor *result = tensor_zeros(result_shape, 3, a->dtype, a->device);
     if (!result)
-        return (tensor_free(a_r), tensor_free(b_r), tensor_free(a_f), tensor_free(b_f),NULL);
+        return (tensor_free(a_r), tensor_free(b_r), tensor_free(a_f), tensor_free(b_f), free(final_shape),NULL);
     if (a_r->shape[0] != b_r->shape[0])
         error_msg("something is not working well in reshape");
     matmul_calculation(a_f, b_f, result);
@@ -326,6 +318,8 @@ Tensor *tensor_matmul(Tensor*a, Tensor *b)
     tensor_free(b_f);
     tensor_free_after_reshape(a_r);
     tensor_free_after_reshape(b_r);
+    tensor_free_after_reshape(result);
+    free(final_shape);
     return final_result;
 }
 
