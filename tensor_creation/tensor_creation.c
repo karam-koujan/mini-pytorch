@@ -24,6 +24,7 @@ Tensor *tensor_zeros(const int64_t *shape, int64_t ndim, Dtype type, Device devi
 	tensor->prebroadcast_stride = NULL;
 	tensor->is_broadcasted = 0;
 	tensor->grad = NULL;
+	tensor->requires_grad = 0;
 	if (!tensor->shape || !tensor->strides)
 	{
 		error_msg("tensor creation failed!");
@@ -57,6 +58,7 @@ Tensor *tensor_ones(const int64_t *shape, int64_t ndim, Dtype type, Device devic
 	tensor->prebroadcast_stride = NULL;
 	tensor->is_broadcasted = 0;
 	tensor->grad = NULL;
+	tensor->requires_grad = 0;
 	if (!tensor->shape || !tensor->strides || !tensor->data)
 	{
 		error_msg("tensor creation failed!");
@@ -91,6 +93,7 @@ Tensor *tensor_full(const int64_t *shape, int64_t ndim, Dtype type, Device devic
 	tensor->prebroadcast_stride = NULL;
 	tensor->is_broadcasted = 0;
 	tensor->grad = NULL;
+	tensor->requires_grad = 0;
 	if (!tensor->shape || !tensor->strides || !tensor->data)
 	{
 		error_msg("tensor creation failed!");
@@ -121,6 +124,7 @@ Tensor *tensor_from_arr(void *arr, const int64_t *shape, int64_t ndim, Dtype typ
 	tensor->grad_fn = NULL;
 	tensor->dtype = type;
 	tensor->grad = NULL;
+	tensor->requires_grad = 0;
 	if (!tensor->shape || !tensor->strides || !tensor->data)
 	{
 		error_msg("tensor creation failed!");
@@ -155,7 +159,7 @@ Tensor *tensor_rand(const int64_t *shape, int64_t ndim, Dtype type, Device devic
 	tensor->prebroadcast_stride = NULL;
 	tensor->is_broadcasted = 0;
 	tensor->grad = NULL;
-
+	tensor->requires_grad = 0;
 	if (!tensor->shape || !tensor->strides || !tensor->data)
 	{
 		error_msg("tensor creation failed!");
