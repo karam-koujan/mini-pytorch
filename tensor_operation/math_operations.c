@@ -146,12 +146,15 @@ Tensor *tensor_add(Tensor*a, Tensor *b)
     data_b = promote_data(b, dtype);
     if (!data_b)
         return (free(data_a), NULL);
+	Grad_Node *grad_fn = a->requires_grad || b->requires_grad ? create_add_node(a,b) : NULL;
     int val = 0;
     void *val_ptr = &val;
     Tensor *r = tensor_full(a->shape, a->num_dims, dtype, a->device, val_ptr);
     if (!r)
         return (NULL);
-    pairwise_op(data_a, data_b, r, '+');
+    pairwise_op(data_a, data_b, r, '+'); 
+    r->grad_fn = grad_fn;
+    r->is_leaf = 0;
     free(data_a);
     free(data_b);
     tensor_unbroadcast(a);
@@ -176,10 +179,13 @@ Tensor *tensor_sub(Tensor*a, Tensor *b)
         return (free(data_a), NULL);
     int val = 0;
     void *val_ptr = &val;
+	Grad_Node *grad_fn = a->requires_grad || b->requires_grad ? create_sub_node(a,b) : NULL;
     Tensor *r = tensor_full(a->shape, a->num_dims, dtype, a->device, val_ptr);
     if (!r)
         return (NULL);
     pairwise_op(data_a, data_b, r, '-');
+    r->grad_fn = grad_fn;
+    r->is_leaf = 0;
     free(data_a);
     free(data_b);
     tensor_unbroadcast(a);
@@ -207,7 +213,10 @@ Tensor *tensor_div(Tensor*a, Tensor *b)
     Tensor *r = tensor_full(a->shape, a->num_dims, dtype, a->device, val_ptr);
     if (!r)
         return (NULL);
+	Grad_Node *grad_fn = a->requires_grad || b->requires_grad ? create_pairwise_mul_node(a,b) : NULL;
     pairwise_op(data_a, data_b, r, '/');
+    r->grad_fn = grad_fn;
+    r->is_leaf = 0;
     free(data_a);
     free(data_b);
     tensor_unbroadcast(a);
@@ -233,10 +242,13 @@ Tensor *tensor_mul(Tensor*a, Tensor *b)
     
     int val = 0;
     void *val_ptr = &val;
+	Grad_Node *grad_fn = a->requires_grad || b->requires_grad ? create_pairwise_mul_node(a,b) : NULL;
     Tensor *r = tensor_full(a->shape, a->num_dims, dtype, a->device, val_ptr);
     if (!r)
         return (NULL);
     pairwise_op(data_a, data_b, r, '*');
+    r->grad_fn = grad_fn;
+    r->is_leaf = 0;
     free(data_a);
     free(data_b);
     tensor_unbroadcast(a);
@@ -275,17 +287,15 @@ Tensor *tensor_matmul(Tensor*a, Tensor *b)
     Tensor *b_r = tensor_deep_copy(b);
      if (!b_r)
         return (tensor_free(a_r), NULL);
-    if (a_r->num_dims <= 2 && b_r->num_dims <= 2)
+    if (a_r->num_dims == 2 && b_r->num_dims == 2)
       return (tensor_free(a_r), tensor_free(b_r), tensor_mm(a, b));
-    if ((a_r->num_dims >= 3 || b_r->num_dims >= 3))
-    {
-        if (tensor_matmul_broadcast(a_r,b_r))
-            return (tensor_free(a_r), tensor_free(b_r), NULL);
-        if (a_r->is_broadcasted)
-            tensor_contigous_broadcast(a_r);
-        if (b_r->is_broadcasted)
-            tensor_contigous_broadcast(b_r);
-    }
+    if (tensor_matmul_broadcast(a_r,b_r))
+        return (tensor_free(a_r), tensor_free(b_r), NULL);
+    if (a_r->is_broadcasted)
+        tensor_contigous_broadcast(a_r);
+    if (b_r->is_broadcasted)
+        tensor_contigous_broadcast(b_r);
+	Grad_Node *grad_fn = a->requires_grad || b->requires_grad ? create_matmul_node(a_r,b_r) : NULL;
     int64_t a_cols = a->shape[a->num_dims - 1];
     int64_t a_rows = a->shape[a->num_dims - 2];
     int64_t b_cols = b->shape[b->num_dims - 1];
@@ -314,12 +324,14 @@ Tensor *tensor_matmul(Tensor*a, Tensor *b)
     final_shape[final_dim - 1] = b_cols;
     final_shape[final_dim - 2] = a_rows;
     Tensor *final_result = tensor_reshape(result, final_shape, final_dim);
-    tensor_free(a_f);
-    tensor_free(b_f);
-    tensor_free_after_reshape(a_r);
-    tensor_free_after_reshape(b_r);
-    tensor_free_after_reshape(result);
-    free(final_shape);
+    // tensor_free(a_f);
+    // tensor_free(b_f);
+    // tensor_free_after_reshape(a_r);
+    // tensor_free_after_reshape(b_r);
+    // tensor_free_after_reshape(result);
+    // free(final_shape);
+    final_result->is_leaf = 0;
+    final_result->grad_fn =  grad_fn;
     return final_result;
 }
 
@@ -413,10 +425,12 @@ Tensor *tensor_mm(Tensor*a, Tensor *b)
     int64_t a_rows = a->shape[a->num_dims - 2];
     int64_t b_cols = b->shape[b->num_dims - 1];
     int64_t result_shape[] = {a_rows, b_cols};
+	Grad_Node *grad_fn = a->requires_grad || b->requires_grad ? create_mm_node(a,b) : NULL;
     Tensor *result = tensor_zeros(result_shape, 2, a->dtype, a->device);
+    result->grad_fn = grad_fn;
+    result->is_leaf = 0;
     if  (!result)
         return (NULL);
     mm_calculation(a, b, result);
-    tensor_print(b);
     return (result);
 }

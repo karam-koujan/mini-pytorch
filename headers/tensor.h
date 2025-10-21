@@ -107,4 +107,10 @@ int tensor_contigous_broadcast(Tensor *a);
 void matmul_calculation(Tensor *a_r, Tensor *b_r, Tensor *result);
 void    tensor_free_after_reshape(Tensor *a);
 Tensor *tensor_constructor(const int64_t *shape, int ndim, Dtype type, Device device);
+Grad_Node	*create_matmul_node(Tensor *a, Tensor *b);
+Grad_Node	*create_mm_node(Tensor *a, Tensor *b);
+Grad_Node	*create_pairwise_mul_node(Tensor *a, Tensor *b);
+Grad_Node	*create_add_node(Tensor *a, Tensor *b);
+Grad_Node	*create_sub_node(Tensor *a, Tensor *b);
+void	tensor_backward(Tensor *a, Tensor *prev_grad);
 #endif
