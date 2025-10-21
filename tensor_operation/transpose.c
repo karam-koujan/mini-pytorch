@@ -35,7 +35,7 @@ Tensor *tensor_transpose(Tensor *a, int64_t dim0, int64_t dim1)
         error_msg("you entered a dim > tensor dims");
         return (NULL);       
     }
-    Tensor *r = tensor_copy(a);
+    Tensor *r = tensor_deep_copy(a);
     if (!r)
         return (NULL);
     int64_t tmp = r->shape[dim0];

@@ -190,19 +190,32 @@ Tensor **tensor_backmatmul(Grad_Node *node, Tensor *grad)
 		return NULL;
 	Tensor *a = node->saved_tensors[0];
 	Tensor *b = node->saved_tensors[1];
-	Tensor *b_t = tensor_t(b);
-	Tensor *a_t = tensor_t(a);
+	printf("saved tensor a\n");
+	tensor_print(a);
+	printf("saved tensor b\n");
+	tensor_print(b);
+	printf("grad \n");
+	tensor_print(grad);
+	Tensor *b_t = tensor_transpose(b, a->num_dims - 1, a->num_dims - 2);
+	Tensor *a_t = tensor_transpose(a, a->num_dims - 1, a->num_dims - 2);
+	printf("trasposed tensor a\n");
+	tensor_print(a_t);
+	printf("transposed tensor b\n");
+	tensor_print(b);
 	Tensor *grad_a = NULL;
 	Tensor *grad_b = NULL;
 	if(a->requires_grad)
 	{
-
 		grad_a = tensor_matmul(grad,b_t);
+		printf("calculated grad_a \n");
+		tensor_print(grad);
 		tensor_set_require_grad(grad_a,0);
 	}
 	if(b->requires_grad)
 	{
 		grad_b = tensor_matmul(a_t,grad);
+		printf("calculated grad_b \n");
+		tensor_print(grad_b);
 		tensor_set_require_grad(grad_b,0);
 	}
 	res[0] = grad_a;
@@ -246,7 +259,7 @@ Tensor **tensor_backmm(Grad_Node *node, Tensor *grad)
 	Tensor *grad_b = NULL;
 	if(a->requires_grad)
 	{
-		grad_a = tensor_mm(grad,b_t);		
+		grad_a = tensor_mm(grad,b_t);
 		tensor_set_require_grad(grad_a,0);
 	}
 	if(b->requires_grad)
@@ -280,7 +293,11 @@ void	tensor_backward(Tensor *a, Tensor *prev_grad)
 		return;
 	Tensor *grad_a = gradients[0];
 	Tensor *grad_b = gradients[1];
-
+	printf ("grad_a\n");
+	tensor_print(grad_a);
+	printf("grad_b\n");
+	tensor_print(grad_b);
+	tensor_print(a->grad);
 	if (node->saved_tensors[0]->is_leaf == 1 && node->saved_tensors[0]->requires_grad == 1)
 	{
 		tensor_accumulate_grad(node->saved_tensors[0],grad_a);

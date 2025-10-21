@@ -34,7 +34,8 @@ void    *copy_contigious_data(Tensor *a, int size)
             tmp /= a->shape[j];
             offset += coord * a->strides[j];    
         }
-        fill_data(data, offset, a->dtype, &a->data[i]);
+
+        fill_data(data, i, a->dtype, (char *)a->data + offset);
     }
     return (data);
 }
