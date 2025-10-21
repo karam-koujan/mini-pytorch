@@ -11,17 +11,13 @@
 
 int main()
 {
-    const int64_t shape_a[] = {2,2,3,2};
-    const int64_t shape_b[] = {1,1,2,3};
+// (2×3) × (3×2) → (2×2)
+    const int64_t shape_a[] = {2,3};
+    const int64_t shape_b[] = {3,2};
+    int64_t va = 1, vb = 2;
+    Tensor *a = tensor_full(shape_a, 2, INT64, CPU, &va); // All 1s
+    Tensor *b = tensor_full(shape_b, 2, INT64, CPU, &vb); // All 2s
+    Tensor *r = tensor_matmul(a,b);
+    tensor_print(r);  // Expect every element = 3 * 2 = 6
 
-    Dtype type = INT64;
-    Device device = CPU;
-    // tensor_set_seed(time(NULL));
-    int64_t val_a = 3;
-    int64_t val_b = 2;
-    Tensor *a = tensor_full(shape_a, 4, type, device, &val_a);
-    Tensor *b = tensor_full(shape_b, 4, type, device, &val_b);
-    Tensor *result = tensor_matmul(a, b);
-    tensor_print(result);
-    tensor_infos(result);
 }

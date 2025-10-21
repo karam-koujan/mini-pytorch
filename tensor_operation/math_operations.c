@@ -252,10 +252,6 @@ int is_shape_allowed(Tensor*a, Tensor *b)
         return 1;
     return (0);
 }
-void    float_matmul(Tensor *a_r, Tensor *b_r, Tensor *result);
-
-
-
 
 /*
 Tasks: 
@@ -291,10 +287,11 @@ Tensor *tensor_matmul(Tensor*a, Tensor *b)
     {
         if (tensor_matmul_broadcast(a_r,b_r))
             return (tensor_free(a_r), tensor_free(b_r), NULL);
-        
+        if (a_r->is_broadcasted)
+            tensor_contigous_broadcast(a_r);
+        if (b_r->is_broadcasted)
+            tensor_contigous_broadcast(b_r);
     }
-    tensor_contigous_broadcast(b_r);
-
     int64_t a_cols = a->shape[a->num_dims - 1];
     int64_t a_rows = a->shape[a->num_dims - 2];
     int64_t b_cols = b->shape[b->num_dims - 1];
@@ -304,34 +301,33 @@ Tensor *tensor_matmul(Tensor*a, Tensor *b)
     if (!final_shape)
         return (tensor_free(a_r), tensor_free(b_r), NULL);
     memcpy(final_shape, a_r->shape, sizeof(int64_t) * a_r->num_dims);
+    const int64_t a_r_shape[] = {-1, a_rows, a_cols};
+    Tensor *a_f = tensor_reshape(a_r ,a_r_shape, 3);
+    if (!a_f)
+        return (tensor_free(a_r), tensor_free(b_r), NULL);
+    const int64_t b_r_shape[] = {-1, b_rows, b_cols};
+    Tensor *b_f = tensor_reshape(b_r, b_r_shape, 3);
+    if (!b_f)
+        return (tensor_free(a_r), tensor_free(b_r), tensor_free(a_f),NULL);
     int64_t batch_size =  tensor_batchsize(a_r->shape, a_r->num_dims);
-    const int64_t a_r_shape[] = {batch_size, a_rows, a_cols};
-    a_r = tensor_reshape(a_r ,a_r_shape, 3);
-    if (!a_r)
-        return (tensor_free(a_r), tensor_free(b_r), NULL);
-    const int64_t b_r_shape[] = {batch_size, b_rows, b_cols};
-    b_r = tensor_reshape(b_r, b_r_shape, 3);
-    printf("here is the b_r\n");
-    tensor_print(b_r);
-    if (!b_r)
-        return (tensor_free(a_r), tensor_free(b_r), NULL);
     const int64_t result_shape[] = {batch_size, a_rows, b_cols};
-    double d = 0;
-    Tensor *result = tensor_full(result_shape, 3, a->dtype, a->device, &d);
+    Tensor *result = tensor_zeros(result_shape, 3, a->dtype, a->device);
     if (!result)
-        return (tensor_free(a_r), tensor_free(b_r), NULL);
+        return (tensor_free(a_r), tensor_free(b_r), tensor_free(a_f), tensor_free(b_f),NULL);
     if (a_r->shape[0] != b_r->shape[0])
         error_msg("something is not working well in reshape");
-    float_matmul(a_r, b_r, result);
+    matmul_calculation(a_f, b_f, result);
     final_shape[final_dim - 1] = b_cols;
     final_shape[final_dim - 2] = a_rows;
-
-    result = tensor_reshape(result, final_shape, final_dim);
-    return result;
-    // then handle the first 3 specicifc cases
+    Tensor *final_result = tensor_reshape(result, final_shape, final_dim);
+    tensor_free(a_f);
+    tensor_free(b_f);
+    tensor_free_after_reshape(a_r);
+    tensor_free_after_reshape(b_r);
+    return final_result;
 }
 
-void float_matmul(Tensor *a_r, Tensor *b_r, Tensor *result)
+void matmul_calculation(Tensor *a_r, Tensor *b_r, Tensor *result)
 {
     int64_t batch_size = a_r->shape[0];
     double f = 0;
