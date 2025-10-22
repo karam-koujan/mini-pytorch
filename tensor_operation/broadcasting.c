@@ -210,7 +210,7 @@ int tensor_contigous_broadcast(Tensor *a)
         for(int j = 0; j < a->size; j++)
         {
             int idx = i * a->size + j ;
-fill_data(data, idx, a->dtype, (char*)a->data + j * sizeof_type(a->dtype));
+        fill_data(data, idx, a->dtype, (char*)a->data + j * sizeof_type(a->dtype));
         }
     }
     free(a->data);

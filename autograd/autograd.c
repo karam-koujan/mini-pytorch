@@ -23,10 +23,34 @@ void tensor_set_require_grad(Tensor *a, int requires_grad)
 
 Tensor *tensor_collapse(Tensor *b_t, Tensor *b)
 {
-	(void )b;
-    if (!b_t->is_broadcasted)
-        return (b_t);
-    return NULL;
+	int diff = 1;
+	int	broadcasted_dim = 1;
+	int j = b_t->num_dims - 1;
+	if (!b_t->is_broadcasted)
+		return (NULL);
+	tensor_infos(b);
+	printf("\n\n");
+	tensor_infos(b_t);
+	printf("\n\n");
+	for (int i = b_t->prebroadcast_dims - 1; i >= 0; i--)
+	{
+		if (b_t->shape[j] != b_t->prebroadcast_shape[i])
+		{
+			diff*= b_t->prebroadcast_shape[i];
+			broadcasted_dim*= b_t->shape[j];
+		}
+		j--;
+	}
+	while (j>=0)
+	{
+		broadcasted_dim*= b_t->shape[j];
+		j--;
+	}
+	int coef = broadcasted_dim / diff;
+	printf("broadcasted_dim : [%i]\n", broadcasted_dim);
+	printf("diff : [%i]\n", diff);
+	printf("coef : [%i]\n", coef);
+	return NULL;
 }
 
 
@@ -207,9 +231,9 @@ Tensor **tensor_backmatmul(Grad_Node *node, Tensor *grad)
 		tensor_set_require_grad(grad_b,0);
 	}
 	res[0] = grad_a;
-	if (node->broadcasted_tensor_a)
+	if (node->broadcasted_tensor_a->is_broadcasted)
 		tensor_collapse(node->broadcasted_tensor_a, grad_a);
-	if (node->broadcasted_tensor_b)
+	if (node->broadcasted_tensor_b->is_broadcasted)
 		tensor_collapse(node->broadcasted_tensor_b, grad_b);
 	res[1] = grad_b;
 	return res;
