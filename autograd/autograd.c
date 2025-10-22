@@ -26,7 +26,6 @@ Tensor *tensor_collapse(Tensor *b_t, Tensor *grad)
 	int diff = 1;
 	int	broadcasted_dim = 1;
 	int j = b_t->num_dims - 1;
-
 	for (int i = b_t->prebroadcast_dims - 1; i >= 0; i--)
 	{
 		if (b_t->shape[j] != b_t->prebroadcast_shape[i])
@@ -46,7 +45,7 @@ Tensor *tensor_collapse(Tensor *b_t, Tensor *grad)
 	Tensor *co = tensor_full(grad->shape, grad->num_dims, grad->dtype, grad->device, coef);
 	Tensor *new_grad = tensor_mul(co, grad);
 	Tensor *reduced_grad = tensor_zeros(b_t->prebroadcast_shape, b_t->prebroadcast_dims, b_t->dtype, b_t->device);
-	for (int i = 0; i < b_t->prebroadcast_dims; i++)
+	for (int i = 0; i < calculate_size(b_t->prebroadcast_shape, b_t->prebroadcast_dims); i++)
 	{
 		fill_data(reduced_grad->data, i, reduced_grad->dtype, (char *)new_grad->data + (i * sizeof_type(reduced_grad->dtype)));
 	}	
