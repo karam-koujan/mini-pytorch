@@ -16,6 +16,8 @@ Dtype promote_dtype(Dtype a, Dtype b)
 void   *promote_data(Tensor *a, Dtype dtype)
 {
     void *data;
+    if (a->is_broadcasted)
+        tensor_contigous_broadcast(a);
     switch(dtype)
     {
         case DOUBLE:

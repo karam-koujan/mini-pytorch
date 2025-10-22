@@ -192,12 +192,14 @@ Tensor **tensor_backmatmul(Grad_Node *node, Tensor *grad)
 	Tensor *b = node->saved_tensors[1];
 	Tensor *b_t = tensor_transpose(b, b->num_dims - 1, b->num_dims - 2);
 	Tensor *a_t = tensor_transpose(a, a->num_dims - 1, a->num_dims - 2);
+
 	Tensor *grad_a = NULL;
 	Tensor *grad_b = NULL;
 	if(a->requires_grad)
 	{
 		grad_a = tensor_matmul(grad,b_t);
 		tensor_set_require_grad(grad_a,0);
+
 	}
 	if(b->requires_grad)
 	{
@@ -263,7 +265,9 @@ Tensor **tensor_backmm(Grad_Node *node, Tensor *grad)
 }
 void	tensor_accumulate_grad(Tensor *a, Tensor *grad)
 {
+
 	a->grad = tensor_add(a->grad,grad);
+	printf("addresss of a->grad %p\n", a->grad);
 }
 
 void	tensor_backward(Tensor *a, Tensor *prev_grad)

@@ -77,11 +77,11 @@ Tensor *tensor_matmul(Tensor*a, Tensor *b)
     final_shape[final_dim - 1] = b_cols;
     final_shape[final_dim - 2] = a_rows;
     Tensor *final_result = tensor_reshape(result, final_shape, final_dim);
-    tensor_free(a_f);
-    tensor_free(b_f);
-    tensor_free_after_reshape(a_r);
-    tensor_free_after_reshape(b_r);
-    tensor_free_after_reshape(result);
+    // tensor_free(a_f);
+    // tensor_free(b_f);
+    // tensor_free_after_reshape(a_r);
+    // tensor_free_after_reshape(b_r);
+    // tensor_free_after_reshape(result);
     free(final_shape);
     final_result->is_leaf = 0;
     final_result->grad_fn =  grad_fn;
