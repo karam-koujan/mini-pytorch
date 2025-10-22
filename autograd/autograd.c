@@ -41,6 +41,7 @@ Tensor *tensor_collapse(Tensor *b_t, Tensor *grad)
 		j--;
 	}
 	int64_t coef_int = broadcasted_dim / diff;
+	printf("coef int %lli\n", coef_int);
 	int64_t	*coef = &coef_int;
 	Tensor *co = tensor_full(grad->shape, grad->num_dims, grad->dtype, grad->device, coef);
 	Tensor *new_grad = tensor_mul(co, grad);
@@ -172,6 +173,7 @@ Tensor **tensor_backadd(Grad_Node *node, Tensor *grad)
 		if (a->is_broadcasted)
 		{
 			grad_a = tensor_collapse(a, grad);
+			tensor_unbroadcast(b);
 		}
 		else
 		{
@@ -184,12 +186,14 @@ Tensor **tensor_backadd(Grad_Node *node, Tensor *grad)
 		if (b->is_broadcasted)
 		{
 			grad_b = tensor_collapse(b, grad);
+			tensor_unbroadcast(b);
 		}
 		else
 		{
 			grad_b = tensor_deep_copy(grad);
 		}
 		tensor_set_require_grad(grad_b,0);
+	
 	}
 	res[0] = grad_a;
 	res[1] = grad_b;

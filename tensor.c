@@ -24,4 +24,5 @@ int main()
     printf("here is grad\n");
     tensor_print(a->grad);
     tensor_print(b->grad);
+    tensor_print(b);
 }
