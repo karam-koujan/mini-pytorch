@@ -20,6 +20,18 @@ void    tensor_free(Tensor *a)
         free(a->prebroadcast_stride);
         a->prebroadcast_stride = NULL;
     }
+    if (a->grad_fn)
+    {
+        Grad_Node *n = a->grad_fn;
+        tensor_free(n->grad);
+        n->grad = NULL;
+        tensor_free(n->broadcasted_tensor_a);
+        n->broadcasted_tensor_a = NULL;
+        tensor_free(n->broadcasted_tensor_b);
+        n->broadcasted_tensor_b = NULL;
+        free(n);
+    }
+    a->grad_fn = NULL;
     free(a);
 }
 
@@ -32,10 +44,8 @@ void    tensor_free_after_reshape(Tensor *a)
         free(a->data);
         a->data = NULL;
     }
-   free(a->shape);
+    free(a->shape);
     a->shape = NULL;
-    free(a->grad);
-    a->grad = NULL;
     free(a->strides);
     a->strides = NULL;
 

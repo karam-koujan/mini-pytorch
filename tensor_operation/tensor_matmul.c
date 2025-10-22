@@ -28,9 +28,9 @@ Tensor *tensor_matmul(Tensor*a, Tensor *b)
 
 	Grad_Node *grad_fn = a->requires_grad || b->requires_grad ? create_matmul_node(a, b) : NULL;
 
-    Tensor *a_view = tensor_copy(a);
+    Tensor *a_view = tensor_deep_copy(a);
     if (!a_view) return NULL;
-    Tensor *b_view = tensor_copy(b);
+    Tensor *b_view = tensor_deep_copy(b);
     if (!b_view) {
         free(a_view);
         return NULL;
@@ -39,24 +39,18 @@ Tensor *tensor_matmul(Tensor*a, Tensor *b)
 
     if (a->num_dims >= 3 || b->num_dims >= 3) {
         if (tensor_matmul_broadcast(a_view, b_view)) {
-            tensor_free_view(a_view);
-            tensor_free_view(b_view);
+            tensor_free(a_view);
+            tensor_free(b_view);
             return NULL;
         }
-        grad_fn->broadcasted_shape_a = create_shape(a_view->shape, a->num_dims);
-        if (!grad_fn->broadcasted_shape_a)
+        if (grad_fn)
         {
-            tensor_free_view(a_view);
-            tensor_free_view(b_view);
-            return NULL;      
-        }
-        grad_fn->broadcasted_shape_b = create_shape(b_view->shape, b->num_dims);
-        if (!grad_fn->broadcasted_shape_b)
-        {
-            free(grad_fn->broadcasted_shape_a);
-            tensor_free_view(a_view);
-            tensor_free_view(b_view);
-            return NULL;        
+            grad_fn->broadcasted_tensor_a = tensor_deep_copy(a_view);
+            if (!grad_fn->broadcasted_tensor_a)
+                return (tensor_free(a_view), tensor_free(b_view), NULL);
+            grad_fn->broadcasted_tensor_b = tensor_deep_copy(b_view);
+            if (!grad_fn->broadcasted_tensor_b)
+                return (tensor_free(a_view), tensor_free(b_view), NULL);
         }
     }
     
@@ -97,10 +91,11 @@ Tensor *tensor_matmul(Tensor*a, Tensor *b)
     final_result->is_leaf = 0;
     final_result->grad_fn = grad_fn;
 
-    tensor_free_view(a_view);
-    tensor_free_view(b_view);
-    tensor_free_after_reshape(a_flat);
-    tensor_free_after_reshape(b_flat);
+    // tensor_free(a_view);
+
+    // tensor_free_after_reshape(a_flat);
+    // tensor_free(b_view);
+    // tensor_free_after_reshape(b_flat);
     tensor_free_after_reshape(result_flat);
     free(final_shape);
 

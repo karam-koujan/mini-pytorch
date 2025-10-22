@@ -49,8 +49,8 @@ typedef struct Node
 {
 	Tensor *grad;
 	Tensor **saved_tensors;
-	int64_t *broadcasted_shape_a;
-	int64_t *broadcasted_shape_b;
+	Tensor *broadcasted_tensor_a;
+	Tensor *broadcasted_tensor_b;
 	Tensor **(*calculate_gradient)(struct Node *node,Tensor *grad);
 }	Grad_Node;
 
