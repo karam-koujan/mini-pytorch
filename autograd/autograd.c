@@ -6,7 +6,7 @@ void tensor_set_require_grad(Tensor *a, int requires_grad)
 {
 	if (requires_grad == 1)
 	{
-		int64_t *shape = malloc(a->num_dims * sizeof(int));
+		int64_t *shape = malloc(a->num_dims * sizeof(int64_t));
 		memcpy(shape, a->shape, a->num_dims * sizeof(int64_t));
 		a->grad = tensor_zeros(shape, a->num_dims, a->dtype, a->device);
 		if (!a->grad)
@@ -15,17 +15,17 @@ void tensor_set_require_grad(Tensor *a, int requires_grad)
 	}
 	if (requires_grad == 0)
 	{
-		free(a->grad);
+		tensor_free(a->grad);
 		a->grad = NULL;
 		a->requires_grad = 0;
 	}
 }
 
-Tensor *tensor_collapse(Tensor *a, Tensor *b)
+Tensor *tensor_collapse(Tensor *b_t, Tensor *b)
 {
 	(void )b;
-    if (!a->is_broadcasted)
-        return (a);
+    if (!b_t->is_broadcasted)
+        return (b_t);
     return NULL;
 }
 
@@ -205,6 +205,10 @@ Tensor **tensor_backmatmul(Grad_Node *node, Tensor *grad)
 		tensor_set_require_grad(grad_b,0);
 	}
 	res[0] = grad_a;
+	if (node->broadcasted_tensor_a)
+		tensor_collapse(node->broadcasted_tensor_a, grad_a);
+	if (node->broadcasted_tensor_b)
+		tensor_collapse(node->broadcasted_tensor_b, grad_b);
 	res[1] = grad_b;
 	return res;
 }
