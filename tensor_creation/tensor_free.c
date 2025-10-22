@@ -9,7 +9,7 @@ void    tensor_free(Tensor *a)
     a->data = NULL;
     free(a->shape);
     a->shape = NULL;
-    free(a->grad);
+    tensor_free(a->grad);
     a->grad = NULL;
     free(a->strides);
     a->strides = NULL;

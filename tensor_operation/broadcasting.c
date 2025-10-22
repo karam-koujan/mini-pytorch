@@ -195,7 +195,7 @@ int64_t tensor_size(Tensor *a)
 int tensor_contigous_broadcast(Tensor *a)
 {
     if (!a->is_broadcasted)
-        return (error_msg("this tensor is not broadcasted"),1);
+        return (1);
     int64_t *new_stride = create_stride(a->shape, a->num_dims, a->dtype);
     if (!new_stride)
         return (1);
