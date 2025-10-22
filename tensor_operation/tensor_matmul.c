@@ -17,90 +17,161 @@ void tensor_free_view(Tensor *view) {
 }
 
 
+// Tensor *tensor_matmul(Tensor*a, Tensor *b)
+// {
+//     if (!is_shape_allowed(a,b))
+//         return (error_msg("the shapes are not compatible for matmul operation"), NULL);
+    
+//     if (a->num_dims == 2 && b->num_dims == 2) {
+//         return tensor_mm(a, b);
+//     }
+
+// 	Grad_Node *grad_fn = a->requires_grad || b->requires_grad ? create_matmul_node(a, b) : NULL;
+
+//     Tensor *a_view = tensor_deep_copy(a);
+//     if (!a_view) return NULL;
+//     Tensor *b_view = tensor_deep_copy(b);
+//     if (!b_view) {
+//         free(a_view);
+//         return NULL;
+//     }
+
+
+//     if (a->num_dims >= 3 || b->num_dims >= 3) {
+//         if (tensor_matmul_broadcast(a_view, b_view)) {
+//             tensor_free(a_view);
+//             tensor_free(b_view);
+//             return NULL;
+//         }
+//         if (grad_fn)
+//         {
+//             grad_fn->broadcasted_tensor_a = tensor_deep_copy(a_view);
+//             if (!grad_fn->broadcasted_tensor_a)
+//                 return (tensor_free(a_view), tensor_free(b_view), NULL);
+//             grad_fn->broadcasted_tensor_b = tensor_deep_copy(b_view);
+//             if (!grad_fn->broadcasted_tensor_b)
+//                 return (tensor_free(a_view), tensor_free(b_view), NULL);
+//         }
+//     }
+    
+
+//     const int64_t a_view_shape[] = {-1, a_view->shape[a_view->num_dims - 2], a_view->shape[a_view->num_dims - 1]};
+//     Tensor *a_flat = tensor_reshape(a_view, a_view_shape, 3);
+    
+//     const int64_t b_view_shape[] = {-1, b_view->shape[b_view->num_dims - 2], b_view->shape[b_view->num_dims - 1]};
+//     Tensor *b_flat = tensor_reshape(b_view, b_view_shape, 3);
+
+//     int final_dim = a_view->num_dims;
+//     int64_t *final_shape = create_shape(a_view->shape, final_dim);
+//     if (!final_shape) {
+//         tensor_free_view(a_view);
+//         tensor_free_view(b_view);
+//         return (NULL);
+//     }
+//     final_shape[final_dim - 2] = a_view->shape[a_view->num_dims - 2];
+//     final_shape[final_dim - 1] = b_view->shape[b_view->num_dims - 1];
+    
+//     const int64_t result_shape[] = {a_flat->shape[0], a_flat->shape[1], b_flat->shape[2]};
+//     Tensor *result_flat = tensor_zeros(result_shape, 3, a->dtype, a->device);
+    
+//     if (!a_flat || !b_flat || !result_flat) {
+//         error_msg("Failed to allocate intermediate tensors for matmul.");
+//         tensor_free_view(a_view);
+//         tensor_free_view(b_view);
+//         tensor_free_after_reshape(a_flat);
+//         tensor_free_after_reshape(b_flat);
+//         tensor_free(result_flat);
+//         free(final_shape);
+//         return NULL;
+//     }
+    
+//     matmul_calculation(a_flat, b_flat, result_flat);
+    
+//     Tensor *final_result = tensor_reshape(result_flat, final_shape, final_dim);
+//     final_result->is_leaf = 0;
+//     final_result->grad_fn = grad_fn;
+
+//     // tensor_free(a_view);
+
+//     // tensor_free_after_reshape(a_flat);
+//     // tensor_free(b_view);
+//     // tensor_free_after_reshape(b_flat);
+//     tensor_free_after_reshape(result_flat);
+//     free(final_shape);
+
+//     return final_result;
+// }
+
 Tensor *tensor_matmul(Tensor*a, Tensor *b)
 {
     if (!is_shape_allowed(a,b))
         return (error_msg("the shapes are not compatible for matmul operation"), NULL);
-    
-    if (a->num_dims == 2 && b->num_dims == 2) {
-        return tensor_mm(a, b);
+    Tensor *a_r = tensor_deep_copy(a);
+    if (!a_r)
+        return (NULL);
+    Tensor *b_r = tensor_deep_copy(b);
+     if (!b_r)
+        return (tensor_free(a_r), NULL);
+    if (a_r->num_dims == 2 && b_r->num_dims == 2)
+    {
+      return (tensor_free(a_r), tensor_free(b_r), tensor_mm(a, b));
     }
-
-	Grad_Node *grad_fn = a->requires_grad || b->requires_grad ? create_matmul_node(a, b) : NULL;
-
-    Tensor *a_view = tensor_deep_copy(a);
-    if (!a_view) return NULL;
-    Tensor *b_view = tensor_deep_copy(b);
-    if (!b_view) {
-        free(a_view);
-        return NULL;
-    }
-
-
+    Grad_Node *grad_fn = a->requires_grad || b->requires_grad ? create_matmul_node(a,b) : NULL;
     if (a->num_dims >= 3 || b->num_dims >= 3) {
-        if (tensor_matmul_broadcast(a_view, b_view)) {
-            tensor_free(a_view);
-            tensor_free(b_view);
+        if (tensor_matmul_broadcast(a_r, b_r)) {
+            tensor_free(a_r);
+            tensor_free(b_r);
             return NULL;
         }
         if (grad_fn)
         {
-            grad_fn->broadcasted_tensor_a = tensor_deep_copy(a_view);
+            grad_fn->broadcasted_tensor_a = tensor_deep_copy(a_r);
             if (!grad_fn->broadcasted_tensor_a)
-                return (tensor_free(a_view), tensor_free(b_view), NULL);
-            grad_fn->broadcasted_tensor_b = tensor_deep_copy(b_view);
+                return (tensor_free(a_r), tensor_free(b_r), NULL);
+            grad_fn->broadcasted_tensor_b = tensor_deep_copy(b_r);
             if (!grad_fn->broadcasted_tensor_b)
-                return (tensor_free(a_view), tensor_free(b_view), NULL);
+                return (tensor_free(a_r), tensor_free(b_r), NULL);
         }
     }
-    
-
-    const int64_t a_view_shape[] = {-1, a_view->shape[a_view->num_dims - 2], a_view->shape[a_view->num_dims - 1]};
-    Tensor *a_flat = tensor_reshape(a_view, a_view_shape, 3);
-    
-    const int64_t b_view_shape[] = {-1, b_view->shape[b_view->num_dims - 2], b_view->shape[b_view->num_dims - 1]};
-    Tensor *b_flat = tensor_reshape(b_view, b_view_shape, 3);
-
-    int final_dim = a_view->num_dims;
-    int64_t *final_shape = create_shape(a_view->shape, final_dim);
-    if (!final_shape) {
-        tensor_free_view(a_view);
-        tensor_free_view(b_view);
-        return (NULL);
-    }
-    final_shape[final_dim - 2] = a_view->shape[a_view->num_dims - 2];
-    final_shape[final_dim - 1] = b_view->shape[b_view->num_dims - 1];
-    
-    const int64_t result_shape[] = {a_flat->shape[0], a_flat->shape[1], b_flat->shape[2]};
-    Tensor *result_flat = tensor_zeros(result_shape, 3, a->dtype, a->device);
-    
-    if (!a_flat || !b_flat || !result_flat) {
-        error_msg("Failed to allocate intermediate tensors for matmul.");
-        tensor_free_view(a_view);
-        tensor_free_view(b_view);
-        tensor_free_after_reshape(a_flat);
-        tensor_free_after_reshape(b_flat);
-        tensor_free(result_flat);
-        free(final_shape);
-        return NULL;
-    }
-    
-    matmul_calculation(a_flat, b_flat, result_flat);
-    
-    Tensor *final_result = tensor_reshape(result_flat, final_shape, final_dim);
-    final_result->is_leaf = 0;
-    final_result->grad_fn = grad_fn;
-
-    // tensor_free(a_view);
-
-    // tensor_free_after_reshape(a_flat);
-    // tensor_free(b_view);
-    // tensor_free_after_reshape(b_flat);
-    tensor_free_after_reshape(result_flat);
+    int64_t a_cols = a->shape[a->num_dims - 1];
+    int64_t a_rows = a->shape[a->num_dims - 2];
+    int64_t b_cols = b->shape[b->num_dims - 1];
+    int64_t b_rows = b->shape[b->num_dims - 2];
+    int64_t *final_shape = calloc(a_r->num_dims, sizeof(int64_t));
+    int final_dim = a_r->num_dims;
+    if (!final_shape)
+        return (tensor_free(a_r), tensor_free(b_r), NULL);
+    memcpy(final_shape, a_r->shape, sizeof(int64_t) * a_r->num_dims);
+    const int64_t a_r_shape[] = {-1, a_rows, a_cols};
+    Tensor *a_f = tensor_reshape(a_r ,a_r_shape, 3);
+    if (!a_f)
+        return (tensor_free(a_r), tensor_free(b_r), free(final_shape),NULL);
+    const int64_t b_r_shape[] = {-1, b_rows, b_cols};
+    Tensor *b_f = tensor_reshape(b_r, b_r_shape, 3);
+    if (!b_f)
+        return (tensor_free(a_r), tensor_free(b_r), tensor_free(a_f), free(final_shape),NULL);
+    int64_t batch_size =  tensor_batchsize(a_r->shape, a_r->num_dims);
+    const int64_t result_shape[] = {batch_size, a_rows, b_cols};
+    Tensor *result = tensor_zeros(result_shape, 3, a->dtype, a->device);
+    if (!result)
+        return (tensor_free(a_r), tensor_free(b_r), tensor_free(a_f), tensor_free(b_f), free(final_shape),NULL);
+    if (a_r->shape[0] != b_r->shape[0])
+        error_msg("something is not working well in reshape");
+    matmul_calculation(a_f, b_f, result);
+    final_shape[final_dim - 1] = b_cols;
+    final_shape[final_dim - 2] = a_rows;
+    Tensor *final_result = tensor_reshape(result, final_shape, final_dim);
+    // tensor_free(a_f);
+    // tensor_free(b_f);
+    // tensor_free_after_reshape(a_r);
+    // tensor_free_after_reshape(b_r);
+    // tensor_free_after_reshape(result);
     free(final_shape);
-
+    final_result->is_leaf = 0;
+    final_result->grad_fn =  grad_fn;
     return final_result;
 }
+
 
 void matmul_calculation(Tensor *a_r, Tensor *b_r, Tensor *result)
 {
