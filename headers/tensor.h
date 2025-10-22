@@ -120,7 +120,7 @@ void tensor_set_require_grad(Tensor *a, int requires_grad);
 void tensor_set_require_grad(Tensor *a, int requires_grad);
 
 // broadcasting collapse helper
-Tensor *tensor_collapse(Tensor *b_t, Tensor *b);
+Tensor *tensor_collapse(Tensor *b_t, Tensor *grad);
 
 // grad node creators
 Grad_Node *create_matmul_node(Tensor *a, Tensor *b);
