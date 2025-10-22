@@ -44,15 +44,19 @@ Tensor *tensor_collapse(Tensor *b_t, Tensor *grad)
 	int64_t coef_int = broadcasted_dim / diff;
 	int64_t	*coef = &coef_int;
 	Tensor *co = tensor_full(grad->shape, grad->num_dims, grad->dtype, grad->device, coef);
-	tensor_print(co);
 	Tensor *new_grad = tensor_mul(co, grad);
+	Tensor *reduced_grad = tensor_zeros(b_t->prebroadcast_shape, b_t->prebroadcast_dims, b_t->dtype, b_t->device);
+	for (int i = 0; i < b_t->prebroadcast_dims; i++)
+	{
+		fill_data(reduced_grad->data, i, reduced_grad->dtype, (char *)new_grad->data + (i * sizeof_type(reduced_grad->dtype)));
+	}	
 	if (!new_grad)
 	{
 		return (tensor_free(co), error_msg("an sudden error happens in tensor_mul in tensor_collapse"), grad);
 	}
 	// tensor_free(grad);
 	// tensor_free(co);
-	return new_grad;
+	return reduced_grad;
 }
 
 
@@ -232,6 +236,7 @@ Tensor **tensor_backmatmul(Grad_Node *node, Tensor *grad)
 		grad_b = tensor_matmul(a_t,grad);
 		tensor_set_require_grad(grad_b,0);
 	}
+
 	if (node->broadcasted_tensor_a->is_broadcasted)
 	{
 		
