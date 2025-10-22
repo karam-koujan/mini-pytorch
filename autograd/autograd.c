@@ -42,7 +42,8 @@ Grad_Node	*create_matmul_node(Tensor *a, Tensor *b)
 		free(saved_tensors);
 		return NULL;
 	}
-
+	node->broadcasted_shape_a = NULL;
+	node->broadcasted_shape_b = NULL;
 	saved_tensors[0] = a;
 	saved_tensors[1] = b;
 	node->saved_tensors = saved_tensors;

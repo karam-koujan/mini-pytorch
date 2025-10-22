@@ -49,6 +49,8 @@ typedef struct Node
 {
 	Tensor *grad;
 	Tensor **saved_tensors;
+	int64_t *broadcasted_shape_a;
+	int64_t *broadcasted_shape_b;
 	Tensor **(*calculate_gradient)(struct Node *node,Tensor *grad);
 }	Grad_Node;
 
@@ -137,5 +139,5 @@ Tensor **tensor_backmm(Grad_Node *node, Tensor *grad);
 // grad accumulation + traversal
 void tensor_accumulate_grad(Tensor *a, Tensor *grad);
 void tensor_backward(Tensor *a, Tensor *prev_grad);
-
+int is_shape_allowed(Tensor*a, Tensor *b);
 #endif
