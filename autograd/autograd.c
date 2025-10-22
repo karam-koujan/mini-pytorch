@@ -211,23 +211,30 @@ Tensor **tensor_backsub(Grad_Node *node, Tensor *grad)
 	Tensor *grad_b = NULL;
 	if (a->requires_grad == 1)
 	{
-		grad_a = tensor_collapse(grad,a);
-		if (!grad_a)
+		if (a->is_broadcasted)
 		{
-			grad_a = grad;
+			grad_a = tensor_collapse(a, grad);
+			tensor_unbroadcast(b);
+		}
+		else
+		{
+			grad_a = tensor_deep_copy(grad);
 		}
 		tensor_set_require_grad(grad_a,0);
 	}
 	if (b->requires_grad == 1)
 	{
-		grad_b = tensor_collapse(grad,b);
-		if (!grad_b)
+		if (b->is_broadcasted)
 		{
-			double val = -1.0;
-			Tensor *neg = tensor_full(grad->shape, grad->num_dims, grad->dtype, grad->device, &val);
-			grad_b = tensor_mul(neg,grad);
+			grad_b = tensor_collapse(b, grad);
+			tensor_unbroadcast(b);
+		}
+		else
+		{
+			grad_b = tensor_deep_copy(grad);
 		}
 		tensor_set_require_grad(grad_b,0);
+	
 	}
 	res[0] = grad_a;
 	res[1] = grad_b;

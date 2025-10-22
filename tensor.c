@@ -18,7 +18,7 @@ int main()
     Tensor *b = tensor_full(shape_b, 2, INT64, CPU, &vb);
     tensor_set_require_grad(a, 1);
     tensor_set_require_grad(b,1);
-    Tensor *r = tensor_add(a,b);
+    Tensor *r = tensor_sub(a,b);
     tensor_backward(r, NULL);
     tensor_print(r);
     printf("here is grad\n");

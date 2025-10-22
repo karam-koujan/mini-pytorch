@@ -196,8 +196,6 @@ Tensor *tensor_sub(Tensor*a, Tensor *b)
     r->is_leaf = 0;
     free(data_a);
     free(data_b);
-    tensor_unbroadcast(a);
-    tensor_unbroadcast(b);
     return (r);
 }
 
