@@ -57,7 +57,6 @@ Tensor *tensor_collapse(Tensor *b_t, Tensor *grad)
 	{
 		return (tensor_free(co), error_msg("an sudden error happens in tensor_mul in tensor_collapse"), grad);
 	}
-	// tensor_free(grad);
 	tensor_free(new_grad);
 	tensor_free(co);
 	return reduced_grad;
@@ -170,12 +169,26 @@ Tensor **tensor_backadd(Grad_Node *node, Tensor *grad)
 	Tensor *grad_b = NULL;
 	if (a->requires_grad == 1)
 	{
-			grad_a = grad;
+		if (a->is_broadcasted)
+		{
+			grad_a = tensor_collapse(a, grad);
+		}
+		else
+		{
+			grad_a = tensor_deep_copy(grad);
+		}
 		tensor_set_require_grad(grad_a,0);
 	}
 	if (b->requires_grad == 1)
 	{
-		grad_b = grad;
+		if (b->is_broadcasted)
+		{
+			grad_b = tensor_collapse(b, grad);
+		}
+		else
+		{
+			grad_b = tensor_deep_copy(grad);
+		}
 		tensor_set_require_grad(grad_b,0);
 	}
 	res[0] = grad_a;
@@ -252,6 +265,8 @@ Tensor **tensor_backmatmul(Grad_Node *node, Tensor *grad)
 	}
 	res[0] = grad_a;
 	res[1] = grad_b;
+	free(b_t);
+	free(a_t);
 	return res;
 }
 
@@ -327,6 +342,7 @@ void	tensor_backward(Tensor *a, Tensor *prev_grad)
 	Tensor **gradients = node->calculate_gradient(node,prev_grad);
 	if (!gradients)
 		return;
+	tensor_free(prev_grad);
 	Tensor *grad_a = gradients[0];
 	Tensor *grad_b = gradients[1];
 
