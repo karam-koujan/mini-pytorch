@@ -1,5 +1,7 @@
 #include "../headers/tensor.h"
 #include "../headers/print.h"
+
+
 // Add this helper function to tensor_free.c or keep it here if you prefer
 void tensor_free_view(Tensor *view) {
     if (!view) return;
@@ -108,4 +110,49 @@ Tensor *tensor_matmul(Tensor*a, Tensor *b)
     free(final_shape);
 
     return final_result;
+}
+
+void matmul_calculation(Tensor *a_r, Tensor *b_r, Tensor *result)
+{
+    int64_t batch_size = a_r->shape[0];
+    double f = 0;
+    void *acc  = &f;
+    for (int64_t b_idx = 0; b_idx < batch_size; b_idx++)
+    {
+        for (int64_t a_rows = 0; a_rows < a_r->shape[1]; a_rows++)
+        {
+            for (int64_t b_cols = 0; b_cols < b_r->shape[2]; b_cols++)
+            {
+                *(double *)acc = 0.0f;
+                for (int64_t a_cols = 0; a_cols < a_r->shape[2]; a_cols++)
+                {
+                    int64_t a_idx = b_idx * (a_r->strides[0] / sizeof_type(a_r->dtype))
+                                  + a_rows * (a_r->strides[1] / sizeof_type(a_r->dtype))
+                                  + a_cols * (a_r->strides[2] / sizeof_type(a_r->dtype));
+
+                    int64_t bt_idx = b_idx *  (b_r->strides[0] / sizeof_type(a_r->dtype))
+                                   + a_cols * (b_r->strides[1] / sizeof_type(a_r->dtype))
+                                   + b_cols * (b_r->strides[2] / sizeof_type(a_r->dtype));
+                    switch(a_r->dtype)
+                    {
+                        case FLOAT32: *((float *)acc) += ((float *)a_r->data)[a_idx] * ((float *)b_r->data)[bt_idx];break;
+                        case DOUBLE: *((double *)acc) += ((double *)a_r->data)[a_idx] * ((double *)b_r->data)[bt_idx];break;
+                        case INT32: *((int *)acc) += ((int *)a_r->data)[a_idx] * ((int *)b_r->data)[bt_idx];break;
+                        case INT64: *((int64_t *)acc) += ((int64_t *)a_r->data)[a_idx] * ((int64_t *)b_r->data)[bt_idx];break;
+                    }
+                }
+
+                int64_t r_idx = b_idx *  (result->strides[0] / sizeof_type(result->dtype))
+                              + a_rows * (result->strides[1] / sizeof_type(result->dtype))
+                              + b_cols * (result->strides[2] / sizeof_type(result->dtype));
+                switch(result->dtype)
+                {
+                    case FLOAT32: ((float *)result->data)[r_idx] = *(float *)acc;break;
+                    case DOUBLE: ((double *)result->data)[r_idx] = *(double *)acc;break;
+                    case INT32: ((int *)result->data)[r_idx] = *(int *)acc;break;
+                    case INT64: ((int64_t *)result->data)[r_idx] = *(int64_t *)acc; break;
+                }
+            }
+        }
+    }
 }
