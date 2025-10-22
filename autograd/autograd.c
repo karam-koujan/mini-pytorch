@@ -45,6 +45,10 @@ Tensor *tensor_collapse(Tensor *b_t, Tensor *grad)
 	Tensor *co = tensor_full(grad->shape, grad->num_dims, grad->dtype, grad->device, coef);
 	Tensor *new_grad = tensor_mul(co, grad);
 	Tensor *reduced_grad = tensor_zeros(b_t->prebroadcast_shape, b_t->prebroadcast_dims, b_t->dtype, b_t->device);
+	if (!reduced_grad)
+	{
+		return (tensor_free(co), tensor_free(new_grad),error_msg("an sudden error happens in tensor_mul in tensor_collapse"), grad);
+	}
 	for (int i = 0; i < calculate_size(b_t->prebroadcast_shape, b_t->prebroadcast_dims); i++)
 	{
 		fill_data(reduced_grad->data, i, reduced_grad->dtype, (char *)new_grad->data + (i * sizeof_type(reduced_grad->dtype)));
@@ -54,7 +58,8 @@ Tensor *tensor_collapse(Tensor *b_t, Tensor *grad)
 		return (tensor_free(co), error_msg("an sudden error happens in tensor_mul in tensor_collapse"), grad);
 	}
 	// tensor_free(grad);
-	// tensor_free(co);
+	tensor_free(new_grad);
+	tensor_free(co);
 	return reduced_grad;
 }
 

@@ -25,10 +25,6 @@ int main()
     printf("here is grad\n");
     tensor_print(a->grad);
     tensor_print(b->grad);
-    // tensor_free(a);
-    // tensor_free(b);
-    // tensor_free(r);
-// EXPECT each final 3x3 matrix filled with 3*2 + 3*2 (sum over 2 dims) = 12
 }
 
 /*
