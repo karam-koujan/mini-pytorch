@@ -24,7 +24,6 @@ int main()
     tensor_print(r);
     printf("here is grad\n");
     tensor_print(a->grad);
-	printf("addresss of a->grad in test %p\n", a->grad);
     tensor_print(b->grad);
     // tensor_free(a);
     // tensor_free(b);

@@ -205,7 +205,6 @@ int tensor_contigous_broadcast(Tensor *a)
     if (!data)
         return (1);
     int64_t b_t = size / a->size;
-    printf("size :%d", a->size);
     for (int64_t i = 0; i < b_t ; i++)
     {
         for(int j = 0; j < a->size; j++)
@@ -214,14 +213,10 @@ int tensor_contigous_broadcast(Tensor *a)
 fill_data(data, idx, a->dtype, (char*)a->data + j * sizeof_type(a->dtype));
         }
     }
-    tensor_print(a);
     free(a->data);
     free(a->strides);
     a->size = size;
     a->strides = new_stride;
     a->data = data;
-    printf("I am here tesitning tenso contigious \n");
-    tensor_print(a);
-    tensor_infos(a);
     return (0);
 }

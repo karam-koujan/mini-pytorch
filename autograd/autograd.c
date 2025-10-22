@@ -265,9 +265,11 @@ Tensor **tensor_backmm(Grad_Node *node, Tensor *grad)
 }
 void	tensor_accumulate_grad(Tensor *a, Tensor *grad)
 {
-
-	a->grad = tensor_add(a->grad,grad);
-	printf("addresss of a->grad %p\n", a->grad);
+	Tensor *new_grad = tensor_add(a->grad,grad);
+	if (!new_grad)
+		return (error_msg("some thing wrong in tensor_add in tensor accumulate grad"));
+	tensor_free(a->grad);
+	a->grad = new_grad;
 }
 
 void	tensor_backward(Tensor *a, Tensor *prev_grad)
