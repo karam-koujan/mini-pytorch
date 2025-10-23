@@ -322,7 +322,7 @@ Tensor *tensor_mm(Tensor*a, Tensor *b)
 {
     if (a->num_dims > 2 || a->num_dims > 2)
         return (error_msg("please enter 2d matrix or use tensor_matmul"), NULL);
-    if (!is_shape_allowed(a,b))
+    if (a->shape[1] != b->shape[0])
         return (error_msg("the shapes are not compatible for mm operation"), NULL);
     int64_t a_rows = a->shape[a->num_dims - 2];
     int64_t b_cols = b->shape[b->num_dims - 1];

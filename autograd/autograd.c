@@ -461,8 +461,8 @@ Tensor **tensor_backmm(Grad_Node *node, Tensor *grad)
 	Tensor *b = node->saved_tensors[1];
 	Tensor *a_c = tensor_deep_copy(a);
 	Tensor *b_c = tensor_deep_copy(b);
-	Tensor *b_t = tenso_de(a_c);
-	Tensor *a_t = tensor_t(b_c);
+	Tensor *b_t = tensor_t(b_c);
+	Tensor *a_t = tensor_t(a_c);
 	Tensor *grad_a = NULL;
 	Tensor *grad_b = NULL;
 	if(a->requires_grad)
