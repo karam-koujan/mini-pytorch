@@ -77,6 +77,8 @@ Tensor *tensor_deep_copy(Tensor *a)
         r->data = NULL;
         r->shape = NULL;
         r->strides = NULL;
+        r->grad = NULL;
+        r->grad_fn = NULL;
         return (tensor_free(r), NULL);
     }
     int64_t *shape = malloc(a->num_dims * sizeof(int64_t));
@@ -85,6 +87,8 @@ Tensor *tensor_deep_copy(Tensor *a)
         r->data = NULL;
         r->shape = NULL;
         r->strides = NULL;
+        r->grad = NULL;
+        r->grad_fn = NULL;
         return (tensor_free(r), NULL);
     }
     int64_t *strides = malloc(a->num_dims * sizeof(int64_t));
@@ -93,7 +97,24 @@ Tensor *tensor_deep_copy(Tensor *a)
         r->data = NULL;
         r->shape = NULL;
         r->strides = NULL;
+        r->grad = NULL;
+        r->grad_fn = NULL;
         return (tensor_free(r), NULL);
+    }
+    
+    Tensor  *grad = NULL;
+    if (a->grad)
+    {
+        grad = tensor_deep_copy(a->grad);
+        if (!grad)
+        {
+            r->data = NULL;
+            r->shape = NULL;
+            r->strides = NULL;
+            r->grad = NULL;
+            r->grad_fn = NULL;
+            return (tensor_free(r), NULL);
+        }
     }
     memcpy(data, a->data, a->size * sizeof_type(a->dtype));
     memcpy(shape, a->shape, a->num_dims * sizeof(int64_t));
@@ -102,6 +123,8 @@ Tensor *tensor_deep_copy(Tensor *a)
     r->data = data;
     r->strides = strides;
     r->shape = shape;
+    r->grad = grad;
+    r->grad_fn = NULL;
     return (r);
 }
 
