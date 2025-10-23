@@ -9,36 +9,29 @@ void print_tensor_nbr(void *data, int index, Dtype type)
     else if (type == INT32)
         printf("%i", ((int *)data)[index]);
     else if (type == INT64)
-        printf("%lli", ((long long *)data)[index]);
+        printf("%lli", ((int64_t *)data)[index]);
 }
 
-// Corrected recursive printing function
 void print_tensor_recursive(void *data, int64_t *shape, int64_t *strides, int num_dims, int index, int depth, Dtype type) {
     if (depth == num_dims) {
-        // Base case: we have recursed through all dimensions, print the number.
         print_tensor_nbr(data, index, type);
-        return;
-    }
+    } else {
+        for (int i = 0; i < shape[depth]; i++) {
+            if (depth < num_dims - 1) {
+                printf("[");
+            }
+            int element_stride = strides[depth] / sizeof_type(type);
+            print_tensor_recursive(data, shape, strides, num_dims, index + i * element_stride, depth + 1, type);
 
-    printf("[");
-    for (int i = 0; i < shape[depth]; i++) {
-        int element_stride = strides[depth] / sizeof_type(type);
-        print_tensor_recursive(data, shape, strides, num_dims, index + i * element_stride, depth + 1, type);
-        
-        if (i < shape[depth] - 1) {
-            printf(",");
-            // Add a newline and indentation for better readability on outer dimensions
-            if (depth < num_dims - 2) {
-                printf("\n");
-                for (int d = 0; d <= depth; d++) {
-                    printf(" ");
-                }
-            } else {
-                printf(" "); // Just a space for the innermost dimension
+            if (depth < num_dims - 1) {
+                printf("]\n");
+            }
+
+            if (i < shape[depth] - 1) {
+                printf(",");
             }
         }
     }
-    printf("]");
 }
 
 void print_shape(int64_t *shape, int dims)
@@ -69,7 +62,7 @@ void print_device(Device type)
 {
     if (type == CPU)
         printf("device: cpu\n");
-    else if (type == GPU) // Corrected from DOUBLE
+    else if (type == DOUBLE)
         printf("device: gpu\n");
 }
 
@@ -87,18 +80,10 @@ void print_strides(int64_t *strides, int dims)
 
 void tensor_print(Tensor *tensor) 
 {
-	if (!tensor) {
-		printf("NULL Tensor\n");
-		return;
-    }
-    if (tensor->num_dims <= 0 && tensor->size == 1) { // Handle scalar
-        print_shape(tensor->shape, tensor->num_dims);
-        print_tensor_nbr(tensor->data, 0, tensor->dtype);
-        printf("\n");
-        return;
-    }
+	if (!tensor)
+		return ;
     if (tensor->num_dims <= 0) {
-        printf("Error: Tensor has no dimensions and is not a scalar.\n");
+        printf("Error: Tensor must have at least 1 dimension.\n");
         return;
     }
     print_shape(tensor->shape, tensor->num_dims);
