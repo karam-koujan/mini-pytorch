@@ -339,15 +339,33 @@ Tensor *tensor_mm(Tensor*a, Tensor *b)
     return (result);
 }
 
-Tensor *tensor_mul_scalar(Tensor *a, void *scalar)
+Tensor *tensor_neg(Tensor *a)
 {
-    Tensor *b = NULL;
-    switch(a->dtype)
-    {
-        case FLOAT32: b = tensor_full(a->shape, a->num_dims, a->dtype, a->device, (float *)scalar);break;
-        case DOUBLE: b = tensor_full(a->shape, a->num_dims, a->dtype, a->device, (double *)scalar);break;
-        case INT32: b = tensor_full(a->shape, a->num_dims, a->dtype, a->device, (int *)scalar);break;
-        case INT64: b = tensor_full(a->shape, a->num_dims, a->dtype, a->device, (int64_t *)scalar); break;
-    }
-    return tensor_mul(a, b);
+    Tensor *nt = NULL;
+	switch (a->dtype)
+	{
+	    case FLOAT32: {
+	        float coef = -1.0F;
+	        nt = tensor_full(a->shape, a->num_dims, a->dtype, a->device, &coef);
+	        break;
+	    }
+	    case DOUBLE: {
+	        double coef = -1.0;
+	        nt = tensor_full(a->shape, a->num_dims, a->dtype, a->device, &coef);
+	        break;
+	    }
+	    case INT64: {
+	        int64_t coef = -1;
+	        nt = tensor_full(a->shape, a->num_dims, a->dtype, a->device, &coef);
+	        break;
+	    }
+	    case INT32: {
+	        int coef = -1;
+	        nt = tensor_full(a->shape, a->num_dims, a->dtype, a->device, &coef);
+	        break;
+	    }
+	}
+    Tensor *result = tensor_mul(a, nt);
+    tensor_free(nt);
+    return (result);
 }

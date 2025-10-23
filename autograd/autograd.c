@@ -40,31 +40,30 @@ Tensor *tensor_collapse(Tensor *b_t, Tensor *grad)
 		broadcasted_dim*= b_t->shape[j];
 		j--;
 	}
-	// Tensor *co = tensor_full(grad->shape, grad->num_dims, grad->dtype, grad->device, coef);
 	Tensor *co = NULL;
-switch (b_t->dtype)
-{
-    case FLOAT32: {
-        float coef = broadcasted_dim / diff;
-        co = tensor_full(grad->shape, grad->num_dims, grad->dtype, grad->device, &coef);
-        break;
-    }
-    case DOUBLE: {
-        double coef = broadcasted_dim / diff;
-        co = tensor_full(grad->shape, grad->num_dims, grad->dtype, grad->device, &coef);
-        break;
-    }
-    case INT64: {
-        int64_t coef = broadcasted_dim / diff;
-        co = tensor_full(grad->shape, grad->num_dims, grad->dtype, grad->device, &coef);
-        break;
-    }
-    case INT32: {
-        int coef = broadcasted_dim / diff;
-        co = tensor_full(grad->shape, grad->num_dims, grad->dtype, grad->device, &coef);
-        break;
-    }
-}
+	switch (b_t->dtype)
+	{
+	    case FLOAT32: {
+	        float coef = broadcasted_dim / diff;
+	        co = tensor_full(grad->shape, grad->num_dims, grad->dtype, grad->device, &coef);
+	        break;
+	    }
+	    case DOUBLE: {
+	        double coef = broadcasted_dim / diff;
+	        co = tensor_full(grad->shape, grad->num_dims, grad->dtype, grad->device, &coef);
+	        break;
+	    }
+	    case INT64: {
+	        int64_t coef = broadcasted_dim / diff;
+	        co = tensor_full(grad->shape, grad->num_dims, grad->dtype, grad->device, &coef);
+	        break;
+	    }
+	    case INT32: {
+	        int coef = broadcasted_dim / diff;
+	        co = tensor_full(grad->shape, grad->num_dims, grad->dtype, grad->device, &coef);
+	        break;
+	    }
+	}
 
 	Tensor *new_grad = tensor_mul(co, grad);
 	Tensor *reduced_grad = tensor_zeros(b_t->prebroadcast_shape, b_t->prebroadcast_dims, b_t->dtype, b_t->device);
@@ -249,11 +248,17 @@ Tensor **tensor_backsub(Grad_Node *node, Tensor *grad)
 		if (b->is_broadcasted)
 		{
 			grad_b = tensor_collapse(b, grad);
+			Tensor *newgrad_b = tensor_neg(grad_b);
+			tensor_free(grad_b);
+			grad_b = newgrad_b;
 			tensor_unbroadcast(b);
 		}
 		else
 		{
 			grad_b = tensor_deep_copy(grad);
+			Tensor *newgrad_b = tensor_neg(grad_b);
+			tensor_free(grad_b);
+			grad_b = newgrad_b;
 		}
 		tensor_set_require_grad(grad_b,0);
 	
