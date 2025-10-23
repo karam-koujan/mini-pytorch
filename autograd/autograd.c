@@ -194,7 +194,7 @@ Tensor **tensor_backadd(Grad_Node *node, Tensor *grad)
 		if (a->is_broadcasted)
 		{
 			grad_a = tensor_collapse(a, grad);
-			tensor_unbroadcast(b);
+			tensor_unbroadcast(a);
 		}
 		else
 		{
@@ -235,7 +235,7 @@ Tensor **tensor_backsub(Grad_Node *node, Tensor *grad)
 		if (a->is_broadcasted)
 		{
 			grad_a = tensor_collapse(a, grad);
-			tensor_unbroadcast(b);
+			tensor_unbroadcast(a);
 		}
 		else
 		{
@@ -319,12 +319,35 @@ Tensor **tensor_backpairwise_mul(Grad_Node *node, Tensor *grad)
 	Tensor *grad_b = NULL;
 	if (a->requires_grad == 1)
 	{
-			grad_a = grad;
+		if (a->is_broadcasted)
+		{
+			grad_a = tensor_mul(b, grad);
+			Tensor *new_grad = tensor_collapse(a, grad);
+			tensor_unbroadcast(a);
+			tensor_free(grad_a);
+			grad_a = new_grad;
+		}
+		else
+		{
+			grad_a = tensor_mul(b, grad);;
+		}
 		tensor_set_require_grad(grad_a,0);
 	}
 	if (b->requires_grad == 1)
 	{
-		grad_b = grad;
+		if (b->is_broadcasted)
+		{
+			grad_b = tensor_mul(a, grad);
+			Tensor *new_grad = tensor_collapse(b, grad);
+			tensor_print(new_grad);
+			// tensor_free(grad_b);
+			tensor_unbroadcast(b);
+			grad_b = new_grad;
+		}
+		else
+		{
+			grad_b = tensor_mul(a, grad);;
+		}
 		tensor_set_require_grad(grad_b,0);
 	}
 	res[0] = grad_a;

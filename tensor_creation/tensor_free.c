@@ -23,7 +23,8 @@ void    tensor_free(Tensor *a)
     if (a->grad_fn)
     {
         Grad_Node *n = a->grad_fn;
-        tensor_free(n->grad);
+        if (n->grad)
+            tensor_free(n->grad);
         n->grad = NULL;
         tensor_free(n->broadcasted_tensor_a);
         n->broadcasted_tensor_a = NULL;
