@@ -312,6 +312,8 @@ Tensor **tensor_backpairwise_mul(Grad_Node *node, Tensor *grad)
 {
 	Tensor *a = node->saved_tensors[0];
 	Tensor *b = node->saved_tensors[1];
+	Tensor *a_c = tensor_deep_copy(a);
+	Tensor *b_c = tensor_deep_copy(b);
 	Tensor **res = malloc(2 * sizeof(Tensor *));
 	if (!res)
 		return NULL;
@@ -321,7 +323,7 @@ Tensor **tensor_backpairwise_mul(Grad_Node *node, Tensor *grad)
 	{
 		if (a->is_broadcasted)
 		{
-			grad_a = tensor_mul(b, grad);
+			grad_a = tensor_mul(b_c, grad);
 			Tensor *new_grad = tensor_collapse(a, grad);
 			tensor_unbroadcast(a);
 			tensor_free(grad_a);
@@ -329,7 +331,7 @@ Tensor **tensor_backpairwise_mul(Grad_Node *node, Tensor *grad)
 		}
 		else
 		{
-			grad_a = tensor_mul(b, grad);;
+			grad_a = tensor_mul(b_c, grad);;
 		}
 		tensor_set_require_grad(grad_a,0);
 	}
@@ -337,19 +339,19 @@ Tensor **tensor_backpairwise_mul(Grad_Node *node, Tensor *grad)
 	{
 		if (b->is_broadcasted)
 		{
-			grad_b = tensor_mul(a, grad);
+			grad_b = tensor_mul(a_c, grad);
 			Tensor *new_grad = tensor_collapse(b, grad);
-			tensor_print(new_grad);
-			// tensor_free(grad_b);
 			tensor_unbroadcast(b);
 			grad_b = new_grad;
 		}
 		else
 		{
-			grad_b = tensor_mul(a, grad);;
+			grad_b = tensor_mul(a_c, grad);;
 		}
 		tensor_set_require_grad(grad_b,0);
 	}
+	// tensor_free(a_c);
+	// tensor_free(b_c);
 	res[0] = grad_a;
 	res[1] = grad_b;
 	return res;
@@ -400,6 +402,7 @@ void	tensor_backward(Tensor *a, Tensor *prev_grad)
         if (!prev_grad)
             return ;
     }
+	tensor_set_require_grad(prev_grad, 0);
 	Tensor **gradients = node->calculate_gradient(node,prev_grad);
 	if (!gradients)
 		return;
