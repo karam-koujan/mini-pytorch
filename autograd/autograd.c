@@ -314,10 +314,8 @@ Tensor **tensor_backpairwise_mul(Grad_Node *node, Tensor *grad)
 	Tensor *b = node->saved_tensors[1];
 	Tensor *a_c = tensor_deep_copy(a);
 	Tensor *b_c = tensor_deep_copy(b);
-	a_c->requires_grad = 0;
-	b_c->requires_grad = 0;
-	// tensor_set_require_grad(a_c, 0);
-	// tensor_set_require_grad(b_c, 0);
+	tensor_set_require_grad(a_c, 0);
+	tensor_set_require_grad(b_c, 0);
 	Tensor **res = malloc(2 * sizeof(Tensor *));
 	if (!res)
 		return NULL;
@@ -346,6 +344,7 @@ Tensor **tensor_backpairwise_mul(Grad_Node *node, Tensor *grad)
 			grad_b = tensor_mul(a_c, grad);
 			Tensor *new_grad = tensor_collapse(b, grad);
 			tensor_unbroadcast(b);
+			tensor_free(grad_b);
 			grad_b = new_grad;
 		}
 		else
