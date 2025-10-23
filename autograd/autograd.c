@@ -346,7 +346,7 @@ Tensor **tensor_backpairwise_mul(Grad_Node *node, Tensor *grad)
 		{
 			grad_a = tensor_mul(b_c, grad);
 			Tensor *new_grad = tensor_collapse(a, grad_a);
-			tensor_unbroadcast(a);
+			// tensor_unbroadcast(a);
 			tensor_free(grad_a);
 			grad_a = new_grad;
 		}
@@ -362,7 +362,7 @@ Tensor **tensor_backpairwise_mul(Grad_Node *node, Tensor *grad)
 		{
 			grad_b = tensor_mul(a_c, grad);
 			Tensor *new_grad = tensor_collapse(b, grad_b);
-			tensor_unbroadcast(b);
+			// tensor_unbroadcast(b);
 			tensor_free(grad_b);
 			grad_b = new_grad;
 		}
@@ -502,7 +502,7 @@ void	tensor_backward(Tensor *a, Tensor *prev_grad)
 	Tensor **gradients = node->calculate_gradient(node,prev_grad);
 	if (!gradients)
 		return;
-	tensor_free(prev_grad);
+	// tensor_free(prev_grad);
 	Tensor *grad_a = gradients[0];
 	Tensor *grad_b = gradients[1];
 
