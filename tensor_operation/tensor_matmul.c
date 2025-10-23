@@ -71,8 +71,6 @@ Tensor *tensor_matmul(Tensor*a, Tensor *b)
     Tensor *result = tensor_zeros(result_shape, 3, a->dtype, a->device);
     if (!result)
         return (tensor_free(a_r), tensor_free(b_r), tensor_free(a_f), tensor_free(b_f), free(final_shape),NULL);
-    if (a_r->shape[0] != b_r->shape[0])
-        error_msg("something is not working well in reshape");
     matmul_calculation(a_f, b_f, result);
     final_shape[final_dim - 1] = b_cols;
     final_shape[final_dim - 2] = a_rows;
