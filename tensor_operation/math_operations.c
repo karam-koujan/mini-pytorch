@@ -221,14 +221,12 @@ Tensor *tensor_div(Tensor*a, Tensor *b)
     {
         return (NULL);
     }
-	Grad_Node *grad_fn = a->requires_grad || b->requires_grad ? create_pairwise_mul_node(a,b) : NULL;
+	Grad_Node *grad_fn = a->requires_grad || b->requires_grad ? create_pairwise_div_node(a,b) : NULL;
     pairwise_op(data_a, data_b, r, '/');
     r->grad_fn = grad_fn;
     r->is_leaf = 0;
     free(data_a);
     free(data_b);
-    tensor_unbroadcast(a);
-    tensor_unbroadcast(b);
     return (r);
 }
 

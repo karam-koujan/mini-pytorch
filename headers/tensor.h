@@ -141,4 +141,6 @@ void tensor_accumulate_grad(Tensor *a, Tensor *grad);
 void tensor_backward(Tensor *a, Tensor *prev_grad);
 int is_shape_allowed(Tensor*a, Tensor *b);
 Tensor *tensor_neg(Tensor *a);
+Grad_Node	*create_pairwise_div_node(Tensor *a, Tensor *b);
+Tensor **tensor_backpairwise_div(Grad_Node *node, Tensor *grad);
 #endif

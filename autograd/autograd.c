@@ -143,6 +143,25 @@ Grad_Node	*create_pairwise_mul_node(Tensor *a, Tensor *b)
 	return node;
 }
 
+Grad_Node	*create_pairwise_div_node(Tensor *a, Tensor *b)
+{
+	Grad_Node *node;
+
+	node = malloc(sizeof(Grad_Node ));
+	Tensor **saved_tensors = malloc(2 * sizeof(Tensor *));
+	if ( !node || !saved_tensors)
+	{
+		free(node);
+		free(saved_tensors);
+		return NULL;
+	}
+	saved_tensors[0] = a;
+	saved_tensors[1] = b;
+	node->saved_tensors = saved_tensors;
+	node->calculate_gradient = tensor_backpairwise_div;
+	return node;
+}
+
 Grad_Node	*create_add_node(Tensor *a, Tensor *b)
 {
 	Grad_Node *node;
@@ -326,7 +345,7 @@ Tensor **tensor_backpairwise_mul(Grad_Node *node, Tensor *grad)
 		if (a->is_broadcasted)
 		{
 			grad_a = tensor_mul(b_c, grad);
-			Tensor *new_grad = tensor_collapse(a, grad);
+			Tensor *new_grad = tensor_collapse(a, grad_a);
 			tensor_unbroadcast(a);
 			tensor_free(grad_a);
 			grad_a = new_grad;
@@ -342,7 +361,7 @@ Tensor **tensor_backpairwise_mul(Grad_Node *node, Tensor *grad)
 		if (b->is_broadcasted)
 		{
 			grad_b = tensor_mul(a_c, grad);
-			Tensor *new_grad = tensor_collapse(b, grad);
+			Tensor *new_grad = tensor_collapse(b, grad_b);
 			tensor_unbroadcast(b);
 			tensor_free(grad_b);
 			grad_b = new_grad;
@@ -359,6 +378,80 @@ Tensor **tensor_backpairwise_mul(Grad_Node *node, Tensor *grad)
 	res[1] = grad_b;
 	return res;
 }
+
+
+Tensor **tensor_backpairwise_div(Grad_Node *node, Tensor *grad)
+{
+	Tensor *a = node->saved_tensors[0];
+	Tensor *b = node->saved_tensors[1];
+	printf("tensor_info of b: %i\n", b->is_broadcasted);
+	Tensor *a_c = tensor_deep_copy(a);
+	Tensor *b_c = tensor_deep_copy(b);
+	tensor_set_require_grad(a_c, 0);
+	tensor_set_require_grad(b_c, 0);
+	Tensor *one = tensor_ones(b->shape, b->num_dims, b->dtype, b->device); 
+	Tensor *b_r = tensor_div(one, b_c);
+	Tensor **res = malloc(2 * sizeof(Tensor *));
+	if (!res)
+		return NULL;
+	Tensor *grad_a = NULL;
+	Tensor *grad_b = NULL;
+	if (a->requires_grad == 1)
+	{
+		if (a->is_broadcasted)
+		{
+			grad_a = tensor_mul(b_r, grad);
+			Tensor *new_grad = tensor_collapse(a, grad_a);
+			tensor_unbroadcast(a);
+			tensor_free(grad_a);
+			grad_a = new_grad;
+		}
+		else
+		{
+			grad_a = tensor_mul(b_r, grad);;
+		}
+		tensor_set_require_grad(grad_a,0);
+	}
+	if (b->requires_grad == 1)
+	{
+		if (b->is_broadcasted)
+		{
+			grad_b = tensor_mul(a_c, grad);
+			Tensor *neg_grad = tensor_neg(grad_b);
+			Tensor *b_pow = tensor_mul(b_c, b_c);
+			Tensor *n_grad = tensor_div(neg_grad, b_pow);
+			Tensor *new_grad = tensor_collapse(b, n_grad);
+			tensor_free(b_pow);
+			tensor_free(neg_grad);
+			tensor_free(n_grad);
+			tensor_unbroadcast(b);
+			tensor_free(grad_b);
+			grad_b = new_grad;
+		}
+		else
+		{
+			grad_b = tensor_mul(a_c, grad);
+			Tensor *neg_grad = tensor_neg(grad_b);
+			Tensor *b_pow = tensor_mul(b_c, b_c);
+			Tensor *new_grad = tensor_div(neg_grad, b_pow);
+			tensor_free(b_pow);
+			tensor_free(neg_grad);
+			tensor_free(grad_b);
+			grad_b = new_grad;
+		}
+		tensor_set_require_grad(grad_b,0);
+	}
+	tensor_free(a_c);
+	tensor_free(b_c);
+	tensor_free(one);
+	tensor_free(b_r);
+	res[0] = grad_a;
+	res[1] = grad_b;
+	return res;	
+}
+
+
+
 Tensor **tensor_backmm(Grad_Node *node, Tensor *grad)
 {
 	Tensor **res = malloc(2 * sizeof(Tensor *));
