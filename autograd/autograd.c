@@ -459,8 +459,10 @@ Tensor **tensor_backmm(Grad_Node *node, Tensor *grad)
 		return NULL;
 	Tensor *a = node->saved_tensors[0];
 	Tensor *b = node->saved_tensors[1];
-	Tensor *b_t = tensor_t(b);
-	Tensor *a_t = tensor_t(a);
+	Tensor *a_c = tensor_deep_copy(a);
+	Tensor *b_c = tensor_deep_copy(b);
+	Tensor *b_t = tenso_de(a_c);
+	Tensor *a_t = tensor_t(b_c);
 	Tensor *grad_a = NULL;
 	Tensor *grad_b = NULL;
 	if(a->requires_grad)
@@ -473,6 +475,10 @@ Tensor **tensor_backmm(Grad_Node *node, Tensor *grad)
 		grad_b = tensor_mm(a_t,grad);
 		tensor_set_require_grad(grad_b,0);
 	}
+	tensor_free(a_c);
+	tensor_free(b_c);
+	free(b_t);
+	free(a_t);
 	res[0] = grad_a;
 	res[1] = grad_b;
 	return res;
