@@ -13,16 +13,17 @@ int main()
 {
     const int64_t shape_a[] = {2,1,1,2};
     const int64_t shape_b[] = {1,2};
-    int64_t va = 1, vb = 5;
-    Tensor *a = tensor_full(shape_a, 4, INT64, CPU, &va);
-    Tensor *b = tensor_full(shape_b, 2, INT64, CPU, &vb);
+    double va = 1, vb = 5;
+    Tensor *a = tensor_full(shape_a, 4, DOUBLE, CPU, &va);
+    Tensor *b = tensor_full(shape_b, 2, DOUBLE, CPU, &vb);
     tensor_set_require_grad(a, 1);
     tensor_set_require_grad(b,1);
-    Tensor *r = tensor_sub(a,b);
+    Tensor *r = tensor_add(a,b);
     tensor_backward(r, NULL);
     tensor_print(r);
     printf("here is grad\n");
     tensor_print(a->grad);
     tensor_print(b->grad);
     tensor_print(b);
+// }
 }

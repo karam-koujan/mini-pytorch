@@ -40,10 +40,32 @@ Tensor *tensor_collapse(Tensor *b_t, Tensor *grad)
 		broadcasted_dim*= b_t->shape[j];
 		j--;
 	}
-	int64_t coef_int = broadcasted_dim / diff;
-	printf("coef int %lli\n", coef_int);
-	int64_t	*coef = &coef_int;
-	Tensor *co = tensor_full(grad->shape, grad->num_dims, grad->dtype, grad->device, coef);
+	// Tensor *co = tensor_full(grad->shape, grad->num_dims, grad->dtype, grad->device, coef);
+	Tensor *co = NULL;
+switch (b_t->dtype)
+{
+    case FLOAT32: {
+        float coef = broadcasted_dim / diff;
+        co = tensor_full(grad->shape, grad->num_dims, grad->dtype, grad->device, &coef);
+        break;
+    }
+    case DOUBLE: {
+        double coef = broadcasted_dim / diff;
+        co = tensor_full(grad->shape, grad->num_dims, grad->dtype, grad->device, &coef);
+        break;
+    }
+    case INT64: {
+        int64_t coef = broadcasted_dim / diff;
+        co = tensor_full(grad->shape, grad->num_dims, grad->dtype, grad->device, &coef);
+        break;
+    }
+    case INT32: {
+        int coef = broadcasted_dim / diff;
+        co = tensor_full(grad->shape, grad->num_dims, grad->dtype, grad->device, &coef);
+        break;
+    }
+}
+
 	Tensor *new_grad = tensor_mul(co, grad);
 	Tensor *reduced_grad = tensor_zeros(b_t->prebroadcast_shape, b_t->prebroadcast_dims, b_t->dtype, b_t->device);
 	if (!reduced_grad)

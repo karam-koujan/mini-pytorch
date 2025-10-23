@@ -338,3 +338,16 @@ Tensor *tensor_mm(Tensor*a, Tensor *b)
     mm_calculation(a, b, result);
     return (result);
 }
+
+Tensor *tensor_mul_scalar(Tensor *a, void *scalar)
+{
+    Tensor *b = NULL;
+    switch(a->dtype)
+    {
+        case FLOAT32: b = tensor_full(a->shape, a->num_dims, a->dtype, a->device, (float *)scalar);break;
+        case DOUBLE: b = tensor_full(a->shape, a->num_dims, a->dtype, a->device, (double *)scalar);break;
+        case INT32: b = tensor_full(a->shape, a->num_dims, a->dtype, a->device, (int *)scalar);break;
+        case INT64: b = tensor_full(a->shape, a->num_dims, a->dtype, a->device, (int64_t *)scalar); break;
+    }
+    return tensor_mul(a, b);
+}
