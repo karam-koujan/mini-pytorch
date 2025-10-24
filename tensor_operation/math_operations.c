@@ -334,6 +334,7 @@ Tensor *tensor_mm(Tensor*a, Tensor *b)
     if  (!result)
         return (NULL);
     mm_calculation(a, b, result);
+    
     return (result);
 }
 

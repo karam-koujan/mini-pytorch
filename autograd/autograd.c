@@ -12,6 +12,7 @@ void tensor_set_require_grad(Tensor *a, int requires_grad)
 		if (!a->grad)
 			return (free(shape), error_msg("a grad is failed in creation"));
 		a->requires_grad = 1;
+		free(shape);
 	}
 	if (requires_grad == 0)
 	{
@@ -119,6 +120,8 @@ Grad_Node	*create_mm_node(Tensor *a, Tensor *b)
 	}
 	saved_tensors[0] = a;
 	saved_tensors[1] = b;
+	node->broadcasted_tensor_a = NULL;
+	node->broadcasted_tensor_b = NULL;
 	node->saved_tensors = saved_tensors;
 	node->calculate_gradient = tensor_backmm;
 	return node;
@@ -138,6 +141,8 @@ Grad_Node	*create_pairwise_mul_node(Tensor *a, Tensor *b)
 	}
 	saved_tensors[0] = a;
 	saved_tensors[1] = b;
+	node->broadcasted_tensor_a = NULL;
+	node->broadcasted_tensor_b = NULL;
 	node->saved_tensors = saved_tensors;
 	node->calculate_gradient = tensor_backpairwise_mul;
 	return node;
@@ -157,6 +162,8 @@ Grad_Node	*create_pairwise_div_node(Tensor *a, Tensor *b)
 	}
 	saved_tensors[0] = a;
 	saved_tensors[1] = b;
+	node->broadcasted_tensor_a = NULL;
+	node->broadcasted_tensor_b = NULL;
 	node->saved_tensors = saved_tensors;
 	node->calculate_gradient = tensor_backpairwise_div;
 	return node;
@@ -176,6 +183,8 @@ Grad_Node	*create_add_node(Tensor *a, Tensor *b)
 	}
 	saved_tensors[0] = a;
 	saved_tensors[1] = b;
+	node->broadcasted_tensor_a = NULL;
+	node->broadcasted_tensor_b = NULL;
 	node->saved_tensors = saved_tensors;
 	node->calculate_gradient = tensor_backadd;
 	return node;
@@ -194,6 +203,8 @@ Grad_Node	*create_sub_node(Tensor *a, Tensor *b)
 	}
 	saved_tensors[0] = a;
 	saved_tensors[1] = b;
+	node->broadcasted_tensor_a = NULL;
+	node->broadcasted_tensor_b = NULL;
 	node->saved_tensors = saved_tensors;
 	node->calculate_gradient = tensor_backsub;
 	return node;
@@ -508,7 +519,7 @@ void	tensor_backward(Tensor *a, Tensor *prev_grad)
 	Tensor **gradients = node->calculate_gradient(node,prev_grad);
 	if (!gradients)
 		return;
-	// tensor_free(prev_grad);
+	tensor_free(prev_grad);
 	Tensor *grad_a = gradients[0];
 	Tensor *grad_b = gradients[1];
 

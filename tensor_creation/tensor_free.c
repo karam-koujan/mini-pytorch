@@ -1,4 +1,5 @@
 #include "../headers/tensor.h"
+#include "../headers/print.h"
 
 
 void    tensor_free(Tensor *a)
@@ -23,15 +24,13 @@ void    tensor_free(Tensor *a)
     if (a->grad_fn)
     {
         Grad_Node *n = a->grad_fn;
-        if (n->grad)
-            tensor_free(n->grad);
-        n->grad = NULL;
         tensor_free(n->broadcasted_tensor_a);
         n->broadcasted_tensor_a = NULL;
         tensor_free(n->broadcasted_tensor_b);
         n->broadcasted_tensor_b = NULL;
+        free(n->saved_tensors);
         free(n);
-    }
+ }
     a->grad_fn = NULL;
     free(a);
 }
