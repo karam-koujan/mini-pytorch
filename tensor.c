@@ -21,7 +21,7 @@ int main()
     Tensor *r = tensor_div(a,b);
     // tensor_set_require_grad(r, 1);
     // Tensor *p = tensor_mul(r, r);
-    // tensor_backward(p, NULL);
+    tensor_backward(r, NULL);
     tensor_print(r);
     printf("here is grad\n");
     tensor_print(a->grad);

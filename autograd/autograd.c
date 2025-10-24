@@ -224,7 +224,6 @@ Tensor **tensor_backadd(Grad_Node *node, Tensor *grad)
 		if (a->is_broadcasted)
 		{
 			grad_a = tensor_collapse(a, grad);
-			tensor_unbroadcast(a);
 		}
 		else
 		{
@@ -237,7 +236,6 @@ Tensor **tensor_backadd(Grad_Node *node, Tensor *grad)
 		if (b->is_broadcasted)
 		{
 			grad_b = tensor_collapse(b, grad);
-			tensor_unbroadcast(b);
 		}
 		else
 		{
@@ -281,7 +279,6 @@ Tensor **tensor_backsub(Grad_Node *node, Tensor *grad)
 			Tensor *newgrad_b = tensor_neg(grad_b);
 			tensor_free(grad_b);
 			grad_b = newgrad_b;
-			tensor_unbroadcast(b);
 		}
 		else
 		{
@@ -357,7 +354,6 @@ Tensor **tensor_backpairwise_mul(Grad_Node *node, Tensor *grad)
 		{
 			grad_a = tensor_mul(b_c, grad);
 			Tensor *new_grad = tensor_collapse(a, grad_a);
-			// tensor_unbroadcast(a);
 			tensor_free(grad_a);
 			grad_a = new_grad;
 		}
@@ -373,7 +369,6 @@ Tensor **tensor_backpairwise_mul(Grad_Node *node, Tensor *grad)
 		{
 			grad_b = tensor_mul(a_c, grad);
 			Tensor *new_grad = tensor_collapse(b, grad_b);
-			// tensor_unbroadcast(b);
 			tensor_free(grad_b);
 			grad_b = new_grad;
 		}
@@ -395,7 +390,6 @@ Tensor **tensor_backpairwise_div(Grad_Node *node, Tensor *grad)
 {
 	Tensor *a = node->saved_tensors[0];
 	Tensor *b = node->saved_tensors[1];
-	printf("tensor_info of b: %i\n", b->is_broadcasted);
 	Tensor *a_c = tensor_deep_copy(a);
 	Tensor *b_c = tensor_deep_copy(b);
 	tensor_set_require_grad(a_c, 0);
@@ -413,7 +407,6 @@ Tensor **tensor_backpairwise_div(Grad_Node *node, Tensor *grad)
 		{
 			grad_a = tensor_mul(b_r, grad);
 			Tensor *new_grad = tensor_collapse(a, grad_a);
-			tensor_unbroadcast(a);
 			tensor_free(grad_a);
 			grad_a = new_grad;
 		}
@@ -435,7 +428,6 @@ Tensor **tensor_backpairwise_div(Grad_Node *node, Tensor *grad)
 			tensor_free(b_pow);
 			tensor_free(neg_grad);
 			tensor_free(n_grad);
-			tensor_unbroadcast(b);
 			tensor_free(grad_b);
 			grad_b = new_grad;
 		}
@@ -522,7 +514,6 @@ void	tensor_backward(Tensor *a, Tensor *prev_grad)
 	tensor_free(prev_grad);
 	Tensor *grad_a = gradients[0];
 	Tensor *grad_b = gradients[1];
-
 	if (node->saved_tensors[0]->is_leaf == 1 && node->saved_tensors[0]->requires_grad == 1)
 	{
 		tensor_accumulate_grad(node->saved_tensors[0],grad_a);
@@ -539,5 +530,7 @@ void	tensor_backward(Tensor *a, Tensor *prev_grad)
 	{
 		tensor_backward(node->saved_tensors[1],grad_b);
 	}
-
+	tensor_free(gradients[0]);
+	tensor_free(gradients[1]);
+	free(gradients);
 }
