@@ -309,8 +309,6 @@ Tensor **tensor_backmatmul(Grad_Node *node, Tensor *grad)
 	if(a->requires_grad)
 	{
 		grad_a = tensor_matmul(grad,b_t);
-		printf("passed here\n");
-		tensor_infos(node->broadcasted_tensor_a);
 		if (node->broadcasted_tensor_a && node->broadcasted_tensor_a->is_broadcasted)
 		{
 			Tensor *uncollapsed_grad = grad_a;	
@@ -483,8 +481,8 @@ Tensor **tensor_backmm(Grad_Node *node, Tensor *grad)
 	}
 	tensor_free(a_c);
 	tensor_free(b_c);
-	free(b_t);
-	free(a_t);
+	tensor_free(b_t);
+	tensor_free(a_t);
 	res[0] = grad_a;
 	res[1] = grad_b;
 	return res;
