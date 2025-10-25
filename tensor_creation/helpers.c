@@ -71,60 +71,71 @@ Tensor *tensor_deep_copy(Tensor *a)
     if (!r)
         return (NULL);
     memcpy(r, a, sizeof(Tensor));
+
     void *data = malloc(a->size * sizeof_type(a->dtype));
+    r->grad_fn = NULL;
     if (!data)
     {
+        r->prebroadcast_shape = NULL;
+        r->prebroadcast_stride = NULL;
         r->data = NULL;
         r->shape = NULL;
         r->strides = NULL;
         r->grad = NULL;
-        r->grad_fn = NULL;
         return (tensor_free(r), NULL);
     }
+    memcpy(data, a->data, a->size * sizeof_type(a->dtype));
+    r->data = data;
     int64_t *shape = malloc(a->num_dims * sizeof(int64_t));
     if (!shape)
     {
-        r->data = NULL;
+        r->prebroadcast_shape = NULL;
+        r->prebroadcast_stride = NULL;
         r->shape = NULL;
         r->strides = NULL;
         r->grad = NULL;
-        r->grad_fn = NULL;
         return (tensor_free(r), NULL);
     }
+    memcpy(shape, a->shape, a->num_dims * sizeof(int64_t));
+    r->shape = shape;
     int64_t *strides = malloc(a->num_dims * sizeof(int64_t));
     if (!strides)
     {
-        r->data = NULL;
-        r->shape = NULL;
+        r->prebroadcast_shape = NULL;
+        r->prebroadcast_stride = NULL;
         r->strides = NULL;
         r->grad = NULL;
-        r->grad_fn = NULL;
-        return (free(shape), free(data), tensor_free(r), NULL);
+        return (tensor_free(r), NULL);
     }
-    
+    r->strides = strides;
+    memcpy(strides, a->strides, a->num_dims * sizeof(int64_t));
     Tensor  *grad = NULL;
     if (a->grad)
     {
         grad = tensor_deep_copy(a->grad);
         if (!grad)
         {
-            r->data = NULL;
-            r->shape = NULL;
-            r->strides = NULL;
+            r->prebroadcast_shape = NULL;
+            r->prebroadcast_stride = NULL;
             r->grad = NULL;
-            r->grad_fn = NULL;
-            return ( free(strides),free(shape), free(data),tensor_free(r), NULL);
+            return (tensor_free(r), NULL);
         }
     }
-    memcpy(data, a->data, a->size * sizeof_type(a->dtype));
-    memcpy(shape, a->shape, a->num_dims * sizeof(int64_t));
-    memcpy(strides, a->strides, a->num_dims * sizeof(int64_t));
+    a->grad = grad;
+    if (a->is_broadcasted)
+    {
+        r->prebroadcast_shape = malloc(a->prebroadcast_dims * sizeof(int64_t));
+        r->prebroadcast_stride = malloc(a->prebroadcast_dims * sizeof(int64_t));
+        if (!r->prebroadcast_shape || !r->prebroadcast_stride)
+        {
+            r->prebroadcast_shape = NULL;
+            r->prebroadcast_stride = NULL;
+            return (tensor_free(r), NULL);
+        }
+        memcpy(r->prebroadcast_shape, a->shape, a->prebroadcast_dims * sizeof(int64_t));
+        memcpy(r->prebroadcast_stride, a->strides, a->prebroadcast_dims * sizeof(int64_t));
+    }
 
-    r->data = data;
-    r->strides = strides;
-    r->shape = shape;
-    r->grad = grad;
-    r->grad_fn = NULL;
     return (r);
 }
 

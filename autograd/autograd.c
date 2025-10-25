@@ -263,7 +263,6 @@ Tensor **tensor_backsub(Grad_Node *node, Tensor *grad)
 		if (a->is_broadcasted)
 		{
 			grad_a = tensor_collapse(a, grad);
-			tensor_unbroadcast(a);
 		}
 		else
 		{
@@ -492,6 +491,7 @@ void	tensor_accumulate_grad(Tensor *a, Tensor *grad)
 	if (!new_grad)
 		return (error_msg("some thing wrong in tensor_add in tensor accumulate grad"));
 	tensor_free(a->grad);
+	tensor_free(grad);
 	a->grad = new_grad;
 }
 
@@ -530,7 +530,6 @@ void	tensor_backward(Tensor *a, Tensor *prev_grad)
 	{
 		tensor_backward(node->saved_tensors[1],grad_b);
 	}
-	tensor_free(gradients[0]);
-	tensor_free(gradients[1]);
+
 	free(gradients);
 }

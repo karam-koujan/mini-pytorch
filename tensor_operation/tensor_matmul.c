@@ -83,6 +83,8 @@ Tensor *tensor_matmul(Tensor*a, Tensor *b)
     free(final_shape);
     final_result->is_leaf = 0;
     final_result->grad_fn =  grad_fn;
+    if (grad_fn)
+        tensor_set_require_grad(final_result, 1);
     return final_result;
 }
 

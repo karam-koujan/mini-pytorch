@@ -167,6 +167,8 @@ Tensor *tensor_add(Tensor*a, Tensor *b)
     r->is_leaf = 0;
     free(data_a);
     free(data_b);
+    if (grad_fn)
+        tensor_set_require_grad(r, 1);
     return (r);
 }
 
@@ -196,6 +198,8 @@ Tensor *tensor_sub(Tensor*a, Tensor *b)
     r->is_leaf = 0;
     free(data_a);
     free(data_b);
+    if (grad_fn)
+        tensor_set_require_grad(r, 1);
     return (r);
 }
 
@@ -219,6 +223,8 @@ Tensor *tensor_div(Tensor*a, Tensor *b)
     Tensor *r = tensor_full(a->shape, a->num_dims, dtype, a->device, val_ptr);
     if (!r)
     {
+        free(data_a);
+        free(data_b);
         return (NULL);
     }
 	Grad_Node *grad_fn = a->requires_grad || b->requires_grad ? create_pairwise_div_node(a,b) : NULL;
@@ -227,6 +233,8 @@ Tensor *tensor_div(Tensor*a, Tensor *b)
     r->is_leaf = 0;
     free(data_a);
     free(data_b);
+    if (grad_fn)
+        tensor_set_require_grad(r, 1);
     return (r);
 }
 
@@ -257,8 +265,8 @@ Tensor *tensor_mul(Tensor*a, Tensor *b)
     r->is_leaf = 0;
     free(data_a);
     free(data_b);
-    // tensor_unbroadcast(a);
-    // tensor_unbroadcast(b);
+    if (grad_fn)
+        tensor_set_require_grad(r, 1);
     return (r);
 }
 
@@ -331,6 +339,8 @@ Tensor *tensor_mm(Tensor*a, Tensor *b)
     Tensor *result = tensor_zeros(result_shape, 2, a->dtype, a->device);
     result->grad_fn = grad_fn;
     result->is_leaf = 0;
+    if (grad_fn)
+        tensor_set_require_grad(result, 1);
     if  (!result)
         return (NULL);
     mm_calculation(a, b, result);

@@ -30,7 +30,9 @@ int tensor_broadcast(Tensor *a, Tensor *b)
         return (error_msg("error in creating shape in tensor_broadcast"), 1);
     int i = ndim - 1;
     int j = a->num_dims - 1;
-    int k = b->num_dims - 1; 
+    int k = b->num_dims - 1;
+    int was_broadcasted_a = a->is_broadcasted;
+    int was_broadcasted_b = b->is_broadcasted;
     while (i >= 0)
     {
         shape_a[i] = j >= 0 ? a->shape[j] : 1;
@@ -60,6 +62,12 @@ int tensor_broadcast(Tensor *a, Tensor *b)
     }
     if (a->is_broadcasted)
     {
+        if (was_broadcasted_a)
+        {
+            free(a->prebroadcast_shape);
+            
+            free(a->prebroadcast_stride);
+        }
         a->prebroadcast_shape = a->shape;
         a->prebroadcast_stride = a->strides;
         a->prebroadcast_dims = a->num_dims;
@@ -73,6 +81,11 @@ int tensor_broadcast(Tensor *a, Tensor *b)
     }
     if (b->is_broadcasted)
     {
+        if (was_broadcasted_b)
+        {
+            free(b->prebroadcast_shape);
+            free(b->prebroadcast_stride);
+        }
         b->prebroadcast_shape = b->shape;
         b->prebroadcast_stride = b->strides;
         b->prebroadcast_dims = b->num_dims;
