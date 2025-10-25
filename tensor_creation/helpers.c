@@ -99,7 +99,7 @@ Tensor *tensor_deep_copy(Tensor *a)
         r->strides = NULL;
         r->grad = NULL;
         r->grad_fn = NULL;
-        return (tensor_free(r), NULL);
+        return (free(shape), free(data), tensor_free(r), NULL);
     }
     
     Tensor  *grad = NULL;
@@ -113,7 +113,7 @@ Tensor *tensor_deep_copy(Tensor *a)
             r->strides = NULL;
             r->grad = NULL;
             r->grad_fn = NULL;
-            return (tensor_free(r), NULL);
+            return ( free(strides),free(shape), free(data),tensor_free(r), NULL);
         }
     }
     memcpy(data, a->data, a->size * sizeof_type(a->dtype));

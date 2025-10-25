@@ -203,7 +203,7 @@ int tensor_contigous_broadcast(Tensor *a)
     int64_t size = tensor_size(a);
     void *data = calloc(size, sizeof_type(a->dtype));
     if (!data)
-        return (1);
+        return (free(new_stride), 1);
     int64_t b_t = size / a->size;
     for (int64_t i = 0; i < b_t ; i++)
     {
