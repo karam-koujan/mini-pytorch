@@ -20,12 +20,18 @@ int main()
     module_parameter(m, a, 1);
     module_parameter(m, b, 1);
         module_parameter(m, b, 1);
+        module_parameter(m, b, 1);
+        module_parameter(m, b, 1);
+        module_parameter(m, b, 1);
+        module_parameter(m, b, 1);
+        module_parameter(m, b, 1);
+        module_parameter(m, b, 1);
 
 
 
     parameters_print(m->parameters);
     tensor_free(a);
     tensor_free(b);
-    // free(m->parameters);
-    // free(m);
+    free(m->parameters);
+    free(m);
 }

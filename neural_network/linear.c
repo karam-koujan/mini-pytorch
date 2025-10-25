@@ -20,7 +20,7 @@ Tensor *module_parameter(Module *m, Tensor *a, int requires_grad)
         nmemb = nmemb + 1;
     }
     printf("nmemb :%zu\n", nmemb);
-    new_parameters = calloc(nmemb, sizeof(Tensor *));
+    new_parameters = calloc(nmemb + 1, sizeof(Tensor *));
     if (!new_parameters)
         return (NULL);
     if (!m->parameters)
@@ -32,7 +32,7 @@ Tensor *module_parameter(Module *m, Tensor *a, int requires_grad)
     {
         memcpy(new_parameters, m->parameters, (nmemb) * sizeof(Tensor *));
         new_parameters[nmemb - 1] = a;
-        new_parameters[nmemb]  = NULL;
+        new_parameters[nmemb ]  = NULL;
     }
     free(m->parameters);
     m->parameters = new_parameters;
