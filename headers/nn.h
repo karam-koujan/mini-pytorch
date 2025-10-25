@@ -11,4 +11,6 @@ typedef struct Module_s
 
 size_t parameters_len(Tensor **parameters);
 Module *module_constructor();
+Tensor *module_parameter(Module *m, Tensor *a, int requires_grad);
+void    parameters_print(Tensor **parameters);
 #endif
