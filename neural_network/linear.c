@@ -37,3 +37,12 @@ Tensor *Parameter(Module *m, Tensor *a, int requires_grad)
     m->parameters = new_parameters;
     return a;
 }
+
+Module *module_constructor()
+{
+    Module *m = malloc(sizeof(Module));
+    if (!m)
+        return (NULL);
+    m->parameters = NULL;
+    return (m);
+}

@@ -10,4 +10,5 @@ typedef struct Module_s
 }       Module;
 
 size_t parameters_len(Tensor **parameters);
+Module *module_constructor();
 #endif
