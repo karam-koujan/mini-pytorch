@@ -54,10 +54,6 @@ typedef struct Node
 	Tensor **(*calculate_gradient)(struct Node *node,Tensor *grad);
 }	Grad_Node;
 
-typedef struct
-{
-	Tensor **parameters;
-} Module;
 
 int 	sizeof_type(Dtype type);
 int64_t calculate_size(const int64_t *shape, int64_t ndim);
