@@ -309,28 +309,32 @@ Tensor **tensor_backmatmul(Grad_Node *node, Tensor *grad)
 	if(a->requires_grad)
 	{
 		grad_a = tensor_matmul(grad,b_t);
+		printf("passed here\n");
+		tensor_infos(node->broadcasted_tensor_a);
+		if (node->broadcasted_tensor_a && node->broadcasted_tensor_a->is_broadcasted)
+		{
+			Tensor *uncollapsed_grad = grad_a;	
+			grad_a = tensor_collapse(node->broadcasted_tensor_a, grad_a);
+			tensor_free(uncollapsed_grad);
+		}
 		tensor_set_require_grad(grad_a,0);
 
 	}
 	if(b->requires_grad)
 	{
 		grad_b = tensor_matmul(a_t,grad);
+		if (node->broadcasted_tensor_b && node->broadcasted_tensor_b->is_broadcasted)
+		{
+			Tensor *uncollapsed_grad = grad_b;	
+			grad_b = tensor_collapse(node->broadcasted_tensor_b, grad_b);
+			tensor_free(uncollapsed_grad);
+		}
 		tensor_set_require_grad(grad_b,0);
-	}
-
-	if (node->broadcasted_tensor_a->is_broadcasted)
-	{
-		
-		grad_a = tensor_collapse(node->broadcasted_tensor_a, grad_a);
-	}
-	if (node->broadcasted_tensor_b->is_broadcasted)
-	{
-		grad_b = tensor_collapse(node->broadcasted_tensor_b, grad_b);
 	}
 	res[0] = grad_a;
 	res[1] = grad_b;
-	free(b_t);
-	free(a_t);
+	tensor_free(b_t);
+	tensor_free(a_t);
 	return res;
 }
 

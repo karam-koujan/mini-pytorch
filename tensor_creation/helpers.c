@@ -132,8 +132,8 @@ Tensor *tensor_deep_copy(Tensor *a)
             r->prebroadcast_stride = NULL;
             return (tensor_free(r), NULL);
         }
-        memcpy(r->prebroadcast_shape, a->shape, a->prebroadcast_dims * sizeof(int64_t));
-        memcpy(r->prebroadcast_stride, a->strides, a->prebroadcast_dims * sizeof(int64_t));
+        memcpy(r->prebroadcast_shape, a->prebroadcast_shape, a->prebroadcast_dims * sizeof(int64_t));
+        memcpy(r->prebroadcast_stride, a->prebroadcast_stride, a->prebroadcast_dims * sizeof(int64_t));
     }
 
     return (r);
