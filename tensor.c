@@ -18,14 +18,6 @@ int main()
     Tensor *b = tensor_full(shape_b, 3, DOUBLE, CPU, &vb);
     Module *m  = module_constructor();
     module_parameter(m, a, 1);
-    module_parameter(m, b, 1);
-        module_parameter(m, b, 1);
-        module_parameter(m, b, 1);
-        module_parameter(m, b, 1);
-        module_parameter(m, b, 1);
-        module_parameter(m, b, 1);
-        module_parameter(m, b, 1);
-        module_parameter(m, b, 1);
 
 
 

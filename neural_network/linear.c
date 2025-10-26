@@ -14,12 +14,11 @@ Tensor *module_parameter(Module *m, Tensor *a, int requires_grad)
     Tensor **new_parameters;
     if (nmemb == 0)
     {
-        nmemb = 2;
+        nmemb = 1;
     }else
     {
         nmemb = nmemb + 1;
     }
-    printf("nmemb :%zu\n", nmemb);
     new_parameters = calloc(nmemb + 1, sizeof(Tensor *));
     if (!new_parameters)
         return (NULL);
