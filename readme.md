@@ -2,6 +2,31 @@
 
 Mini-PyTorch is a small, educational tensor library written in pure C, inspired by the core functionalities of PyTorch. It provides a dynamic Tensor object, an automatic differentiation engine (autograd), and basic building blocks for creating neural networks.
 
+## Table of Contents
+
+-   [Features](#features)
+-   [How to Build](#how-to-build)
+-   [API Documentation & Examples](#api-documentation--examples)
+    -   [1. Tensor Creation](#1-tensor-creation)
+        -   [`tensor_zeros`](#tensor_zeros)
+        -   [`tensor_ones`](#tensor_ones)
+        -   [`tensor_full`](#tensor_full)
+        -   [`tensor_rand`](#tensor_rand)
+        -   [`tensor_urand`](#tensor_urand)
+        -   [`tensor_from_arr`](#tensor_from_arr)
+    -   [2. Tensor Operations](#2-tensor-operations)
+        -   [Mathematical Operations](#mathematical-operations)
+        -   [Manipulation Operations](#manipulation-operations)
+        -   [Utility Functions](#utility-functions)
+    -   [3. Autograd Engine](#3-autograd-engine)
+        -   [`tensor_set_require_grad`](#tensor_set_require_grad)
+        -   [`tensor_backward`](#tensor_backward)
+    -   [4. Neural Network Module (nn)](#4-neural-network-module-nn)
+        -   [`module_constructor`](#module_constructor)
+        -   [`Linear`](#linear)
+        -   [`relu`](#relu)
+        -   [`parameters_print`](#parameters_print)
+
 ## Features
 
 -   **Tensor Operations**: Create and manipulate multi-dimensional arrays (tensors).
@@ -181,7 +206,6 @@ tensor_print(a_t);
 `tensor_print(t)`: Prints a formatted representation of the tensor.
 `tensor_infos(t)`: Prints detailed metadata about the tensor (shape, strides, dtype, etc.).
 
-
 ### 3. Autograd Engine
 
 The autograd engine tracks operations to compute gradients automatically.
@@ -244,33 +268,9 @@ printf("\nOriginal tensor a:\n");
 tensor_print(a);
 printf("\nGradient of b (should be equal to a):\n");
 tensor_print(b->grad);
-
-/*
-Expected Output:
-
-Original tensor b:
-Tensor of shape (2,2):
-[[5.00,6.00],
-[7.00,8.00]]
-
-Gradient of a (should be equal to b):
-Tensor of shape (2,2):
-[[5.00,6.00],
-[7.00,8.00]]
-
-Original tensor a:
-Tensor of shape (2,2):
-[[1.00,2.00],
-[3.00,4.00]]
-
-Gradient of b (should be equal to a):
-Tensor of shape (2,2):
-[[1.00,2.00],
-[3.00,4.00]]
-*/
 ```
 
-### 4. Neural Network Module (`nn`)
+### 4. Neural Network Module (nn)
 
 The `nn` module provides building blocks for creating neural networks.
 
@@ -293,7 +293,7 @@ Tensor *Linear(Module *m, Tensor *x, int64_t out_features, int bias);
 - `bias`: An integer flag (1 for true, 0 for false) to include a trainable bias term.
 
 #### `relu`
-Applies the Rectified Linear Unit activation function element-wise. `ReLU(x) = max(0, x)`. This is an in-place operation.
+Applies the Rectified Linear Unit activation function element-wise: `ReLU(x) = max(0, x)`. This is an in-place operation.
 
 ```c
 Tensor *relu(Tensor *x);
@@ -331,10 +331,8 @@ tensor_print(output);
 printf("\nModel Parameters:\n");
 parameters_print(model->parameters);
 
-// 5. Example backward pass (assuming `output` is a scalar loss)
-// For demonstration, let's create a dummy scalar from the output
-Tensor *loss = tensor_add(output, output); // Dummy operation to keep graph
-tensor_backward(loss, NULL);
+// 5. Example backward pass (assuming `output` represents some loss)
+tensor_backward(output, NULL);
 
 printf("\n---Gradients after backward pass---\n");
 parameters_print(model->parameters); // The .grad fields will now be populated
