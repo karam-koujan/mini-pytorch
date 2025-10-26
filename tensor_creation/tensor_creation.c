@@ -86,6 +86,26 @@ Tensor *tensor_rand(const int64_t *shape, int64_t ndim, Dtype type, Device devic
 	return tensor;
 }
 
+Tensor *tensor_urand(const int64_t *shape, int64_t ndim, Dtype type, Device device, double min, double max) 
+{
+	if (type != FLOAT32 && type != DOUBLE)
+		return (error_msg("tensor_urand accept only float and double"), NULL);
+	Tensor *tensor = tensor_constructor(shape, ndim, type, device);
+	if (!tensor)
+		return (NULL);
+	tensor->data = create_urand_data(type, tensor->size, min, max);
+	if (!tensor->shape || !tensor->strides || !tensor->data)
+	{
+		error_msg("tensor creation failed!");
+		free(tensor->shape);
+		free(tensor->strides);
+		free(tensor->data);
+		free(tensor);
+	}
+	return tensor;
+}
+
+
 void tensor_infos(Tensor *tensor)
 {
 	if (!tensor)

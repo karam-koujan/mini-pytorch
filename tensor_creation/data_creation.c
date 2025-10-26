@@ -101,3 +101,22 @@ void    *create_rand_data(Dtype type, int size)
     }
     return (data);
 }
+
+void    *create_urand_data(Dtype type, int size, double min, double max)
+{
+    int val_size = sizeof_type(type);
+    if (val_size == -1)
+        return (NULL);
+    void *data = malloc(size * val_size);
+    if (!data)
+        return (error_msg("data creation failed!!"), NULL);
+    for (int i = 0; i < size; i++)
+    {
+        if (type == FLOAT32)
+
+            ((float *)data)[i] = (float)rand_uniform(min, max);
+        else if (type == DOUBLE)
+            ((double *)data)[i] = (double)rand_uniform(min, max);
+    }
+    return (data);
+}

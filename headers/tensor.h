@@ -1,5 +1,6 @@
 #ifndef TENSOR_H
 #define TENSOR_H
+#define M_PI 3.14159265358979323846
 
 #include <stdarg.h>
 #include <unistd.h>
@@ -7,6 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#include <math.h>
 
 #ifndef int64_t
 #define int64_t long long
@@ -139,4 +141,7 @@ int is_shape_allowed(Tensor*a, Tensor *b);
 Tensor *tensor_neg(Tensor *a);
 Grad_Node	*create_pairwise_div_node(Tensor *a, Tensor *b);
 Tensor **tensor_backpairwise_div(Grad_Node *node, Tensor *grad);
+double rand_uniform(double a, double b);
+Tensor *tensor_urand(const int64_t *shape, int64_t ndim, Dtype type, Device device, double min, double max);
+void    *create_urand_data(Dtype type, int size, double min, double max);
 #endif

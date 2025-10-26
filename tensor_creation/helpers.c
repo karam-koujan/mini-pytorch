@@ -164,3 +164,11 @@ Tensor *tensor_constructor(const int64_t *shape, int ndim, Dtype type, Device de
 	tensor->requires_grad = 0;
     return tensor;
 }
+
+
+
+
+double rand_uniform(double a, double b) {
+    double u = (rand() + 1.0) / (RAND_MAX + 2.0);
+    return a + u * (b - a);
+}

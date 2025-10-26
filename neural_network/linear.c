@@ -55,3 +55,8 @@ Module *module_constructor()
     m->parameters = NULL;
     return (m);
 }
+
+Tensor *Linear(int64_t in_features, int64_t out_featres, int bias, int dtype, int device)
+{
+    
+}

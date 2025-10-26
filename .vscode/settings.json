@@ -5,6 +5,8 @@
 		"compare": "c",
 		"type_traits": "c",
 		"print.h": "c",
-		"string.h": "c"
+		"string.h": "c",
+		"stdlib.h": "c",
+		"stdarg.h": "c"
 	}
 }
