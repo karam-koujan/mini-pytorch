@@ -381,35 +381,63 @@ Tensor *tensor_neg(Tensor *a)
 
 
 
-Tensor *tensor_sum(Tensor *a, int64_t dim, int keepdim)
+Tensor *tensor_sum(Tensor *a)
 {
-    if (dim >= a->num_dims || dim < -1)
-        return (error_msg("dim is outside the range of the tensor"), NULL);
-    int64_t ndim = 1;
-    if (dim != -1)
-    {
-        ndim = a->num_dims - 1;
-    }
-    keepdim = 0;
-    int64_t *shape = calloc(ndim, sizeof(int64_t));
-    if (!shape)
-        return (NULL);
-    int j = 0;
-    for (int i = 0; i < a->num_dims; i++)
-    {
-        if (dim == -1)
-        {
-            shape[0] = 1;
-            break;
-        }
-        if (i != dim)
-        {
-            shape[j] = a->shape[i];
-            j++;
-        }
-    }
-    Tensor *result = tensor_zeros(shape, ndim, a->dtype, a->device);
+    const int64_t shape[1] = {1};
+
+    Tensor *result = tensor_zeros(shape, 1, a->dtype, a->device);
     if (!result)
         return (NULL);
+
+    for (int i = 0; i < a->size; i++)
+    {
+	    switch (a->dtype)
+	    {
+	        case FLOAT32: {
+                ((float *)result->data)[0] += ((float *)a->data)[i];
+	            break;
+	        }
+	        case DOUBLE: {
+                ((double *)result->data)[0] += ((double *)a->data)[i];
+	            break;
+	        }
+	        case INT64: {
+                ((int64_t *)result->data)[0] += ((int64_t *)a->data)[i];
+	            break;
+	        }
+	        case INT32: {
+                ((int *)result->data)[0] += ((int *)a->data)[i];
+	            break;
+	        }
+	    }
+    }
     return result;
+}
+
+Tensor *tensor_mean(Tensor *a)
+{
+    Tensor *nom = tensor_sum(a);
+    int64_t d_shape[1] = {1};
+    Tensor *div = NULL;
+    switch(a->dtype)
+    {
+        case FLOAT32:
+        {
+            float div_n = a->size;
+            div = tensor_full(d_shape, 1, a->dtype, a->device, &div_n);
+            break;
+        }
+        case DOUBLE : {
+            double div_n = a->size;
+            div = tensor_full(d_shape, 1, a->dtype, a->device, &div_n);
+            break;
+        }
+        default :
+            error_msg("the input tensor dtype should be an float or double");
+            return NULL;
+    }
+
+
+    Tensor *result = tensor_div(nom, div);
+    return (result);
 }

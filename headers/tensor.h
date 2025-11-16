@@ -144,5 +144,7 @@ Tensor **tensor_backpairwise_div(Grad_Node *node, Tensor *grad);
 double rand_uniform(double a, double b);
 Tensor *tensor_urand(const int64_t *shape, int64_t ndim, Dtype type, Device device, double min, double max);
 void    *create_urand_data(Dtype type, int size, double min, double max);
-Tensor *tensor_sum(Tensor *a, int64_t dim, int keepdim);
+Tensor *tensor_sum(Tensor *a);
+Tensor *tensor_mean(Tensor *a);
+
 #endif

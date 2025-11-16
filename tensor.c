@@ -5,10 +5,10 @@
 
 int main()
 {
-    const int64_t shape[3] = {3,2,5};
-    Tensor *a = tensor_ones(shape, 3, FLOAT32, CPU);
+    const int64_t shape[3] = {3,2};
+    Tensor *a = tensor_ones(shape, 2, INT64, CPU);
     tensor_print(a);
-    Tensor *r = tensor_sum(a, 0, 1);
+    Tensor *r = tensor_mean(a);
     tensor_print(r);
 }
 
