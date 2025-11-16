@@ -4,7 +4,7 @@
 
 void tensor_set_require_grad(Tensor *a, int requires_grad)
 {
-	if (requires_grad == 1)
+	if (requires_grad == 1 || a->grad)
 	{
 		int64_t *shape = malloc(a->num_dims * sizeof(int64_t));
 		memcpy(shape, a->shape, a->num_dims * sizeof(int64_t));
@@ -21,6 +21,8 @@ void tensor_set_require_grad(Tensor *a, int requires_grad)
 		a->requires_grad = 0;
 	}
 }
+
+
 
 Tensor *tensor_collapse(Tensor *b_t, Tensor *grad)
 {
@@ -84,6 +86,7 @@ Tensor *tensor_collapse(Tensor *b_t, Tensor *grad)
 	tensor_free(co);
 	return reduced_grad;
 }
+
 
 
 Grad_Node	*create_matmul_node(Tensor *a, Tensor *b)

@@ -385,6 +385,7 @@ Tensor *tensor_sum(Tensor *a)
 {
     const int64_t shape[1] = {1};
 
+
     Tensor *result = tensor_zeros(shape, 1, a->dtype, a->device);
     if (!result)
         return (NULL);
@@ -411,6 +412,7 @@ Tensor *tensor_sum(Tensor *a)
 	        }
 	    }
     }
+    result->grad = tensor_ones(result->shape, result->num_dims, result->dtype, result->device);
     return result;
 }
 
