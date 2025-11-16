@@ -412,7 +412,8 @@ Tensor *tensor_sum(Tensor *a)
 	        }
 	    }
     }
-    result->grad = tensor_ones(result->shape, result->num_dims, result->dtype, result->device);
+    if (a->requires_grad)
+        result->grad = tensor_ones(result->shape, result->num_dims, result->dtype, result->device);
     return result;
 }
 

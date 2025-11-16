@@ -89,6 +89,27 @@ Tensor *tensor_collapse(Tensor *b_t, Tensor *grad)
 
 
 
+Grad_Node	*create_sum_node(Tensor *a)
+{
+	Grad_Node *node;
+	node = malloc(sizeof(Grad_Node ));
+	Tensor **saved_tensors = malloc(2 * sizeof(Tensor *));
+	if ( !node || !saved_tensors)
+	{
+		free(node);
+		free(saved_tensors);
+		return NULL;
+	}
+	node->broadcasted_tensor_a = NULL;
+	node->broadcasted_tensor_b = NULL;
+	saved_tensors[0] = a;
+	saved_tensors[1] = NULL;
+	node->saved_tensors = saved_tensors;
+	node->calculate_gradient = tensor_backsum;
+	return node;
+}
+
+
 Grad_Node	*create_matmul_node(Tensor *a, Tensor *b)
 {
 	Grad_Node *node;
@@ -389,6 +410,30 @@ Tensor **tensor_backpairwise_mul(Grad_Node *node, Tensor *grad)
 	return res;
 }
 
+Tensor **tensor_backsum(Grad_Node *node, Tensor*grad)
+{
+	Tensor *a = node->saved_tensors[0];
+	Tensor **res = malloc(2 * sizeof(Tensor *));
+	if (!res)
+		return NULL;
+	Tensor *grad_a = NULL;
+	Tensor *grad_b = NULL;
+	if (a->requires_grad == 1)
+	{
+		if (a->is_broadcasted)
+		{
+			grad_a = tensor_collapse(a, grad);
+		}
+		else
+		{
+			grad_a = tensor_deep_copy(grad);
+		}
+		tensor_set_require_grad(grad_a,0);
+	}
+	res[0] = grad_a;
+	res[1] = NULL;
+	return res;	
+}
 
 Tensor **tensor_backpairwise_div(Grad_Node *node, Tensor *grad)
 {
@@ -518,7 +563,8 @@ void	tensor_backward(Tensor *a, Tensor *prev_grad)
 		return;
 	tensor_free(prev_grad);
 	Tensor *grad_a = gradients[0];
-	Tensor *grad_b = gradients[1];
+	Tensor *grad_b = gradients[1]; // grad_b could be NULL in case of unary operation that's why I check it in the conditions and not grad_a
+
 	if (node->saved_tensors[0]->is_leaf == 1 && node->saved_tensors[0]->requires_grad == 1)
 	{
 		tensor_accumulate_grad(node->saved_tensors[0],grad_a);
@@ -527,11 +573,11 @@ void	tensor_backward(Tensor *a, Tensor *prev_grad)
 	{
 		tensor_backward(node->saved_tensors[0],grad_a);
 	}
-	if (node->saved_tensors[1]->is_leaf == 1 && node->saved_tensors[1]->requires_grad == 1)
+	if (grad_b && node->saved_tensors[1]->is_leaf == 1 && node->saved_tensors[1]->requires_grad == 1)
 	{
 		tensor_accumulate_grad(node->saved_tensors[1],grad_b);
 	}
-	else if (node->saved_tensors[1]->is_leaf == 0 && node->saved_tensors[1]->requires_grad == 1)
+	else if (grad_b && node->saved_tensors[1]->is_leaf == 0 && node->saved_tensors[1]->requires_grad == 1)
 	{
 		tensor_backward(node->saved_tensors[1],grad_b);
 	}

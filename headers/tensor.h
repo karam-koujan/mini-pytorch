@@ -146,5 +146,5 @@ Tensor *tensor_urand(const int64_t *shape, int64_t ndim, Dtype type, Device devi
 void    *create_urand_data(Dtype type, int size, double min, double max);
 Tensor *tensor_sum(Tensor *a);
 Tensor *tensor_mean(Tensor *a);
-
+Grad_Node	*create_sum_node(Tensor *a);
 #endif
