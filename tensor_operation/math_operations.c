@@ -414,6 +414,8 @@ Tensor *tensor_sum(Tensor *a)
     }
 	Grad_Node *grad_fn = a->requires_grad ? create_sum_node(a) : NULL;
     result->is_leaf = 0;
+    result->grad_fn = grad_fn;
+
     if (grad_fn)
         tensor_set_require_grad(result, 1);
     return result;
