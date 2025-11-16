@@ -444,7 +444,7 @@ Tensor *tensor_mean(Tensor *a)
             return NULL;
     }
 
-
+    div->is_leaf = 0;
     Tensor *result = tensor_div(nom, div);
     return (result);
 }
