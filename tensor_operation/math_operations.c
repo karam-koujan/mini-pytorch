@@ -412,8 +412,10 @@ Tensor *tensor_sum(Tensor *a)
 	        }
 	    }
     }
-    if (a->requires_grad)
-        result->grad = tensor_ones(result->shape, result->num_dims, result->dtype, result->device);
+	Grad_Node *grad_fn = a->requires_grad ? create_sum_node(a) : NULL;
+    result->is_leaf = 0;
+    if (grad_fn)
+        tensor_set_require_grad(result, 1);
     return result;
 }
 
