@@ -378,3 +378,38 @@ Tensor *tensor_neg(Tensor *a)
     tensor_free(nt);
     return (result);
 }
+
+
+
+Tensor *tensor_sum(Tensor *a, int64_t dim, int keepdim)
+{
+    if (dim >= a->num_dims || dim < -1)
+        return (error_msg("dim is outside the range of the tensor"), NULL);
+    int64_t ndim = 1;
+    if (dim != -1)
+    {
+        ndim = a->num_dims - 1;
+    }
+    keepdim = 0;
+    int64_t *shape = calloc(ndim, sizeof(int64_t));
+    if (!shape)
+        return (NULL);
+    int j = 0;
+    for (int i = 0; i < a->num_dims; i++)
+    {
+        if (dim == -1)
+        {
+            shape[0] = 1;
+            break;
+        }
+        if (i != dim)
+        {
+            shape[j] = a->shape[i];
+            j++;
+        }
+    }
+    Tensor *result = tensor_zeros(shape, ndim, a->dtype, a->device);
+    if (!result)
+        return (NULL);
+    return result;
+}
