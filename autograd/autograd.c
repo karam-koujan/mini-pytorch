@@ -417,7 +417,6 @@ Tensor **tensor_backsum(Grad_Node *node, Tensor*grad)
 	if (!res)
 		return NULL;
 	Tensor *grad_a = NULL;
-	Tensor *grad_b = NULL;
 	if (a->requires_grad == 1)
 	{
 		if (a->is_broadcasted)

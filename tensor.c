@@ -6,9 +6,15 @@
 int main()
 {
     const int64_t shape[3] = {3,2};
-    Tensor *a = tensor_ones(shape, 2, INT64, CPU);
-    tensor_print(a);
-    Tensor *r = tensor_mean(a);
+    Tensor *a = tensor_ones(shape, 2, FLOAT32, CPU);
+    Tensor *b = tensor_ones(shape, 2, FLOAT32, CPU);
+    tensor_set_require_grad(a,1);
+    tensor_set_require_grad(b,1);
+    Tensor *r = tensor_add(a,b);
+    Tensor *l = tensor_sum(r);
+    tensor_backward(l, NULL);
+    tensor_print(a->grad);
+    tensor_print(b->grad);
     tensor_print(r);
 }
 
