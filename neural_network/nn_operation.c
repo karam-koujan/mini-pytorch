@@ -6,7 +6,7 @@ Tensor *tensor_relu(Tensor *x)
 {
     if (x->dtype != FLOAT32 && x->dtype != DOUBLE)
         return (error_msg("input tensor dtype must be a float or double"), NULL);
-    Tensor *r = tensor_zeros(x->shape, x->num_dims, x->dtype, x->device);
+    Tensor *r = tensor_deep_copy(x);
 
     for(int i = 0; i < x->size; i++)
     {
@@ -30,6 +30,7 @@ Tensor *tensor_relu(Tensor *x)
 
         }
     }
+    r->grad_fn = x->requires_grad ? create_relu_node(x) : NULL;
     r->is_leaf = 0;
     if (x->requires_grad)
         tensor_set_require_grad(r, 1);

@@ -109,6 +109,25 @@ Grad_Node	*create_sum_node(Tensor *a)
 	return node;
 }
 
+Grad_Node	*create_relu_node(Tensor *a)
+{
+	Grad_Node *node;
+	node = malloc(sizeof(Grad_Node ));
+	Tensor **saved_tensors = malloc(2 * sizeof(Tensor *));
+	if ( !node || !saved_tensors)
+	{
+		free(node);
+		free(saved_tensors);
+		return NULL;
+	}
+	node->broadcasted_tensor_a = NULL;
+	node->broadcasted_tensor_b = NULL;
+	saved_tensors[0] = a;
+	saved_tensors[1] = NULL;
+	node->saved_tensors = saved_tensors;
+	node->calculate_gradient = tensor_backrelu;
+	return node;
+}
 
 Grad_Node	*create_matmul_node(Tensor *a, Tensor *b)
 {
@@ -426,6 +445,32 @@ Tensor **tensor_backsum(Grad_Node *node, Tensor*grad)
 		else
 		{
 			grad_a = tensor_deep_copy(grad);
+		}
+		tensor_set_require_grad(grad_a,0);
+	}
+	res[0] = grad_a;
+	res[1] = NULL;
+	return res;	
+}
+
+Tensor **tensor_backrelu(Grad_Node *node, Tensor*grad)
+{
+	Tensor *a = node->saved_tensors[0];
+	Tensor **res = malloc(2 * sizeof(Tensor *));
+	if (!res)
+		return NULL;
+	Tensor *grad_a = NULL;
+	if (a->requires_grad == 1)
+	{
+		if (a->is_broadcasted)
+		{
+			Tensor *tmp = tensor_collapse(a, grad);
+			grad_a = tensor_mul(tmp, grad);
+			tensor_free(tmp);
+		}
+		else
+		{
+			grad_a =  tensor_mul(a, grad);
 		}
 		tensor_set_require_grad(grad_a,0);
 	}

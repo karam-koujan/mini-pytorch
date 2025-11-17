@@ -5,9 +5,10 @@
 
 int main()
 {
-    const int64_t shape[3] = {3,2};
-    float d = 5.0;
-    Tensor *a = tensor_full(shape, 2, FLOAT32, CPU, &d);
+    const int64_t shape[3] = {2,2};
+    float data[2][2] = {{-1.5,1.0},{3.0,-5.0}};
+    // float d = 5.0;
+    Tensor *a = tensor_from_arr(data ,shape, 2, FLOAT32, CPU);
     tensor_set_require_grad(a,1);
     Tensor *l = tensor_relu(a);
 

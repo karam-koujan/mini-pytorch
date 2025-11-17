@@ -148,4 +148,6 @@ Tensor *tensor_sum(Tensor *a);
 Tensor *tensor_mean(Tensor *a);
 Grad_Node	*create_sum_node(Tensor *a);
 Tensor **tensor_backsum(Grad_Node *node, Tensor*grad);
+Grad_Node	*create_relu_node(Tensor *a);
+Tensor **tensor_backrelu(Grad_Node *node, Tensor*grad);
 #endif
