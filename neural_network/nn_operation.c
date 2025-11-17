@@ -24,9 +24,14 @@ Tensor *tensor_relu(Tensor *x)
             if (val <= 0)
                 ((double *)r->data)[i] = 0.0;
             break;
-            }     
+            }
+            default :
+                return (error_msg("input tensor dtype must be a float or double"), tensor_free(r),NULL);
+
         }
     }
     r->is_leaf = 0;
+    if (x->requires_grad)
+        tensor_set_require_grad(r, 1);
     return r;
 }
