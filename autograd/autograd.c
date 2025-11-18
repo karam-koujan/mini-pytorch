@@ -4,7 +4,7 @@
 
 void tensor_set_require_grad(Tensor *a, int requires_grad)
 {
-	if (requires_grad == 1 || a->grad)
+	if (requires_grad == 1)
 	{
 		int64_t *shape = malloc(a->num_dims * sizeof(int64_t));
 		memcpy(shape, a->shape, a->num_dims * sizeof(int64_t));
@@ -48,26 +48,25 @@ Tensor *tensor_collapse(Tensor *b_t, Tensor *grad)
 	{
 	    case FLOAT32: {
 	        float coef = broadcasted_dim / diff;
-	        co = tensor_full(grad->shape, grad->num_dims, grad->dtype, grad->device, &coef);
+	        co = tensor_full(b_t->prebroadcast_shape, b_t->prebroadcast_dims, b_t->dtype, b_t->device, &coef);
 	        break;
 	    }
 	    case DOUBLE: {
 	        double coef = broadcasted_dim / diff;
-	        co = tensor_full(grad->shape, grad->num_dims, grad->dtype, grad->device, &coef);
+	        co = tensor_full(b_t->prebroadcast_shape, b_t->prebroadcast_dims, b_t->dtype, b_t->device, &coef);
 	        break;
 	    }
 	    case INT64: {
 	        int64_t coef = broadcasted_dim / diff;
-	        co = tensor_full(grad->shape, grad->num_dims, grad->dtype, grad->device, &coef);
+	        co = tensor_full(b_t->prebroadcast_shape, b_t->prebroadcast_dims, b_t->dtype, b_t->device, &coef);
 	        break;
 	    }
 	    case INT32: {
 	        int coef = broadcasted_dim / diff;
-	        co = tensor_full(grad->shape, grad->num_dims, grad->dtype, grad->device, &coef);
+	        co = tensor_full(b_t->prebroadcast_shape, b_t->prebroadcast_dims, b_t->dtype, b_t->device, &coef);
 	        break;
 	    }
 	}
-
 	Tensor *new_grad = tensor_mul(co, grad);
 	Tensor *reduced_grad = tensor_zeros(b_t->prebroadcast_shape, b_t->prebroadcast_dims, b_t->dtype, b_t->device);
 	if (!reduced_grad)
@@ -354,7 +353,7 @@ Tensor **tensor_backmatmul(Grad_Node *node, Tensor *grad)
 		grad_a = tensor_matmul(grad,b_t);
 		if (node->broadcasted_tensor_a && node->broadcasted_tensor_a->is_broadcasted)
 		{
-			Tensor *uncollapsed_grad = grad_a;	
+			Tensor *uncollapsed_grad = grad_a;
 			grad_a = tensor_collapse(node->broadcasted_tensor_a, grad_a);
 			tensor_free(uncollapsed_grad);
 		}
@@ -435,19 +434,24 @@ Tensor **tensor_backsum(Grad_Node *node, Tensor*grad)
 	Tensor **res = malloc(2 * sizeof(Tensor *));
 	if (!res)
 		return NULL;
-	Tensor *grad_a = NULL;
+	Tensor *grad_a = tensor_ones(a->shape, a->num_dims, a->dtype, a->device);
+	Tensor *grad_tmp = grad_a;
 	if (a->requires_grad == 1)
 	{
 		if (a->is_broadcasted)
 		{
 			grad_a = tensor_collapse(a, grad);
+			Tensor *collapse_tmp = grad_a;
+			grad_a = tensor_mul(grad_a, grad_tmp);
+			tensor_free(collapse_tmp);
 		}
 		else
 		{
-			grad_a = tensor_deep_copy(grad);
+			grad_a = tensor_mul(grad, grad_a);
 		}
 		tensor_set_require_grad(grad_a,0);
 	}
+	tensor_free(grad_tmp);
 	res[0] = grad_a;
 	res[1] = NULL;
 	return res;	
@@ -464,13 +468,11 @@ Tensor **tensor_backrelu(Grad_Node *node, Tensor*grad)
 	{
 		if (a->is_broadcasted)
 		{
-			Tensor *tmp = tensor_collapse(a, grad);
-			grad_a = tensor_mul(tmp, grad);
-			tensor_free(tmp);
+			grad_a = tensor_collapse(a, grad);
 		}
 		else
 		{
-			grad_a =  tensor_mul(a, grad);
+			grad_a =  tensor_deep_copy(a);
 		}
 		tensor_set_require_grad(grad_a,0);
 	}

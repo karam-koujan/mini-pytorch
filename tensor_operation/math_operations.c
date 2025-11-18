@@ -441,10 +441,11 @@ Tensor *tensor_mean(Tensor *a)
         }
         default :
             error_msg("the input tensor dtype should be an float or double");
-            return (tensor_free(nom),NULL);
+            return (tensor_free(nom),tensor_free(nom),NULL);
     }
 
     div->is_leaf = 0;
     Tensor *result = tensor_div(nom, div);
+    
     return (result);
 }
