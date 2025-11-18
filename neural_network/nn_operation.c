@@ -2,15 +2,14 @@
 #include <math.h>
 
 
-Tensor *tensor_relu(Tensor *x)
-{
-    if (x->dtype != FLOAT32 && x->dtype != DOUBLE)
-        return (error_msg("input tensor dtype must be a float or double"), NULL);
-    Tensor *r = tensor_deep_copy(x);
 
-    for(int i = 0; i < x->size; i++)
+
+Tensor *calc_relu(Tensor *a)
+{
+    Tensor *r = tensor_deep_copy(a);
+    for(int i = 0; i < a->size; i++)
     {
-        switch(x->dtype)
+        switch(a->dtype)
         {
             case FLOAT32:{
             float val = ((float *)r->data)[i];
@@ -30,6 +29,14 @@ Tensor *tensor_relu(Tensor *x)
 
         }
     }
+    return r;
+}
+
+Tensor *tensor_relu(Tensor *x)
+{
+    if (x->dtype != FLOAT32 && x->dtype != DOUBLE)
+        return (error_msg("input tensor dtype must be a float or double"), NULL);
+    Tensor *r = calc_relu(x);
     r->grad_fn = x->requires_grad ? create_relu_node(x) : NULL;
     r->is_leaf = 0;
     if (x->requires_grad)

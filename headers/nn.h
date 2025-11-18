@@ -15,4 +15,5 @@ Tensor *module_parameter(Module *m, Tensor *a, int requires_grad);
 void    parameters_print(Tensor **parameters);
 Tensor *Linear(Module *m, Tensor *x, int64_t out_features, int bias);
 Tensor *tensor_relu(Tensor *x);
+Tensor *calc_relu(Tensor *a);
 #endif

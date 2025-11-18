@@ -7,6 +7,7 @@
 		"print.h": "c",
 		"string.h": "c",
 		"stdlib.h": "c",
-		"stdarg.h": "c"
+		"stdarg.h": "c",
+		"nn.h": "c"
 	}
 }

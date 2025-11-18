@@ -1,6 +1,6 @@
 #include "../headers/tensor.h"
 #include "../headers/print.h"
-
+#include "../headers/nn.h"
 
 void tensor_set_require_grad(Tensor *a, int requires_grad)
 {
@@ -457,24 +457,52 @@ Tensor **tensor_backsum(Grad_Node *node, Tensor*grad)
 	return res;	
 }
 
+Tensor *calc_back_relu(Tensor *a)
+{
+    Tensor *r = tensor_ones(a->shape, a->num_dims, a->dtype, a->device);
+    for(int i = 0; i < a->size; i++)
+    {
+        switch(a->dtype)
+        {
+            case FLOAT32:{
+            float val = ((float *)a->data)[i];
+            if (val <= 0)
+                ((float *)r->data)[i] = 0.0f;
+            break;
+            }
+            case DOUBLE :
+            {
+            double val = ((double *)a->data)[i];
+            if (val <= 0)
+                ((double *)r->data)[i] = 0.0;
+            break;
+            }
+            default :
+                return (error_msg("input tensor dtype must be a float or double"), tensor_free(r),NULL);
+
+        }
+    }
+    return r;
+}
+
 Tensor **tensor_backrelu(Grad_Node *node, Tensor*grad)
 {
 	Tensor *a = node->saved_tensors[0];
 	Tensor **res = malloc(2 * sizeof(Tensor *));
 	if (!res)
 		return NULL;
-	Tensor *grad_a = NULL;
+	Tensor *grad_a = tensor_ones(a->shape, a->num_dims, a->dtype, a->device);
+	Tensor *grad_tmp = grad_a;
 	if (a->requires_grad == 1)
 	{
-		if (a->is_broadcasted)
-		{
-			grad_a = tensor_collapse(a, grad);
-		}
-		else
-		{
-			grad_a =  tensor_deep_copy(a);
-		}
-		tensor_set_require_grad(grad_a,0);
+		grad_a = tensor_mul(grad, grad_a);
+		tensor_free(grad_tmp);
+		grad_tmp = grad_a;
+		Tensor *relu_grad =calc_back_relu(a);
+		grad_a = tensor_mul(grad_a, relu_grad);
+		tensor_free(grad_tmp);
+		tensor_free(relu_grad);
+		tensor_set_require_grad(grad_a, 0);
 	}
 	res[0] = grad_a;
 	res[1] = NULL;

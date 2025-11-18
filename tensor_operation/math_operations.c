@@ -449,3 +449,5 @@ Tensor *tensor_mean(Tensor *a)
     
     return (result);
 }
+
+
