@@ -3,27 +3,38 @@
 #include "headers/nn.h"
 
 
+
+Tensor *forward(Module *module, Tensor *x)
+{
+    Tensor *l1 = Linear(module, x, 2, 0);
+    Tensor *l2 = Linear(module, l1, 2, 0);
+    Tensor *ypred = Linear(module, l1, 1, 0);
+    return ypred;
+}
+
 int main()
 {
-    const int64_t shape[3] = {1,3,3};
-    const int64_t shape_b[2] = {3,2};
-    float d = 5.0;
-    float c = 1.0;
-    Tensor *a = tensor_full(shape, 3, FLOAT32, CPU, &d);
-    Tensor *b = tensor_full(shape_b, 2, FLOAT32, CPU, &c);
-    tensor_set_require_grad(a,1);
-    tensor_set_require_grad(b,1);
-    Tensor *l = tensor_matmul(a,b);
-    Tensor *r = tensor_relu(l);
-    Tensor *j = tensor_sum(r);
-    tensor_backward(j, NULL);
-    tensor_print(j);
-    tensor_print(a->grad);
-    tensor_print(b->grad);
-    tensor_free(a);
-    tensor_free(b);
-    tensor_free(l);
-    tensor_free(j);
+    float data[20][2] = {
+        {0.1, 0.2}, {0.3, 0.4}, {0.5, 0.6}, {0.7, 0.8}, {0.2, 0.3},
+        {0.4, 0.6}, {0.6, 0.8}, {0.8, 0.9}, {0.1, 0.4}, {0.3, 0.5},
+        {0.5, 0.7}, {0.7, 0.9}, {0.2, 0.5}, {0.4, 0.7}, {0.6, 0.9},
+        {0.1, 0.3}, {0.3, 0.6}, {0.5, 0.8}, {0.7, 0.7}, {0.9, 0.8}
+    };  
+    float labels[20] = {
+        0.17, 0.37, 0.57, 0.77, 0.27,
+        0.53, 0.73, 0.87, 0.30, 0.43,
+        0.63, 0.83, 0.40, 0.60, 0.80,
+        0.23, 0.50, 0.70, 0.70, 0.83
+    };
+    int data_shape[] = {1,20,2};
+    int label_shape[] = {1,20};
+    Dtype dtype = FLOAT32;
+    Device device = CPU;
+    Tensor *data_t = tensor_from_arr(data, data_shape, 3, dtype, device);
+    Tensor *label_t = tensor_from_arr(labels, label_shape,2, dtype, device);
+    Module *module = module_constructor();
+    Tensor *pred = forward(module, data_t);
+    tensor_backward(pred, NULL);
 }
 
 
