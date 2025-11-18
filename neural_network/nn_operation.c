@@ -52,9 +52,8 @@ Tensor *mse(Tensor *y, Tensor *y_pred)
     return sum;
 }
 
-void    optimizer_step(Module *module)
+void    optimizer_step(Module *module, float lr)
 {
-    float lr = 0.001;
     for (int i = 0; module->parameters[i] != NULL; i++)
     {
         Tensor *param = module->parameters[i];
@@ -64,9 +63,6 @@ void    optimizer_step(Module *module)
             continue;
         }
 
-        // Perform an in-place update of the parameter's data.
-        // This operation is NOT part of the computation graph.
-        // The parameter tensor itself remains a leaf node.
         for (int j = 0; j < param->size; j++)
         {
             switch(param->dtype)
@@ -79,7 +75,6 @@ void    optimizer_step(Module *module)
                     ((double *)param->data)[j] -= (double)lr * ((double *)grad->data)[j];
                     break;
                 default:
-                    // Only float/double types are supported for gradient descent
                     break;
             }
         }

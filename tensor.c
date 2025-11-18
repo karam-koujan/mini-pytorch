@@ -37,6 +37,7 @@ int main()
     Module *module = module_constructor();
     tensor_print(label_t);
     int epoch = 2000;
+    float lr = 0.001;
     for (int i = 0; i <= epoch; i++)
     {
         Tensor *pred = forward(module, data_t);
@@ -50,7 +51,7 @@ int main()
         }
         Tensor *loss = mse(label_t, pred);
         tensor_backward(loss, NULL);
-        optimizer_step(module);
+        optimizer_step(module, lr);
         module_zero_grad(module);
         if (i == 2000)
         {
@@ -63,6 +64,8 @@ int main()
             printf("loss func\n");
             tensor_print(loss);
         }
+        tensor_free(pred);
+        tensor_free(loss);
     }
 
 }
