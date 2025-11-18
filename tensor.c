@@ -36,10 +36,11 @@ int main()
     Tensor *label_t = tensor_from_arr(labels, label_shape,2, dtype, device);
     Module *module = module_constructor();
     tensor_print(label_t);
-    int epoch = 1;
+    int epoch = 1000;
     for (int i = 0; i <= epoch; i++)
     {
         Tensor *pred = forward(module, data_t);
+        tensor_print(pred);
         // if (i == 0)
         // {
         //     printf("epoch: %i\n", epoch);
@@ -48,12 +49,12 @@ int main()
         //     printf("pred label \n");
         //     tensor_print(pred);
         // }
-        // Tensor *loss = mse(label_t, pred);
-        // tensor_backward(loss, NULL);
-        // float lr = 0.001;
-        // int64_t lr_shape[1] = {1};
-        // Tensor  *learning_rate = tensor_full(lr_shape, 1, dtype, device, &lr);
-        // optimizer_step(module, learning_rate);
+        Tensor *loss = mse(label_t, pred);
+        tensor_backward(loss, NULL);
+        float lr = 0.001;
+        int64_t lr_shape[1] = {1};
+        Tensor  *learning_rate = tensor_full(lr_shape, 1, dtype, device, &lr);
+        optimizer_step(module, learning_rate);
         // module_zero_grad(module);
         // if (i == 999)
         // {

@@ -65,11 +65,7 @@ Tensor *Linear(Module *m, Tensor *x, int64_t out_features, int bias, int layer)
     int64_t weight_shape[2] = {out_features, in_features};
     int64_t bias_shape[2] = {out_features, 1};
     double k = 1 / in_features;
-    Tensor *weights = parameters_len(m->parameters) > layer ? m->parameters[layer] : tensor_rand(weight_shape, 2, dtype, x->device);
-    printf("weight");
-    tensor_print(weights);
-    if (!weights)
-        return (NULL);
+    Tensor *weights = parameters_len(m->parameters) <= layer ? tensor_rand(weight_shape, 2, dtype, x->device) : NULL;
     Tensor *bias_t = NULL;
     if (bias)
     {
@@ -78,15 +74,17 @@ Tensor *Linear(Module *m, Tensor *x, int64_t out_features, int bias, int layer)
             return (tensor_free(weights), NULL);
         bias_t = module_parameter(m, bias_t, 1);
     }
-    Tensor *weight_t = tensor_transpose(weights, 1, 0);
+    Tensor *weight_t = parameters_len(m->parameters) <= layer ? tensor_transpose(weights, 1, 0) : m->parameters[layer];
     if (!weight_t)
-        return (tensor_free(bias_t), tensor_free(weights), NULL);
-    if ()
-    module_parameter(m, weight_t, 1);
+        return (printf("here\n"),tensor_free(bias_t), tensor_free(weights), NULL);
+    if (parameters_len(m->parameters) <= layer)
+    {
+        module_parameter(m, weight_t, 1);
+         tensor_free(weights);
+    }
     Tensor *y = tensor_matmul(x, weight_t);
     if (!y)
         return (tensor_free(weight_t), tensor_free(weights), tensor_free(bias_t), NULL);
-    tensor_free(weights);
     if (bias)
         return tensor_add(y, bias_t);
     return y;
