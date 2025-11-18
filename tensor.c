@@ -41,32 +41,29 @@ int main()
     {
         Tensor *pred = forward(module, data_t);
         tensor_print(pred);
-        // if (i == 0)
-        // {
-        //     printf("epoch: %i\n", epoch);
-        //     printf("true label \n");
-        //     tensor_print(label_t);
-        //     printf("pred label \n");
-        //     tensor_print(pred);
-        // }
+        if (i == 0)
+        {
+            printf("epoch: %i\n", epoch);
+            printf("true label \n");
+            tensor_print(label_t);
+            printf("pred label \n");
+            tensor_print(pred);
+        }
         Tensor *loss = mse(label_t, pred);
         tensor_backward(loss, NULL);
-        float lr = 0.001;
-        int64_t lr_shape[1] = {1};
-        Tensor  *learning_rate = tensor_full(lr_shape, 1, dtype, device, &lr);
-        optimizer_step(module, learning_rate);
-        // module_zero_grad(module);
-        // if (i == 999)
-        // {
+        optimizer_step(module);
+        module_zero_grad(module);
+        if (i == 999)
+        {
 
-        //     printf("epoch: %i", epoch);
-        //     printf("true label \n");
-        //     tensor_print(label_t);
-        //     printf("pred label \n");
-        //     tensor_print(pred);
-        //     printf("loss func\n");
-        //     tensor_print(loss);
-        // }
+            printf("epoch: %i", epoch);
+            printf("true label \n");
+            tensor_print(label_t);
+            printf("pred label \n");
+            tensor_print(pred);
+            printf("loss func\n");
+            tensor_print(loss);
+        }
     }
 
 }

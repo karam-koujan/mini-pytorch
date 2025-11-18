@@ -52,15 +52,20 @@ Tensor *mse(Tensor *y, Tensor *y_pred)
     return sum;
 }
 
-void    optimizer_step(Module *module, Tensor *learning_rate)
+void    optimizer_step(Module *module)
 {
+
+    float lr = 0.001;
     for (int i = 0; module->parameters[i] != NULL; i++)
     {
-        Tensor *step = tensor_mul(learning_rate, module->parameters[i]->grad);
+        Tensor *grad = module->parameters[i]->grad;
+        Tensor *learning_rate = tensor_full(grad->shape, grad->num_dims, grad->dtype, grad->device, &lr);
+        Tensor *step = tensor_mul(learning_rate, grad);
         Tensor *prev_parameter = module->parameters[i];
         module->parameters[i] = tensor_sub(module->parameters[i], step);
         tensor_free(prev_parameter);
         tensor_free(step);
+        tensor_free(learning_rate);
     }
 }
 

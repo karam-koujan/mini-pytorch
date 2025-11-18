@@ -17,6 +17,6 @@ Tensor *Linear(Module *m, Tensor *x, int64_t out_features, int bias, int layer);
 Tensor *tensor_relu(Tensor *x);
 Tensor *calc_relu(Tensor *a);
 Tensor *mse(Tensor *y, Tensor *y_pred);
-void    optimizer_step(Module *module, Tensor *learning_rate);
+void    optimizer_step(Module *module);
 void    module_zero_grad(Module *module);
 #endif
