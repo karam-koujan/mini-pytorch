@@ -103,8 +103,8 @@ Tensor *Linear(Module *m, Tensor *x, int64_t out_features, int bias, int layer)
     Tensor *bias_t = NULL;
     if (bias)
     {
-        bias_t = biases_len(m->parameters) <= layer ? tensor_rand(bias_shape, 2, dtype, x->device) :  m->biases[layer];
-        if (biases_len(m->parameters) <= layer)
+        bias_t = biases_len(m->biases) <= layer ? tensor_rand(bias_shape, 2, dtype, x->device) :  m->biases[layer];
+        if (biases_len(m->biases) <= layer)
             module_biases(m, bias_t, 1);
     }
     Tensor *weight_t = parameters_len(m->parameters) <= layer ? tensor_transpose(weights, 1, 0) : m->parameters[layer];
