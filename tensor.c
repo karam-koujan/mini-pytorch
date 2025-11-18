@@ -8,7 +8,7 @@ Tensor *forward(Module *module, Tensor *x)
 {
     Tensor *l1 = Linear(module, x, 2, 0);
     Tensor *l2 = Linear(module, l1, 2, 0);
-    Tensor *ypred = Linear(module, l1, 1, 0);
+    Tensor *ypred = Linear(module, l2, 1, 0);
     return ypred;
 }
 
@@ -26,15 +26,41 @@ int main()
         0.63, 0.83, 0.40, 0.60, 0.80,
         0.23, 0.50, 0.70, 0.70, 0.83
     };
-    int data_shape[] = {1,20,2};
-    int label_shape[] = {1,20};
+    int64_t data_shape[] = {1,20,2};
+    int64_t label_shape[] = {1,20};
     Dtype dtype = FLOAT32;
     Device device = CPU;
     Tensor *data_t = tensor_from_arr(data, data_shape, 3, dtype, device);
     Tensor *label_t = tensor_from_arr(labels, label_shape,2, dtype, device);
     Module *module = module_constructor();
-    Tensor *pred = forward(module, data_t);
-    tensor_backward(pred, NULL);
+    int epoch = 1;
+    for (int i = 0; i < epoch; i++)
+    {
+        Tensor *pred = forward(module, data_t);
+        if (epoch == 0)
+        {
+            printf("epoch: %i", epoch);
+            printf("true label \n");
+            tensor_print(label_t);
+            printf("pred label \n");
+            tensor_print(pred);
+        }
+        tensor_backward(pred, NULL);
+        float lr = 0.001;
+        int64_t lr_shape[1] = {1};
+        Tensor  *learning_rate = tensor_full(lr_shape, 1, dtype, device, &lr);
+        optimizer_step(module, learning_rate);
+        module_zero_grad(module);
+        if (epoch == 1000)
+        {
+            printf("epoch: %i", epoch);
+            printf("true label \n");
+            tensor_print(label_t);
+            printf("pred label \n");
+            tensor_print(pred);        
+        }
+    }
+
 }
 
 
