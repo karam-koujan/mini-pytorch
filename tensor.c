@@ -35,10 +35,9 @@ int main()
     Tensor *data_t = tensor_from_arr(data, data_shape, 3, dtype, device);
     Tensor *label_t = tensor_from_arr(labels, label_shape,2, dtype, device);
     Module *module = module_constructor();
-    tensor_print(label_t);
     int epoch = 2000;
     float lr = 0.001;
-    for (int i = 0; i <= epoch; i++)
+    for (int i = 0; i < epoch; i++)
     {
         Tensor *pred = forward(module, data_t);
         if (i == 0)
@@ -59,7 +58,7 @@ int main()
             printf("epoch: %i", epoch);
             printf("true label \n");
             tensor_print(label_t);
-            printf("pred label \n");
+            printf("prediced label \n");
             tensor_print(pred);
             printf("loss func\n");
             tensor_print(loss);
