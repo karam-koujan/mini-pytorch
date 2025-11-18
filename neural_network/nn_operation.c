@@ -54,20 +54,38 @@ Tensor *mse(Tensor *y, Tensor *y_pred)
 
 void    optimizer_step(Module *module)
 {
-
     float lr = 0.001;
     for (int i = 0; module->parameters[i] != NULL; i++)
     {
-        Tensor *grad = module->parameters[i]->grad;
-        Tensor *learning_rate = tensor_full(grad->shape, grad->num_dims, grad->dtype, grad->device, &lr);
-        Tensor *step = tensor_mul(learning_rate, grad);
-        Tensor *prev_parameter = module->parameters[i];
-        module->parameters[i] = tensor_sub(module->parameters[i], step);
-        tensor_free(prev_parameter);
-        tensor_free(step);
-        tensor_free(learning_rate);
+        Tensor *param = module->parameters[i];
+        Tensor *grad = param->grad;
+
+        if (!grad) {
+            continue;
+        }
+
+        // Perform an in-place update of the parameter's data.
+        // This operation is NOT part of the computation graph.
+        // The parameter tensor itself remains a leaf node.
+        for (int j = 0; j < param->size; j++)
+        {
+            switch(param->dtype)
+            {
+                case FLOAT32:
+                    ((float *)param->data)[j] -= lr * ((float *)grad->data)[j];
+                    break;
+                case DOUBLE:
+                    // Note: lr is float, cast for precision.
+                    ((double *)param->data)[j] -= (double)lr * ((double *)grad->data)[j];
+                    break;
+                default:
+                    // Only float/double types are supported for gradient descent
+                    break;
+            }
+        }
     }
 }
+
 
 void    module_zero_grad(Module *module)
 {

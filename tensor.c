@@ -36,11 +36,10 @@ int main()
     Tensor *label_t = tensor_from_arr(labels, label_shape,2, dtype, device);
     Module *module = module_constructor();
     tensor_print(label_t);
-    int epoch = 1000;
+    int epoch = 2000;
     for (int i = 0; i <= epoch; i++)
     {
         Tensor *pred = forward(module, data_t);
-        tensor_print(pred);
         if (i == 0)
         {
             printf("epoch: %i\n", epoch);
@@ -53,7 +52,7 @@ int main()
         tensor_backward(loss, NULL);
         optimizer_step(module);
         module_zero_grad(module);
-        if (i == 999)
+        if (i == 2000)
         {
 
             printf("epoch: %i", epoch);
