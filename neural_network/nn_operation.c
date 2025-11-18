@@ -56,7 +56,7 @@ void    optimizer_step(Module *module, Tensor *learning_rate)
 {
     for (int i = 0; module->parameters[i] != NULL; i++)
     {
-        Tensor *step = tensor_matmul(learning_rate, module->parameters[i]->grad);
+        Tensor *step = tensor_mul(learning_rate, module->parameters[i]->grad);
         Tensor *prev_parameter = module->parameters[i];
         module->parameters[i] = tensor_sub(module->parameters[i], step);
         tensor_free(prev_parameter);

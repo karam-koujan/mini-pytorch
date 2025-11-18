@@ -1,19 +1,21 @@
 #include "headers/tensor.h"
 #include "headers/print.h"
 #include "headers/nn.h"
-
-
+#include <time.h>
 
 Tensor *forward(Module *module, Tensor *x)
 {
     Tensor *l1 = Linear(module, x, 2, 0);
-    Tensor *l2 = Linear(module, l1, 2, 0);
-    Tensor *ypred = Linear(module, l2, 1, 0);
+    Tensor *r = tensor_relu(l1);
+    Tensor *l2 = Linear(module, r, 2, 0);
+    Tensor *r2 = tensor_relu(l2);
+    Tensor *ypred = Linear(module, r2, 1, 0);
     return ypred;
 }
 
 int main()
 {
+    tensor_set_seed(1337);
     float data[20][2] = {
         {0.1, 0.2}, {0.3, 0.4}, {0.5, 0.6}, {0.7, 0.8}, {0.2, 0.3},
         {0.4, 0.6}, {0.6, 0.8}, {0.8, 0.9}, {0.1, 0.4}, {0.3, 0.5},
@@ -27,37 +29,42 @@ int main()
         0.23, 0.50, 0.70, 0.70, 0.83
     };
     int64_t data_shape[] = {1,20,2};
-    int64_t label_shape[] = {1,20};
+    int64_t label_shape[] = {20,1};
     Dtype dtype = FLOAT32;
     Device device = CPU;
     Tensor *data_t = tensor_from_arr(data, data_shape, 3, dtype, device);
     Tensor *label_t = tensor_from_arr(labels, label_shape,2, dtype, device);
     Module *module = module_constructor();
-    int epoch = 1;
-    for (int i = 0; i < epoch; i++)
+    tensor_print(label_t);
+    int epoch = 1000;
+    for (int i = 0; i <= epoch; i++)
     {
         Tensor *pred = forward(module, data_t);
-        if (epoch == 0)
+        if (i == 0)
         {
-            printf("epoch: %i", epoch);
+            printf("epoch: %i\n", epoch);
             printf("true label \n");
             tensor_print(label_t);
             printf("pred label \n");
             tensor_print(pred);
         }
-        tensor_backward(pred, NULL);
+        Tensor *loss = mse(label_t, pred);
+        tensor_backward(loss, NULL);
         float lr = 0.001;
         int64_t lr_shape[1] = {1};
         Tensor  *learning_rate = tensor_full(lr_shape, 1, dtype, device, &lr);
         optimizer_step(module, learning_rate);
         module_zero_grad(module);
-        if (epoch == 1000)
+        if (i == 999)
         {
+
             printf("epoch: %i", epoch);
             printf("true label \n");
             tensor_print(label_t);
             printf("pred label \n");
-            tensor_print(pred);        
+            tensor_print(pred);
+            printf("loss func\n");
+            tensor_print(loss);
         }
     }
 

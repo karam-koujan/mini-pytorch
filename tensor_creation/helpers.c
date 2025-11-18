@@ -169,6 +169,10 @@ Tensor *tensor_constructor(const int64_t *shape, int ndim, Dtype type, Device de
 
 
 double rand_uniform(double a, double b) {
-    double u = (rand() + 1.0) / (RAND_MAX + 2.0);
+    // The standard, safe way to get a random double between 0.0 and 1.0
+    // Explicitly cast to double BEFORE division to avoid integer arithmetic.
+    double u = (double)rand() / (double)RAND_MAX;
+    
+    // Scale and shift to the desired range [a, b]
     return a + u * (b - a);
 }

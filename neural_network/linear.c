@@ -62,10 +62,10 @@ Tensor *Linear(Module *m, Tensor *x, int64_t out_features, int bias)
         return (NULL);
     Dtype dtype = x->dtype == FLOAT32 ? FLOAT32 : DOUBLE; 
     int64_t in_features = x->shape[x->num_dims - 1];
-    int64_t weight_shape[2] = {in_features , out_features};
+    int64_t weight_shape[2] = {out_features, in_features};
     int64_t bias_shape[2] = {out_features, 1};
     double k = 1 / in_features;
-    Tensor *weights = tensor_urand(weight_shape, 2, dtype, x->device, -sqrt(k), sqrt(k));
+    Tensor *weights = tensor_rand(weight_shape, 2, dtype, x->device);
     if (!weights)
         return (NULL);
     Tensor *bias_t = NULL;
