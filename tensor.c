@@ -27,9 +27,3 @@ int main()
 }
 
 
-// Tensor *mse(Tensor *y, Tensor *y_pred)
-// {
-//     Tensor *sub = tensor_add(y, y_pred);
-//     Tensor *pow = tensor_mul(sub, sub);
-//     double *pow_data = pow->data;
-// }

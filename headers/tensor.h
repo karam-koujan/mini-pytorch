@@ -150,4 +150,5 @@ Grad_Node	*create_sum_node(Tensor *a);
 Tensor **tensor_backsum(Grad_Node *node, Tensor*grad);
 Grad_Node	*create_relu_node(Tensor *a);
 Tensor **tensor_backrelu(Grad_Node *node, Tensor*grad);
+Tensor *mse(Tensor *y, Tensor *y_pred);
 #endif

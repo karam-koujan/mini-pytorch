@@ -43,3 +43,11 @@ Tensor *tensor_relu(Tensor *x)
         tensor_set_require_grad(r, 1);
     return r;
 }
+
+Tensor *mse(Tensor *y, Tensor *y_pred)
+{
+    Tensor *sub = tensor_sub(y, y_pred);
+    Tensor *pow = tensor_mul(sub, sub);
+    Tensor *sum = tensor_sum(pow);
+    return sum;
+}
