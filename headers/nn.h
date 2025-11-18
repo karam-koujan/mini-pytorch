@@ -7,6 +7,7 @@
 typedef struct Module_s
 {
     Tensor **parameters;
+    Tensor **biases;
 }       Module;
 
 size_t parameters_len(Tensor **parameters);
@@ -19,4 +20,6 @@ Tensor *calc_relu(Tensor *a);
 Tensor *mse(Tensor *y, Tensor *y_pred);
 void    optimizer_step(Module *module, float lr);
 void    module_zero_grad(Module *module);
+size_t biases_len(Tensor **parameters);
+Tensor *module_biases(Module *m, Tensor *a, int requires_grad);
 #endif

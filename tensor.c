@@ -5,11 +5,11 @@
 
 Tensor *forward(Module *module, Tensor *x)
 {
-    Tensor *l1 = Linear(module, x, 2, 0, 0);
+    Tensor *l1 = Linear(module, x, 2, 1, 0);
     Tensor *r = tensor_relu(l1);
-    Tensor *l2 = Linear(module, r, 2, 0, 1);
+    Tensor *l2 = Linear(module, r, 2, 1, 1);
     Tensor *r2 = tensor_relu(l2);
-    Tensor *ypred = Linear(module, r2, 1, 0, 2);
+    Tensor *ypred = Linear(module, r2, 1, 1, 2);
     return ypred;
 }
 
@@ -36,7 +36,7 @@ int main()
     Tensor *label_t = tensor_from_arr(labels, label_shape,2, dtype, device);
     Module *module = module_constructor();
     tensor_print(label_t);
-    int epoch = 2000;
+    int epoch = 1080;
     float lr = 0.001;
     for (int i = 0; i <= epoch; i++)
     {
@@ -53,7 +53,7 @@ int main()
         tensor_backward(loss, NULL);
         optimizer_step(module, lr);
         module_zero_grad(module);
-        if (i == 2000)
+        if (i == epoch)
         {
 
             printf("epoch: %i", epoch);

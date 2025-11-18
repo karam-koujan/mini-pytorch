@@ -79,6 +79,31 @@ void    optimizer_step(Module *module, float lr)
             }
         }
     }
+    for (int i = 0; module->biases[i] != NULL; i++)
+    {
+        Tensor *param = module->biases[i];
+        Tensor *grad = param->grad;
+
+        if (!grad) {
+            continue;
+        }
+
+        for (int j = 0; j < param->size; j++)
+        {
+            switch(param->dtype)
+            {
+                case FLOAT32:
+                    ((float *)param->data)[j] -= lr * ((float *)grad->data)[j];
+                    break;
+                case DOUBLE:
+                    // Note: lr is float, cast for precision.
+                    ((double *)param->data)[j] -= (double)lr * ((double *)grad->data)[j];
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
 }
 
 
