@@ -1,9 +1,3 @@
-Excellent idea. Adding internal links will significantly improve the navigation and usability of the documentation.
-
-Here is the fully updated `README.md` with a clickable table of contents and cross-references within the text.
-
----
-
 # Mini-PyTorch
 
 Mini-PyTorch is a small, educational tensor library written in pure C, inspired by the core functionalities of PyTorch. It provides a dynamic Tensor object, an automatic differentiation engine (autograd), and basic building blocks for creating neural networks.
