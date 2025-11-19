@@ -79,31 +79,31 @@ void    optimizer_step(Module *module, float lr)
             }
         }
     }
-    for (int i = 0; module->biases[i] != NULL; i++)
-    {
-        Tensor *param = module->biases[i];
-        Tensor *grad = param->grad;
+    // for (int i = 0; module->biases[i] != NULL; i++)
+    // {
+    //     Tensor *param = module->biases[i];
+    //     Tensor *grad = param->grad;
 
-        if (!grad) {
-            continue;
-        }
+    //     if (!grad) {
+    //         continue;
+    //     }
 
-        for (int j = 0; j < param->size; j++)
-        {
-            switch(param->dtype)
-            {
-                case FLOAT32:
-                    ((float *)param->data)[j] -= lr * ((float *)grad->data)[j];
-                    break;
-                case DOUBLE:
-                    // Note: lr is float, cast for precision.
-                    ((double *)param->data)[j] -= (double)lr * ((double *)grad->data)[j];
-                    break;
-                default:
-                    break;
-            }
-        }
-    }
+    //     for (int j = 0; j < param->size; j++)
+    //     {
+    //         switch(param->dtype)
+    //         {
+    //             case FLOAT32:
+    //                 ((float *)param->data)[j] -= lr * ((float *)grad->data)[j];
+    //                 break;
+    //             case DOUBLE:
+    //                 // Note: lr is float, cast for precision.
+    //                 ((double *)param->data)[j] -= (double)lr * ((double *)grad->data)[j];
+    //                 break;
+    //             default:
+    //                 break;
+    //         }
+    //     }
+    // }
 }
 
 
@@ -112,10 +112,10 @@ void    module_zero_grad(Module *module)
     for (int i = 0; module->parameters[i] != NULL; i++)
     {
         Tensor *grad = module->parameters[i]->grad;
-        Tensor *b_grad = module->biases[i]->grad;
+        // Tensor *b_grad = module->biases[i]->grad;
         module->parameters[i]->grad = tensor_zeros(grad->shape, grad->num_dims, grad->dtype, grad->device);
-        module->biases[i]->grad = tensor_zeros(b_grad->shape, b_grad->num_dims, b_grad->dtype, b_grad->device);
+        // module->biases[i]->grad = tensor_zeros(b_grad->shape, b_grad->num_dims, b_grad->dtype, b_grad->device);
         tensor_free(grad);
-        tensor_free(b_grad);
+        // tensor_free(b_grad);
     }
 }
