@@ -81,6 +81,9 @@ int main()
         tensor_free(pred);
         tensor_free(loss);
     }
+    tensor_free(label_t);
+    tensor_free(data_t);
+    module_free(module);
 }
 
 

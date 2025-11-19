@@ -37,41 +37,6 @@ Tensor *module_parameter(Module *m, Tensor *a, int requires_grad)
     m->parameters = new_parameters;
     return a;
 }
-
-Tensor *module_biases(Module *m, Tensor *a, int requires_grad)
-{
-    size_t nmemb = biases_len(m->biases);
-    if (!a->requires_grad && requires_grad)
-    {
-        tensor_set_require_grad(a, 1);
-    }
-    Tensor **new_biases;
-    if (nmemb == 0)
-    {
-        nmemb = 1;
-    }else
-    {
-        nmemb = nmemb + 1;
-    }
-    new_biases = calloc(nmemb + 1, sizeof(Tensor *));
-    if (!new_biases)
-        return (NULL);
-    if (!m->biases)
-    {
-        new_biases[0] = a;
-        new_biases[1] = NULL;
-    }
-    else
-    {
-        memcpy(new_biases, m->biases, (nmemb) * sizeof(Tensor *));
-        new_biases[nmemb - 1] = a;
-        new_biases[nmemb ]  = NULL;
-    }
-    free(m->biases);
-    m->biases = new_biases;
-    return a;
-}
-
 void    parameters_print(Tensor **parameters)
 {
     if (!parameters)
@@ -90,22 +55,6 @@ Module *module_constructor()
     return (m);
 }
 
-// Tensor *get_weight(Module *m, Tensor *x, int64_t out_features, int bias, int layer)
-// {
-//     Dtype dtype = x->dtype == FLOAT32 ? FLOAT32 : DOUBLE; 
-//     int64_t in_features = x->shape[x->num_dims - 1];
-//     int64_t weight_shape[2] = {out_features, in_features};
-//     int par_idx = bias ? 1 : 0; 
-//     Tensor *weights = parameters_len(m->parameters) < (layer + par_idx) * 2 ? tensor_rand(weight_shape, 2, dtype, x->device) : NULL;
-
-// }
-
-/*
-
-
-
-
-*/
 
 Tensor *Linear(Module *m, Tensor *x, int64_t out_features, int bias, int layer)
 {
@@ -141,6 +90,10 @@ Tensor *Linear(Module *m, Tensor *x, int64_t out_features, int bias, int layer)
     }
     Tensor *y = tensor_matmul(x, weights);
     if (bias)
-        return tensor_add(y, bias_t);
+    {
+        Tensor *tmp_y = y;
+        y = tensor_add(y, bias_t);
+        tensor_free(tmp_y);
+    }
     return y;
 }

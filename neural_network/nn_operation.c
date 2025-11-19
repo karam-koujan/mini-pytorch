@@ -90,3 +90,14 @@ void    module_zero_grad(Module *module)
         tensor_free(grad);
     }
 }
+
+
+void    module_free(Module *module)
+{
+    for (size_t i = 0; i < parameters_len(module->parameters); i++)
+    {
+        tensor_free(module->parameters[i]);
+    }
+    free(module->parameters);
+    free(module);
+}
