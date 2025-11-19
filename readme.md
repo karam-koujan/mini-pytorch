@@ -2,30 +2,7 @@
 
 Mini-PyTorch is a small, educational tensor library written in pure C, inspired by the core functionalities of PyTorch. It provides a dynamic Tensor object, an automatic differentiation engine (autograd), and basic building blocks for creating neural networks.
 
-## Table of Contents
-
--   [Features](#features)
--   [How to Build](#how-to-build)
--   [API Documentation & Examples](#api-documentation--examples)
-    -   [1. Tensor Creation](#1-tensor-creation)
-        -   [`tensor_zeros`](#tensor_zeros)
-        -   [`tensor_ones`](#tensor_ones)
-        -   [`tensor_full`](#tensor_full)
-        -   [`tensor_rand`](#tensor_rand)
-        -   [`tensor_urand`](#tensor_urand)
-        -   [`tensor_from_arr`](#tensor_from_arr)
-    -   [2. Tensor Operations](#2-tensor-operations)
-        -   [Mathematical Operations](#mathematical-operations)
-        -   [Manipulation Operations](#manipulation-operations)
-        -   [Utility Functions](#utility-functions)
-    -   [3. Autograd Engine](#3-autograd-engine)
-        -   [`tensor_set_require_grad`](#tensor_set_require_grad)
-        -   [`tensor_backward`](#tensor_backward)
-    -   [4. Neural Network Module (nn)](#4-neural-network-module-nn)
-        -   [`module_constructor`](#module_constructor)
-        -   [`Linear`](#linear)
-        -   [`relu`](#relu)
-        -   [`parameters_print`](#parameters_print)
+This project is intended for educational purposes to understand the inner workings of a deep learning framework.
 
 ## Features
 
@@ -42,8 +19,14 @@ To build the library and run the main executable, use the provided `Makefile`.
 # Compile the library and create the executable 'mini_pytorch'
 make
 
-# Run the executable
+# Run the example neural network training
 ./mini_pytorch
+
+# Clean up object files
+make clean
+
+# Clean up object files and the executable
+make fclean
 ```
 
 ## API Documentation & Examples
@@ -60,12 +43,12 @@ Tensor *tensor_zeros(const int64_t *shape, int64_t ndim, Dtype type, Device devi
 **Example:**
 ```c
 int64_t shape[] = {2, 3};
-Tensor *t = tensor_zeros(shape, 2, DOUBLE, CPU);
+Tensor *t = tensor_zeros(shape, 2, FLOAT32, CPU);
 tensor_print(t);
 // Output:
 // Tensor of shape (2,3):
-// [[0.00,0.00,0.00],
-// [0.00,0.00,0.00]]
+// [0.00,0.00,0.00],
+// [0.00,0.00,0.00]
 ```
 
 #### `tensor_ones`
@@ -76,12 +59,12 @@ Tensor *tensor_ones(const int64_t *shape, int64_t ndim, Dtype type, Device devic
 **Example:**
 ```c
 int64_t shape[] = {2, 3};
-Tensor *t = tensor_ones(shape, 2, DOUBLE, CPU);
+Tensor *t = tensor_ones(shape, 2, FLOAT32, CPU);
 tensor_print(t);
 // Output:
 // Tensor of shape (2,3):
-// [[1.00,1.00,1.00],
-// [1.00,1.00,1.00]]
+// [1.00,1.00,1.00],
+// [1.00,1.00,1.00]
 ```
 
 #### `tensor_full`
@@ -92,13 +75,13 @@ Tensor *tensor_full(const int64_t *shape, int64_t ndim, Dtype type, Device devic
 **Example:**
 ```c
 int64_t shape[] = {2, 3};
-double val = 7.5;
-Tensor *t = tensor_full(shape, 2, DOUBLE, CPU, &val);
+float val = 7.5f;
+Tensor *t = tensor_full(shape, 2, FLOAT32, CPU, &val);
 tensor_print(t);
 // Output:
 // Tensor of shape (2,3):
-// [[7.50,7.50,7.50],
-// [7.50,7.50,7.50]]
+// [7.50,7.50,7.50],
+// [7.50,7.50,7.50]
 ```
 
 #### `tensor_rand`
@@ -116,7 +99,7 @@ Tensor *tensor_urand(const int64_t *shape, int64_t ndim, Dtype type, Device devi
 ```c
 tensor_set_seed(1337); // for reproducibility
 int64_t shape[] = {2, 2};
-Tensor *t = tensor_urand(shape, 2, DOUBLE, CPU, -10.0, 10.0);
+Tensor *t = tensor_urand(shape, 2, FLOAT32, CPU, -10.0, 10.0);
 tensor_print(t);
 ```
 
@@ -127,84 +110,80 @@ Tensor *tensor_from_arr(void *arr, const int64_t *shape, int64_t ndim, Dtype typ
 ```
 **Example:**
 ```c
-double data[] = {1.0, 2.0, 3.0, 4.0};
+float data[] = {1.0f, 2.0f, 3.0f, 4.0f};
 int64_t shape[] = {2, 2};
-Tensor *t = tensor_from_arr(data, shape, 2, DOUBLE, CPU);
+Tensor *t = tensor_from_arr(data, shape, 2, FLOAT32, CPU);
 tensor_print(t);
 // Output:
 // Tensor of shape (2,2):
-// [[1.00,2.00],
-// [3.00,4.00]]
+// [1.00,2.00],
+// [3.00,4.00]
 ```
 
 ### 2. Tensor Operations
 
 #### Mathematical Operations
-These functions perform element-wise or matrix operations.
-
 `tensor_add(a, b)`: Element-wise addition.
 `tensor_sub(a, b)`: Element-wise subtraction.
 `tensor_mul(a, b)`: Element-wise multiplication.
 `tensor_div(a, b)`: Element-wise division.
 `tensor_mm(a, b)`: Matrix multiplication for 2D tensors.
 `tensor_matmul(a, b)`: Matrix multiplication with support for broadcasting batch dimensions.
+`tensor_sum(a)`: Computes the sum of all elements in the tensor, returning a scalar tensor.
+`tensor_mean(a)`: Computes the mean of all elements in the tensor, returning a scalar tensor.
 
-**Example (Math Ops):**
+**Example:**
 ```c
 int64_t shape[] = {2, 2};
-double val_a = 2.0;
-Tensor *a = tensor_full(shape, 2, DOUBLE, CPU, &val_a);
+float val_a = 2.0f;
+Tensor *a = tensor_full(shape, 2, FLOAT32, CPU, &val_a);
 
-double val_b = 3.0;
-Tensor *b = tensor_full(shape, 2, DOUBLE, CPU, &val_b);
+float val_b = 3.0f;
+Tensor *b = tensor_full(shape, 2, FLOAT32, CPU, &val_b);
 
 // Element-wise multiplication
 Tensor *c = tensor_mul(a, b);
 tensor_print(c);
 // Output:
 // Tensor of shape (2,2):
-// [[6.00,6.00],
-// [6.00,6.00]]
+// [6.00,6.00],
+// [6.00,6.00]
 
 // Matrix multiplication
 Tensor *d = tensor_mm(a, b);
 tensor_print(d);
 // Output:
 // Tensor of shape (2,2):
-// [[12.00,12.00],
-// [12.00,12.00]]
+// [12.00,12.00],
+// [12.00,12.00]
 ```
 
 #### Manipulation Operations
-These functions change the shape or layout of a tensor.
-
 `tensor_reshape(a, new_shape, new_ndim)`: Returns a tensor with a new shape. May copy data if the original tensor is not contiguous.
-`tensor_transpose(a, dim0, dim1)`: Swaps two dimensions of a tensor.
+`tensor_transpose(a, dim0, dim1)`: Swaps two dimensions of a tensor by creating a deep copy.
 `tensor_t(a)`: Transposes a 1D or 2D tensor.
-`tensor_permute(a, dims, num_dims)`: Permutes the dimensions of a tensor according to a specified order.
+`tensor_permute(a, dims, num_dims)`: Permutes the dimensions of a tensor according to a specified order (in-place).
 
 **Example (Transpose):**
 ```c
-double data[] = {1, 2, 3, 4};
+float data[] = {1, 2, 3, 4};
 int64_t shape[] = {2, 2};
-Tensor *a = tensor_from_arr(data, shape, 2, DOUBLE, CPU);
+Tensor *a = tensor_from_arr(data, shape, 2, FLOAT32, CPU);
 printf("Original Tensor:\n");
 tensor_print(a);
 
-Tensor *a_t = tensor_transpose(a, 0, 1);
+Tensor *a_t = tensor_t(a);
 printf("Transposed Tensor:\n");
 tensor_print(a_t);
 // Original Output:
-// [[1.00,2.00],
-// [3.00,4.00]]
+// Tensor of shape (2,2):
+// [1.00,2.00],
+// [3.00,4.00]
 // Transposed Output:
-// [[1.00,3.00],
-// [2.00,4.00]]
+// Tensor of shape (2,2):
+// [1.00,3.00],
+// [2.00,4.00]
 ```
-
-#### Utility Functions
-`tensor_print(t)`: Prints a formatted representation of the tensor.
-`tensor_infos(t)`: Prints detailed metadata about the tensor (shape, strides, dtype, etc.).
 
 ### 3. Autograd Engine
 
@@ -218,54 +197,44 @@ void tensor_set_require_grad(Tensor *a, int requires_grad); // 1 for true, 0 for
 ```
 
 #### `tensor_backward`
-Computes the gradient of a tensor with respect to all leaf tensors that have `requires_grad=1`.
+Computes the gradient of a tensor with respect to all leaf tensors that have `requires_grad=1`. It traverses the computation graph backwards from the calling tensor.
 
-**Important:** When calling `tensor_backward` on a tensor with multiple elements (a non-scalar), you are implicitly asking for the gradient of the **sum** of its elements. The function automatically creates an initial gradient tensor of ones with the same shape as the output tensor.
+**Important:** When calling `tensor_backward` on a non-scalar tensor, you are implicitly asking for the gradient of the **sum** of its elements. The function automatically creates an initial gradient of ones to start the backpropagation process.
 
 ```c
 void tensor_backward(Tensor *a, Tensor *prev_grad); // Pass NULL to use the default gradient of ones
 ```
 
-**Example (Autograd with Multi-Dimensional Tensors):**
-
-Let's compute the gradient for an element-wise multiplication of two 2x2 tensors.
-If `y = a * b`, then the loss `L` is implicitly `sum(y)`. The gradient `dL/da` will be `b`, and `dL/db` will be `a`.
-
+**Example:**
 ```c
 // Let y = a * b, where a and b are 2x2 matrices.
 // We want to compute the gradients of the sum of y's elements
 // with respect to a and b.
 
 // Create tensor 'a'
-double data_a[] = {1.0, 2.0, 3.0, 4.0};
+float data_a[] = {1.0, 2.0, 3.0, 4.0};
 int64_t shape[] = {2, 2};
-Tensor *a = tensor_from_arr(data_a, shape, 2, DOUBLE, CPU);
+Tensor *a = tensor_from_arr(data_a, shape, 2, FLOAT32, CPU);
 tensor_set_require_grad(a, 1); // Track gradients for a
 
 // Create tensor 'b'
-double data_b[] = {5.0, 6.0, 7.0, 8.0};
-Tensor *b = tensor_from_arr(data_b, shape, 2, DOUBLE, CPU);
+float data_b[] = {5.0, 6.0, 7.0, 8.0};
+Tensor *b = tensor_from_arr(data_b, shape, 2, FLOAT32, CPU);
 tensor_set_require_grad(b, 1); // Track gradients for b
 
 // y = a * b (element-wise)
-// y will be [[5.0, 12.0], [21.0, 32.0]]
 Tensor *y = tensor_mul(a, b);
 
 // Compute gradients. Since y is not a scalar, this computes the gradient
-// of sum(y) w.r.t. the leaf tensors. It's equivalent to providing
-// an initial gradient of ones.
+// of sum(y) w.r.t. the leaf tensors.
 tensor_backward(y, NULL);
 
 // Print gradients
 // The gradient of `sum(a*b)` w.r.t. `a` is `b`.
-printf("Original tensor b:\n");
-tensor_print(b);
-printf("\nGradient of a (should be equal to b):\n");
+printf("Gradient of a (should be equal to b):\n");
 tensor_print(a->grad);
 
 // The gradient of `sum(a*b)` w.r.t. `b` is `a`.
-printf("\nOriginal tensor a:\n");
-tensor_print(a);
 printf("\nGradient of b (should be equal to a):\n");
 tensor_print(b->grad);
 ```
@@ -276,64 +245,172 @@ The `nn` module provides building blocks for creating neural networks.
 
 #### `module_constructor`
 Creates a `Module` object, which acts as a container for all trainable parameters (weights and biases) in a model.
-
 ```c
 Module *module_constructor();
 ```
 
 #### `Linear`
-Applies a linear transformation to the input data: `y = xA^T + b`. The weights and biases are automatically created, initialized, and registered as parameters in the provided module.
-
+Applies a linear transformation to the input data: `y = x @ W + b`. The weights and biases are automatically created, initialized using Xavier/Glorot initialization, and registered as parameters in the provided module.
 ```c
-Tensor *Linear(Module *m, Tensor *x, int64_t out_features, int bias);
+Tensor *Linear(Module *m, Tensor *x, int64_t out_features, int bias, int layer);
 ```
 - `m`: A pointer to the `Module` that will store the parameters.
 - `x`: The input tensor of shape `(..., in_features)`.
 - `out_features`: The number of output features for the layer.
 - `bias`: An integer flag (1 for true, 0 for false) to include a trainable bias term.
+- `layer`: The index of the layer, used to retrieve or create the correct parameters from the module.
 
-#### `relu`
-Applies the Rectified Linear Unit activation function element-wise: `ReLU(x) = max(0, x)`. This is an in-place operation.
-
+#### `tensor_relu`
+Applies the Rectified Linear Unit activation function element-wise: `ReLU(x) = max(0, x)`.
 ```c
-Tensor *relu(Tensor *x);
+Tensor *tensor_relu(Tensor *x);
 ```
 
-#### `parameters_print`
-Prints all parameters registered within a `Module`.
-
+#### `mse`
+Computes the Mean Squared Error between two tensors. Note: the current implementation calculates the Sum of Squared Errors: `sum((y - y_pred)^2)`.
 ```c
-void parameters_print(Tensor **parameters);
+Tensor *mse(Tensor *y, Tensor *y_pred);
 ```
 
-**Example (Building a Simple Network):**
+#### `optimizer_step`
+Updates the module's parameters using their computed gradients. It performs the update: `param = param - lr * param.grad`.
 ```c
-// 1. Create a module to hold model parameters
-Module *model = module_constructor();
-
-// 2. Define an input tensor (e.g., batch of 1, 10 features)
-int64_t input_shape[] = {1, 10};
-Tensor *x = tensor_rand(input_shape, 2, DOUBLE, CPU);
-
-// 3. Forward pass through a simple network
-// Layer 1: 10 input features -> 32 output features
-Tensor *hidden = Linear(model, x, 32, 1); // `1` enables bias
-// Activation function
-relu(hidden);
-// Layer 2: 32 input features -> 5 output features
-Tensor *output = Linear(model, hidden, 5, 1);
-
-// 4. Print results
-printf("Input Tensor:\n");
-tensor_print(x);
-printf("\nOutput Tensor:\n");
-tensor_print(output);
-printf("\nModel Parameters:\n");
-parameters_print(model->parameters);
-
-// 5. Example backward pass (assuming `output` represents some loss)
-tensor_backward(output, NULL);
-
-printf("\n---Gradients after backward pass---\n");
-parameters_print(model->parameters); // The .grad fields will now be populated
+void optimizer_step(Module *module, float lr);
 ```
+
+#### `module_zero_grad`
+Resets the gradients of all parameters in a module to zero. This should be called at the start of each training iteration.
+```c
+void module_zero_grad(Module *module);
+```
+
+#### `module_free`
+Frees the module and all its associated parameters.
+```c
+void module_free(Module *module);
+```
+
+## Putting It All Together: A Complete Example
+
+The `main.c` file demonstrates how to use these components to build and train a simple neural network.
+
+The network has the following architecture:
+1.  Linear Layer (2 input features, 2 output features) + Bias
+2.  ReLU Activation
+3.  Linear Layer (2 input features, 2 output features) + Bias
+4.  ReLU Activation
+5.  Linear Layer (2 input features, 1 output feature) + Bias
+
+The training loop performs the following steps:
+1.  **Forward Pass**: Data is passed through the network to get a prediction.
+2.  **Loss Calculation**: The Sum of Squared Errors is calculated between the prediction and the true labels.
+3.  **Backward Pass**: `tensor_backward()` is called on the loss to compute gradients for all model parameters.
+4.  **Optimizer Step**: The model's parameters are updated using the gradients.
+5.  **Zero Gradients**: The gradients are reset for the next iteration.
+
+```c
+#include "headers/tensor.h"
+#include "headers/print.h"
+#include "headers/nn.h"
+#include <time.h>
+
+// Helper to print logs during training
+void print_logs(Tensor *pred, Tensor *label_t, Tensor *loss, int epoch, int i)
+{
+    if (i % 500 == 0 || i == epoch || i == 0)
+    {
+        printf("--- Iteration: %i ---\n", i);
+        printf("True label (first 5):\n");
+        // Simplified print for brevity in README
+        for(int k=0; k<5; ++k) printf("%.2f ", ((float*)label_t->data)[k]);
+        printf("\n");
+
+        printf("Predicted label (first 5):\n");
+        for(int k=0; k<5; ++k) printf("%.2f ", ((float*)pred->data)[k]);
+        printf("\n");
+        
+        printf("Loss value:\n");
+        tensor_print(loss);
+        printf("\n");
+    }
+}
+
+int main()
+{
+    // Set seed for reproducible random weight initialization
+    tensor_set_seed(1337);
+
+    // Sample dataset and labels
+    float data[20][2] = {
+        {0.1, 0.2}, {0.3, 0.4}, {0.5, 0.6}, {0.7, 0.8}, {0.2, 0.3},
+        {0.4, 0.6}, {0.6, 0.8}, {0.8, 0.9}, {0.1, 0.4}, {0.3, 0.5},
+        {0.5, 0.7}, {0.7, 0.9}, {0.2, 0.5}, {0.4, 0.7}, {0.6, 0.9},
+        {0.1, 0.3}, {0.3, 0.6}, {0.5, 0.8}, {0.7, 0.7}, {0.9, 0.8}
+    };
+    float labels[20] = {
+        0.17, 0.37, 0.57, 0.77, 0.27,
+        0.53, 0.73, 0.87, 0.30, 0.43,
+        0.63, 0.83, 0.40, 0.60, 0.80,
+        0.23, 0.50, 0.70, 0.70, 0.83
+    };
+
+    // Create tensors from C arrays
+    int64_t data_shape[] = {1, 20, 2};
+    int64_t label_shape[] = {20, 1};
+    Tensor *data_t = tensor_from_arr(data, data_shape, 3, FLOAT32, CPU);
+    Tensor *label_t = tensor_from_arr(labels, label_shape, 2, FLOAT32, CPU);
+
+    // Create a module to hold the network parameters
+    Module *module = module_constructor();
+    int epoch = 2000;
+    float lr = 0.001;
+
+    // --- Training Loop ---
+    for (int i = 0; i <= epoch; i++)
+    {
+        // 1. Forward pass
+        Tensor *l1 = Linear(module, data_t, 2, 1, 0);
+        Tensor *r1 = tensor_relu(l1);
+        Tensor *l2 = Linear(module, r1, 2, 1, 1);
+        Tensor *r2 = tensor_relu(l2);
+        Tensor *pred = Linear(module, r2, 1, 1, 2);
+
+        // 2. Loss calculation (Sum of Squared Errors)
+        Tensor *sub = tensor_sub(label_t, pred);
+        Tensor *pow = tensor_mul(sub, sub);
+        Tensor *loss = tensor_sum(pow);
+
+        print_logs(pred, label_t, loss, epoch, i);
+
+        // 3. Backpropagation: compute gradients from the loss
+        tensor_backward(loss, NULL);
+
+        // 4. Update weights and biases
+        optimizer_step(module, lr);
+
+        // 5. Zero out gradients for the next iteration
+        module_zero_grad(module);
+
+        // Free intermediate tensors from the forward pass and loss calculation
+        tensor_free(l1);
+        tensor_free(r1);
+        tensor_free(l2);
+        tensor_free(r2);
+        tensor_free(pow);
+        tensor_free(sub);
+        tensor_free(pred);
+        tensor_free(loss);
+    }
+
+    // Clean up all remaining resources
+    tensor_free(label_t);
+    tensor_free(data_t);
+    module_free(module);
+
+    return 0;
+}
+```
+
+## Known Issues
+
+⚠️ **Memory Management**: This project currently has known memory leaks. The tensor and module freeing logic is not complete, and running complex models or long training loops will result in significant memory consumption. This is a key area that needs to be addressed for the library to be more robust.
