@@ -121,7 +121,7 @@ Tensor *tensor_deep_copy(Tensor *a)
             return (tensor_free(r), NULL);
         }
     }
-    a->grad = grad;
+    r->grad = NULL;
     if (a->is_broadcasted)
     {
         r->prebroadcast_shape = malloc(a->prebroadcast_dims * sizeof(int64_t));
@@ -135,7 +135,7 @@ Tensor *tensor_deep_copy(Tensor *a)
         memcpy(r->prebroadcast_shape, a->prebroadcast_shape, a->prebroadcast_dims * sizeof(int64_t));
         memcpy(r->prebroadcast_stride, a->prebroadcast_stride, a->prebroadcast_dims * sizeof(int64_t));
     }
-
+    r->grad_fn = NULL;
     return (r);
 }
 
