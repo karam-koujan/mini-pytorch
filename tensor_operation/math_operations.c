@@ -451,3 +451,29 @@ Tensor *tensor_mean(Tensor *a)
 }
 
 
+Tensor *tensor_sqrt(Tensor *a)
+{
+    for (int i = 0; i < a->size; i++)
+    {
+	    switch (a->dtype)
+	    {
+	        case FLOAT32: {
+                ((float *)a->data)[0] = sqrt(((float *)a->data)[i]);
+	            break;
+	        }
+	        case DOUBLE: {
+                ((double *)a->data)[0] = sqrt(((double *)a->data)[i]);
+	            break;
+	        }
+	        case INT64: {
+                ((int64_t *)a->data)[0] = sqrt(((int64_t *)a->data)[i]);
+	            break;
+	        }
+	        case INT32: {
+                ((int *)a->data)[0] = sqrt(((int *)a->data)[i]);
+	            break;
+	        }
+	    }
+    }
+    return a;
+}

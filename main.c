@@ -45,7 +45,7 @@ int main()
     Tensor *data_t = tensor_from_arr(data, data_shape, 3, dtype, device);
     Tensor *label_t = tensor_from_arr(labels, label_shape,2, dtype, device);
     Module *module = module_constructor();
-    int epoch = 2000;
+    int epoch = 3000;
     float lr = 0.001;
     for (int i = 0; i <= epoch; i++)
     {

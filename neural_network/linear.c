@@ -91,9 +91,7 @@ Tensor *Linear(Module *m, Tensor *x, int64_t out_features, int bias, int layer)
     Tensor *y = tensor_matmul(x, weights);
     if (bias)
     {
-        Tensor *tmp_y = y;
         y = tensor_add(y, bias_t);
-        tensor_free(tmp_y);
     }
     return y;
 }
