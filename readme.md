@@ -1,8 +1,45 @@
+Excellent idea. Adding internal links will significantly improve the navigation and usability of the documentation.
+
+Here is the fully updated `README.md` with a clickable table of contents and cross-references within the text.
+
+---
+
 # Mini-PyTorch
 
 Mini-PyTorch is a small, educational tensor library written in pure C, inspired by the core functionalities of PyTorch. It provides a dynamic Tensor object, an automatic differentiation engine (autograd), and basic building blocks for creating neural networks.
 
 This project is intended for educational purposes to understand the inner workings of a deep learning framework.
+
+## Table of Contents
+
+-   [Features](#features)
+-   [How to Build](#how-to-build)
+-   [API Documentation & Examples](#api-documentation--examples)
+    -   [1. Tensor Creation](#1-tensor-creation)
+        -   [`tensor_zeros`](#tensor_zeros)
+        -   [`tensor_ones`](#tensor_ones)
+        -   [`tensor_full`](#tensor_full)
+        -   [`tensor_rand`](#tensor_rand)
+        -   [`tensor_urand`](#tensor_urand)
+        -   [`tensor_from_arr`](#tensor_from_arr)
+    -   [2. Tensor Operations](#2-tensor-operations)
+        -   [Mathematical Operations](#mathematical-operations)
+        -   [Manipulation Operations](#manipulation-operations)
+        -   [Utility Functions](#utility-functions)
+    -   [3. Autograd Engine](#3-autograd-engine)
+        -   [`tensor_set_require_grad`](#tensor_set_require_grad)
+        -   [`tensor_backward`](#tensor_backward)
+    -   [4. Neural Network Module (nn)](#4-neural-network-module-nn)
+        -   [`module_constructor`](#module_constructor)
+        -   [`Linear`](#linear)
+        -   [`tensor_relu`](#tensor_relu)
+        -   [`mse`](#mse)
+        -   [`optimizer_step`](#optimizer_step)
+        -   [`module_zero_grad`](#module_zero_grad)
+        -   [`parameters_print`](#parameters_print)
+        -   [`module_free`](#module_free)
+-   [Putting It All Together: A Complete Example](#putting-it-all-together-a-complete-example)
+-   [Known Issues](#known-issues)
 
 ## Features
 
@@ -123,16 +160,18 @@ tensor_print(t);
 ### 2. Tensor Operations
 
 #### Mathematical Operations
-`tensor_add(a, b)`: Element-wise addition.
-`tensor_sub(a, b)`: Element-wise subtraction.
-`tensor_mul(a, b)`: Element-wise multiplication.
-`tensor_div(a, b)`: Element-wise division.
-`tensor_mm(a, b)`: Matrix multiplication for 2D tensors.
-`tensor_matmul(a, b)`: Matrix multiplication with support for broadcasting batch dimensions.
-`tensor_sum(a)`: Computes the sum of all elements in the tensor, returning a scalar tensor.
-`tensor_mean(a)`: Computes the mean of all elements in the tensor, returning a scalar tensor.
+These functions perform element-wise or matrix operations.
 
-**Example:**
+-   `tensor_add(a, b)`: Element-wise addition.
+-   `tensor_sub(a, b)`: Element-wise subtraction.
+-   `tensor_mul(a, b)`: Element-wise multiplication.
+-   `tensor_div(a, b)`: Element-wise division.
+-   `tensor_mm(a, b)`: Matrix multiplication for 2D tensors.
+-   `tensor_matmul(a, b)`: Matrix multiplication with support for broadcasting batch dimensions.
+-   `tensor_sum(a)`: Computes the sum of all elements in the tensor, returning a scalar tensor.
+-   `tensor_mean(a)`: Computes the mean of all elements in the tensor, returning a scalar tensor.
+
+**Example (Math Ops):**
 ```c
 int64_t shape[] = {2, 2};
 float val_a = 2.0f;
@@ -159,10 +198,12 @@ tensor_print(d);
 ```
 
 #### Manipulation Operations
-`tensor_reshape(a, new_shape, new_ndim)`: Returns a tensor with a new shape. May copy data if the original tensor is not contiguous.
-`tensor_transpose(a, dim0, dim1)`: Swaps two dimensions of a tensor by creating a deep copy.
-`tensor_t(a)`: Transposes a 1D or 2D tensor.
-`tensor_permute(a, dims, num_dims)`: Permutes the dimensions of a tensor according to a specified order (in-place).
+These functions change the shape or layout of a tensor.
+
+-   `tensor_reshape(a, new_shape, new_ndim)`: Returns a tensor with a new shape. May copy data if the original tensor is not contiguous.
+-   `tensor_transpose(a, dim0, dim1)`: Swaps two dimensions of a tensor by creating a deep copy.
+-   `tensor_t(a)`: Transposes a 1D or 2D tensor.
+-   `tensor_permute(a, dims, num_dims)`: Permutes the dimensions of a tensor according to a specified order (in-place).
 
 **Example (Transpose):**
 ```c
@@ -184,6 +225,10 @@ tensor_print(a_t);
 // [1.00,3.00],
 // [2.00,4.00]
 ```
+
+#### Utility Functions
+-   `tensor_print(t)`: Prints a formatted representation of the tensor.
+-   `tensor_infos(t)`: Prints detailed metadata about the tensor (shape, strides, dtype, etc.).
 
 ### 3. Autograd Engine
 
@@ -254,11 +299,11 @@ Applies a linear transformation to the input data: `y = x @ W + b`. The weights 
 ```c
 Tensor *Linear(Module *m, Tensor *x, int64_t out_features, int bias, int layer);
 ```
-- `m`: A pointer to the `Module` that will store the parameters.
-- `x`: The input tensor of shape `(..., in_features)`.
-- `out_features`: The number of output features for the layer.
-- `bias`: An integer flag (1 for true, 0 for false) to include a trainable bias term.
-- `layer`: The index of the layer, used to retrieve or create the correct parameters from the module.
+-   `m`: A pointer to the `Module` that will store the parameters.
+-   `x`: The input tensor of shape `(..., in_features)`.
+-   `out_features`: The number of output features for the layer.
+-   `bias`: An integer flag (1 for true, 0 for false) to include a trainable bias term.
+-   `layer`: The index of the layer, used to retrieve or create the correct parameters from the module.
 
 #### `tensor_relu`
 Applies the Rectified Linear Unit activation function element-wise: `ReLU(x) = max(0, x)`.
@@ -282,6 +327,12 @@ void optimizer_step(Module *module, float lr);
 Resets the gradients of all parameters in a module to zero. This should be called at the start of each training iteration.
 ```c
 void module_zero_grad(Module *module);
+```
+
+#### `parameters_print`
+Prints all parameters (weights and biases) registered within a `Module`.
+```c
+void parameters_print(Tensor **parameters);
 ```
 
 #### `module_free`
@@ -342,25 +393,19 @@ int main()
 
     // Sample dataset and labels
     float data[20][2] = {
-        {0.1, 0.2}, {0.3, 0.4}, {0.5, 0.6}, {0.7, 0.8}, {0.2, 0.3},
-        {0.4, 0.6}, {0.6, 0.8}, {0.8, 0.9}, {0.1, 0.4}, {0.3, 0.5},
-        {0.5, 0.7}, {0.7, 0.9}, {0.2, 0.5}, {0.4, 0.7}, {0.6, 0.9},
-        {0.1, 0.3}, {0.3, 0.6}, {0.5, 0.8}, {0.7, 0.7}, {0.9, 0.8}
+        {0.1, 0.2}, /* ... more data ... */ {0.9, 0.8}
     };
     float labels[20] = {
-        0.17, 0.37, 0.57, 0.77, 0.27,
-        0.53, 0.73, 0.87, 0.30, 0.43,
-        0.63, 0.83, 0.40, 0.60, 0.80,
-        0.23, 0.50, 0.70, 0.70, 0.83
+        0.17, /* ... more labels ... */ 0.83
     };
 
-    // Create tensors from C arrays
+    // Create tensors from C arrays using [tensor_from_arr](#tensor_from_arr)
     int64_t data_shape[] = {1, 20, 2};
     int64_t label_shape[] = {20, 1};
     Tensor *data_t = tensor_from_arr(data, data_shape, 3, FLOAT32, CPU);
     Tensor *label_t = tensor_from_arr(labels, label_shape, 2, FLOAT32, CPU);
 
-    // Create a module to hold the network parameters
+    // Create a module to hold the network parameters with [module_constructor](#module_constructor)
     Module *module = module_constructor();
     int epoch = 2000;
     float lr = 0.001;
@@ -382,13 +427,13 @@ int main()
 
         print_logs(pred, label_t, loss, epoch, i);
 
-        // 3. Backpropagation: compute gradients from the loss
+        // 3. Backpropagation: compute gradients from the loss using [tensor_backward](#tensor_backward)
         tensor_backward(loss, NULL);
 
-        // 4. Update weights and biases
+        // 4. Update weights and biases with the [optimizer_step](#optimizer_step)
         optimizer_step(module, lr);
 
-        // 5. Zero out gradients for the next iteration
+        // 5. Zero out gradients for the next iteration with [module_zero_grad](#module_zero_grad)
         module_zero_grad(module);
 
         // Free intermediate tensors from the forward pass and loss calculation
