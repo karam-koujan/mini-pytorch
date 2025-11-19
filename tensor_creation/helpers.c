@@ -67,61 +67,29 @@ Tensor *tensor_deep_copy(Tensor *a)
         error_msg("you entred an empty tensor");
         return (NULL);
     }
-    Tensor *r = malloc(sizeof(Tensor));
+    Tensor *r = tensor_constructor(a->shape, a->num_dims, a->dtype, a->device);
     if (!r)
         return (NULL);
-    memcpy(r, a, sizeof(Tensor));
 
     void *data = malloc(a->size * sizeof_type(a->dtype));
     r->grad_fn = NULL;
     if (!data)
     {
-        r->prebroadcast_shape = NULL;
-        r->prebroadcast_stride = NULL;
-        r->data = NULL;
-        r->shape = NULL;
-        r->strides = NULL;
-        r->grad = NULL;
+
         return (tensor_free(r), NULL);
     }
     memcpy(data, a->data, a->size * sizeof_type(a->dtype));
     r->data = data;
-    int64_t *shape = malloc(a->num_dims * sizeof(int64_t));
-    if (!shape)
-    {
-        r->prebroadcast_shape = NULL;
-        r->prebroadcast_stride = NULL;
-        r->shape = NULL;
-        r->strides = NULL;
-        r->grad = NULL;
-        return (tensor_free(r), NULL);
-    }
-    memcpy(shape, a->shape, a->num_dims * sizeof(int64_t));
-    r->shape = shape;
-    int64_t *strides = malloc(a->num_dims * sizeof(int64_t));
-    if (!strides)
-    {
-        r->prebroadcast_shape = NULL;
-        r->prebroadcast_stride = NULL;
-        r->strides = NULL;
-        r->grad = NULL;
-        return (tensor_free(r), NULL);
-    }
-    r->strides = strides;
-    memcpy(strides, a->strides, a->num_dims * sizeof(int64_t));
-    Tensor  *grad = NULL;
-    if (a->grad)
-    {
-        grad = tensor_deep_copy(a->grad);
-        if (!grad)
-        {
-            r->prebroadcast_shape = NULL;
-            r->prebroadcast_stride = NULL;
-            r->grad = NULL;
-            return (tensor_free(r), NULL);
-        }
-    }
+    memcpy(r->shape, a->shape, a->num_dims * sizeof(int64_t));
+    memcpy(r->strides, a->strides, a->num_dims * sizeof(int64_t));
     r->grad = NULL;
+    r->is_leaf = a->is_leaf;
+	r->grad_fn = NULL;
+	r->prebroadcast_dims = -1;
+	r->prebroadcast_shape = NULL;
+	r->prebroadcast_stride = NULL;
+	r->is_broadcasted = 0;
+	r->requires_grad = 0;
     if (a->is_broadcasted)
     {
         r->prebroadcast_shape = malloc(a->prebroadcast_dims * sizeof(int64_t));
@@ -135,7 +103,6 @@ Tensor *tensor_deep_copy(Tensor *a)
         memcpy(r->prebroadcast_shape, a->prebroadcast_shape, a->prebroadcast_dims * sizeof(int64_t));
         memcpy(r->prebroadcast_stride, a->prebroadcast_stride, a->prebroadcast_dims * sizeof(int64_t));
     }
-    r->grad_fn = NULL;
     return (r);
 }
 

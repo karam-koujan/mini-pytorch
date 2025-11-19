@@ -45,7 +45,7 @@ int main()
     Tensor *data_t = tensor_from_arr(data, data_shape, 3, dtype, device);
     Tensor *label_t = tensor_from_arr(labels, label_shape,2, dtype, device);
     Module *module = module_constructor();
-    int epoch = 3000;
+    int epoch = 2000;
     float lr = 0.001;
     for (int i = 0; i <= epoch; i++)
     {
@@ -74,12 +74,14 @@ int main()
 
         module_zero_grad(module);
 
-        tensor_free(l1);
-        tensor_free(r);
-        tensor_free(l2);
-        tensor_free(r2);
-        tensor_free(pred);
         tensor_free(loss);
+        tensor_free(pow);
+        tensor_free(sub);
+        tensor_free(pred);
+        tensor_free(r2);
+        tensor_free(l2);
+        tensor_free(r);
+        tensor_free(l1);
     }
     tensor_free(label_t);
     tensor_free(data_t);
