@@ -6,7 +6,6 @@
 
 **Mini-PyTorch** is a compact, educational tensor library written from scratch in pure C. Inspired by the core functionalities of PyTorch, it provides a dynamic Tensor object, a powerful automatic differentiation engine (autograd), and the essential building blocks for creating and training neural networks.
 
-This project is designed for students, developers, and enthusiasts who want to look under the hood and understand the inner workings of a modern deep learning framework.
 
 ## Table of Contents
 
