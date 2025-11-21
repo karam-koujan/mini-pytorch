@@ -45,7 +45,7 @@ int main()
     Tensor *data_t = tensor_from_arr(data, data_shape, 3, dtype, device);
     Tensor *label_t = tensor_from_arr(labels, label_shape,2, dtype, device);
     Module *module = module_constructor();
-    int epoch = 3000;
+    int epoch = 2;
     float lr = 0.001;
     for (int i = 0; i <= epoch; i++)
     {
@@ -73,11 +73,12 @@ int main()
         optimizer_step(module, lr);
 
         module_zero_grad(module);
-
         tensor_free(l1);
-        tensor_free(r);
+        tensor_free(r);      // <-- Leaked tensor from first ReLU
         tensor_free(l2);
-        tensor_free(r2);
+        tensor_free(r2);     // <-- Leaked tensor from second ReLU
+        tensor_free(sub);    // <-- This was also leaking
+        tensor_free(pow);    // <-- This was also leaking
         tensor_free(pred);
         tensor_free(loss);
     }
