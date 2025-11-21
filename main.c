@@ -45,17 +45,19 @@ int main()
     Tensor *data_t = tensor_from_arr(data, data_shape, 3, dtype, device);
     Tensor *label_t = tensor_from_arr(labels, label_shape,2, dtype, device);
     Module *module = module_constructor();
+    Allocated_tensors At;
+    At.ptrs = NULL;
     int epoch = 2;
     float lr = 0.001;
     for (int i = 0; i <= epoch; i++)
     {
         // forward operations
 
-        Tensor *l1 = Linear(module, data_t, 2, 1, 0);
+        Tensor *l1 = Linear(module, data_t, 2, 1, 0, &At);
         Tensor *r = tensor_relu(l1);
-        Tensor *l2 = Linear(module, r, 2, 1, 1);
+        Tensor *l2 = Linear(module, r, 2, 1, 1, &At);
         Tensor *r2 = tensor_relu(l2);
-        Tensor *pred = Linear(module, r2, 1, 1, 2);        
+        Tensor *pred = Linear(module, r2, 1, 1, 2, &At);        
 
         // Loss function
 
@@ -82,6 +84,7 @@ int main()
         tensor_free(pred);
         tensor_free(loss);
     }
+        free_allocated_tensors(&At);
     tensor_free(label_t);
     tensor_free(data_t);
     module_free(module);

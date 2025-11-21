@@ -14,7 +14,7 @@ size_t parameters_len(Tensor **parameters);
 Module *module_constructor();
 Tensor *module_parameter(Module *m, Tensor *a, int requires_grad);
 void    parameters_print(Tensor **parameters);
-Tensor *Linear(Module *m, Tensor *x, int64_t out_features, int bias, int layer);
+Tensor *Linear(Module *m, Tensor *x, int64_t out_features, int bias, int layer, Allocated_tensors *Al);
 Tensor *tensor_relu(Tensor *x);
 Tensor *calc_relu(Tensor *a);
 Tensor *mse(Tensor *y, Tensor *y_pred);

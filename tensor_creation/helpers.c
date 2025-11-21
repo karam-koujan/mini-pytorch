@@ -136,3 +136,60 @@ double rand_uniform(double a, double b) {
     // Scale and shift to the desired range [a, b]
     return a + u * (b - a);
 }
+
+
+
+size_t allocated_tensors_len(Allocated_tensors *lst)
+{
+    size_t count = 0;
+    if (!lst )
+        return (0);
+    if (!lst->ptrs)
+        return (0);
+    for (size_t i = 0; lst->ptrs[i] != NULL; i++)
+    {
+        count++;
+    }
+    return (count);
+}
+
+void add_tensor(Allocated_tensors *lst, Tensor *a)
+{
+    size_t nmemb = allocated_tensors_len(lst);
+    Tensor **new_tensors;
+    if (nmemb == 0)
+    {
+        nmemb = 1;
+    }else
+    {
+        nmemb = nmemb + 1;
+    }
+    new_tensors = calloc(nmemb + 1, sizeof(Tensor *));
+    if (!new_tensors)
+        return;
+    if (!lst->ptrs)
+    {
+        new_tensors[0] = a;
+        new_tensors[1] = NULL;
+    }
+    else
+    {
+        memcpy(new_tensors, lst->ptrs, (nmemb) * sizeof(Tensor *));
+        new_tensors[nmemb - 1] = a;
+        new_tensors[nmemb ]  = NULL;
+    }
+    free(lst->ptrs);
+    lst->ptrs = new_tensors;
+}
+
+void free_allocated_tensors(Allocated_tensors *lst)
+{
+    size_t nmemb = allocated_tensors_len(lst);
+    if (!lst->ptrs)
+        return;
+    for (size_t i = 0; i < nmemb; i++)
+    {
+        tensor_free(lst->ptrs[i]);
+    }
+    free(lst->ptrs);
+}

@@ -56,7 +56,7 @@ Module *module_constructor()
 }
 
 
-Tensor *Linear(Module *m, Tensor *x, int64_t out_features, int bias, int layer)
+Tensor *Linear(Module *m, Tensor *x, int64_t out_features, int bias, int layer, Allocated_tensors *Al)
 {
     if (!m || !x)
         return (NULL);
@@ -91,6 +91,7 @@ Tensor *Linear(Module *m, Tensor *x, int64_t out_features, int bias, int layer)
     Tensor *y = tensor_matmul(x, weights);
     if (bias)
     {
+        add_tensor(Al, y);
         y = tensor_add(y, bias_t);
     }
     return y;

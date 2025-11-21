@@ -56,6 +56,12 @@ typedef struct Node
 	Tensor **(*calculate_gradient)(struct Node *node,Tensor *grad);
 }	Grad_Node;
 
+typedef struct Allocated_Ptrs
+{
+	Tensor **ptrs;
+}	Allocated_tensors;
+
+
 
 int 	sizeof_type(Dtype type);
 int64_t calculate_size(const int64_t *shape, int64_t ndim);
@@ -151,4 +157,6 @@ Tensor **tensor_backsum(Grad_Node *node, Tensor*grad);
 Grad_Node	*create_relu_node(Tensor *a);
 Tensor **tensor_backrelu(Grad_Node *node, Tensor*grad);
 Tensor *mse(Tensor *y, Tensor *y_pred);
+void add_tensor(Allocated_tensors *lst, Tensor *a);
+void free_allocated_tensors(Allocated_tensors *lst);
 #endif
