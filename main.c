@@ -47,7 +47,7 @@ int main()
     Module *module = module_constructor();
     Allocated_tensors At;
     At.ptrs = NULL;
-    int epoch = 2;
+    int epoch = 2000;
     float lr = 0.001;
     for (int i = 0; i <= epoch; i++)
     {
