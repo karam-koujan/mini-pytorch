@@ -33,7 +33,6 @@ This project is intended for educational purposes to understand the inner workin
         -   [`parameters_print`](#parameters_print)
         -   [`module_free`](#module_free)
 -   [Putting It All Together: A Complete Example](#putting-it-all-together-a-complete-example)
--   [Known Issues](#known-issues)
 
 ## Features
 
@@ -449,7 +448,3 @@ int main()
     return 0;
 }
 ```
-
-## Known Issues
-
-⚠️ **Memory Management**: This project currently has known memory leaks. The tensor and module freeing logic is not complete, and running complex models or long training loops will result in significant memory consumption. This is a key area that needs to be addressed for the library to be more robust.

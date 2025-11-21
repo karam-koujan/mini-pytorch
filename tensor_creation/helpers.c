@@ -68,7 +68,6 @@ Tensor *tensor_deep_copy(Tensor *a)
         return (NULL);
     }
     Tensor *r = tensor_constructor(a->shape, a->num_dims, a->dtype, a->device);
-
     void *data = malloc(a->size * sizeof_type(a->dtype));
     r->grad_fn = NULL;
     if (!data)
@@ -76,8 +75,6 @@ Tensor *tensor_deep_copy(Tensor *a)
         r->prebroadcast_shape = NULL;
         r->prebroadcast_stride = NULL;
         r->data = NULL;
-        r->shape = NULL;
-        r->strides = NULL;
         r->grad = NULL;
         return (tensor_free(r), NULL);
     }

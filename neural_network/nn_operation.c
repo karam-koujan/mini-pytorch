@@ -29,6 +29,7 @@ Tensor *calc_relu(Tensor *a)
 
         }
     }
+    
     return r;
 }
 
@@ -39,8 +40,6 @@ Tensor *tensor_relu(Tensor *x)
     Tensor *r = calc_relu(x);
     r->grad_fn = x->requires_grad ? create_relu_node(x) : NULL;
     r->is_leaf = 0;
-    if (x->requires_grad)
-        tensor_set_require_grad(r, 1);
     return r;
 }
 
