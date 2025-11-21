@@ -67,10 +67,7 @@ Tensor *tensor_deep_copy(Tensor *a)
         error_msg("you entred an empty tensor");
         return (NULL);
     }
-    Tensor *r = malloc(sizeof(Tensor));
-    if (!r)
-        return (NULL);
-    memcpy(r, a, sizeof(Tensor));
+    Tensor *r = tensor_constructor(a->shape, a->num_dims, a->dtype, a->device);
 
     void *data = malloc(a->size * sizeof_type(a->dtype));
     r->grad_fn = NULL;
@@ -96,19 +93,7 @@ Tensor *tensor_deep_copy(Tensor *a)
         r->grad = NULL;
         return (tensor_free(r), NULL);
     }
-    memcpy(shape, a->shape, a->num_dims * sizeof(int64_t));
-    r->shape = shape;
-    int64_t *strides = malloc(a->num_dims * sizeof(int64_t));
-    if (!strides)
-    {
-        r->prebroadcast_shape = NULL;
-        r->prebroadcast_stride = NULL;
-        r->strides = NULL;
-        r->grad = NULL;
-        return (tensor_free(r), NULL);
-    }
-    r->strides = strides;
-    memcpy(strides, a->strides, a->num_dims * sizeof(int64_t));
+    
     Tensor  *grad = NULL;
     if (a->grad)
     {
@@ -121,7 +106,8 @@ Tensor *tensor_deep_copy(Tensor *a)
             return (tensor_free(r), NULL);
         }
     }
-    r->grad = NULL;
+    r->grad = grad;
+    r->is_leaf = a->is_leaf;
     if (a->is_broadcasted)
     {
         r->prebroadcast_shape = malloc(a->prebroadcast_dims * sizeof(int64_t));
@@ -136,6 +122,42 @@ Tensor *tensor_deep_copy(Tensor *a)
         memcpy(r->prebroadcast_stride, a->prebroadcast_stride, a->prebroadcast_dims * sizeof(int64_t));
     }
     r->grad_fn = NULL;
+    if (a->grad_fn)
+    {
+        r->grad_fn = malloc(sizeof(Grad_Node));
+        memcpy(r->grad_fn, a->grad_fn, sizeof(Grad_Node));
+        Grad_Node *grad_n = r->grad_fn;
+        Grad_Node *grad_a = a->grad_fn;
+        grad_n->saved_tensors = calloc(2, sizeof(Tensor));
+        if (grad_a->saved_tensors[0])
+        {
+            grad_n->saved_tensors[0] = malloc(sizeof(Tensor));
+            memcpy(grad_n->saved_tensors[0], grad_a->saved_tensors[0], sizeof(Tensor));
+        }
+        if (grad_a->saved_tensors[1])
+        {
+            grad_n->saved_tensors[1] = malloc(sizeof(Tensor));
+            memcpy(grad_n->saved_tensors[1], grad_a->saved_tensors[1], sizeof(Tensor));
+        }
+        if (grad_a->broadcasted_tensor_a)
+        {
+            grad_n->broadcasted_tensor_a = malloc(sizeof(Tensor));
+            memcpy(grad_n->broadcasted_tensor_a, grad_a->broadcasted_tensor_a, sizeof(Tensor));
+        }
+        else
+        {
+            grad_n->broadcasted_tensor_a = NULL;
+        }
+        if (grad_n->broadcasted_tensor_b)
+        {
+            grad_n->broadcasted_tensor_b = malloc(sizeof(Tensor));
+            memcpy(grad_n->broadcasted_tensor_b, grad_a->broadcasted_tensor_b, sizeof(Tensor));
+        }else
+        {
+            grad_n->broadcasted_tensor_b = NULL;
+        }
+        grad_n->calculate_gradient = grad_a->calculate_gradient;
+    }
     return (r);
 }
 
