@@ -361,7 +361,11 @@ int main()
         Tensor *l2 = Linear(module, r1, 2, 1, 1, &At);
         Tensor *r2 = tensor_relu(l2);
         Tensor *pred = Linear(module, r2, 1, 1, 2, &At);
-
+        if (i == 0)
+        {
+            printf("first prediction before training: \n");
+            tensor_print(pred);
+        }
         // === LOSS CALCULATION (Sum of Squared Errors) ===
         Tensor *sub = tensor_sub(label_t, pred);
         Tensor *pow = tensor_mul(sub, sub);
@@ -416,5 +420,6 @@ int main()
     module_free(module);
 
     return 0;
+
 }
 ```

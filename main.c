@@ -47,7 +47,7 @@ int main()
     Module *module = module_constructor();
     Allocated_tensors At;
     At.ptrs = NULL;
-    int epoch = 2000;
+    int epoch = 2;
     float lr = 0.001;
     for (int i = 0; i <= epoch; i++)
     {
@@ -75,16 +75,16 @@ int main()
         optimizer_step(module, lr);
 
         module_zero_grad(module);
-        tensor_free(loss);
-        tensor_free(pow);    // <-- This was also leaking
         tensor_free(sub);    // <-- This was also leaking
+        tensor_free(pow);    // <-- This was also leaking
+        tensor_free(loss);
         tensor_free(pred);
-        tensor_free(r2);     // <-- Leaked tensor from second ReLU
         tensor_free(l2);
         tensor_free(l1);
         tensor_free(r);      // <-- Leaked tensor from first ReLU
+        tensor_free(r2);     // <-- Leaked tensor from second ReLU
     }
-    free_allocated_tensors(&At);
+        free_allocated_tensors(&At);
     tensor_free(label_t);
     tensor_free(data_t);
     module_free(module);
